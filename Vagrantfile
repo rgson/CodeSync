@@ -7,10 +7,13 @@ rm -rf /var/www/html
 ln -fs /vagrant/website/public /var/www/html
 sudo php5enmod mcrypt
 sudo service apache2 restart
+echo "CREATE DATABASE kodeditor" | mysql -u root -proot
 SETUP
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "ubuntu/trusty32"
   config.vm.provision "shell", inline: $setup
   config.vm.network :forwarded_port, host: 8080, guest: 80
+  config.vm.synced_folder ".", "/vagrant", :mount_options => ["dmode=777","fmode=666"]
+  config.vm.hostname = "vagrant"
 end
