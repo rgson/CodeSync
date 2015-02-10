@@ -6,6 +6,18 @@ apt-get install -y apache2 mysql-server libapache2-mod-auth-mysql php5-mysql php
 rm -rf /var/www/html
 ln -fs /vagrant/website/public /var/www/html
 sudo php5enmod mcrypt
+sudo a2enmod rewrite
+cat >/etc/apache2/sites-available/000-default.conf <<EOL
+<VirtualHost *:80>
+	ServerAdmin webmaster@localhost
+	DocumentRoot /var/www/html
+	ErrorLog /error.log
+	CustomLog /access.log combined
+	<Directory /var/www/html >
+		AllowOverride All
+	</Directory>
+</VirtualHost>
+EOL
 sudo service apache2 restart
 echo "CREATE DATABASE kodeditor" | mysql -u root -proot
 SETUP
