@@ -1,0 +1,18 @@
+<?php namespace App\Http\Controller\Chat;
+
+use App\Http\Controller;
+
+class ChatController extends Controller {
+
+public function index() 
+{
+
+}
+
+public function create()
+{
+	$messages = Message::All();
+
+	return View::make('messages.index', ['messages' => $messages]);
+}
+
