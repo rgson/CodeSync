@@ -21,11 +21,6 @@ class CreateProjaccTable extends Migration {
 			$table->foreign('projid')->references('id')->on('projects');
 			$table->foreign('userid')->references('id')->on('users');
 		});
-
-		Schema::table('projacc', function(Blueprint $table)
-		{
-			
-		});
 	}
 
 	/**
