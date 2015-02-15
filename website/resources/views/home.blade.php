@@ -15,10 +15,10 @@
 			</div>
 			<div>
 			<style> 
-			.class table {
+			.exempel table {
 				width: 100%;
 			}
-			.class table, th, tr, td{
+			.exempel table, th, tr, td{
 				 padding: 5px;
 			}
 			
