@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+<head>
+	<title>DocSync 2</title>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1>DocSync 2</h1>
+<p>This document describes the DocSync (v2) protocol.</p>
+<p>Each message type shows examples for both requests and responses. When only one example is given, requests and responses are identical.</p>
+
+<h2>File synchronization</h2>
+<p>Messages in this section are mostly request/response-based and each message sent by the client warrants a response from the server.</p>
+
+<h3>User authentication</h3>
+<pre>
+{
+	"type": "user.auth",
+	"session": "feaf7esa6fs67fes87f"
+}
+</pre>
+<pre>
+{
+	"type": "user.auth",
+	"success": "true"
+}
+</pre>
+
+<h3>Document initialization</h3>
+<pre>
+{
+	"type": "doc.init",
+	"doc": "1"
+}
+</pre>
+<pre>
+{
+	"type": "doc.init",
+	"doc": "1",
+	"body": "Hello World!"
+}
+</pre>
+
+<h3>Document synchronization</h3>
+<p>Versions are named from the sender's perspective.</p>
+<pre>
+{
+	"type": "doc.sync",
+	"doc": "1",
+	"remotev": "4",
+	"edits":[
+		{
+			"localv": "1",
+			"patch": "@@ -1,7 +1,6 @@
+			-Goo
+			+Ba
+			d do",
+			"hash": "fdsaf7s8f7d8sfs6fd90s98af"
+		},
+		{
+			"localv": "2",
+			"patch": "@@ -1,7 +1,6 @@
+			-Goo
+			+Ba
+			d do",
+			"hash": "fdsaf7s8f7d8sfs6fd90s98af"
+		}
+	]
+}
+</pre>
+
+<h2>Project subscriptions</h2>
+<p>Messages under this section are broadcast-based and the client should not expect a direct answer from the server. Instead, once the requested action has been carried out, each client subscribing to the project will be sent a broadcast detailing the action. The sender of the original action will also receive this, effectively confirming the action's successfulness.</p>
+
+<h3>File creation</h3>
+<pre>
+{
+	"type": "file.create",
+	"path": "path/to/file"
+}
+</pre>
+<pre>
+{
+	"type": "file.create",
+	"doc": "2",
+	"path": "path/to/file"
+}
+</pre>
+
+<h3>File deletion</h3>
+<pre>
+{
+	"type": "file.delete",
+	"doc": "1"
+}
+</pre>
+
+<h3>File moving/renaming</h3>
+<pre>
+{
+	"type": "file.move",
+	"doc": "1",
+	"path": "new/path/to/file"
+{
+</pre>
+
+<h3>File subscription</h3>
+<p>A <span class="mono">file.open</span> message request implies a <span class="mono">doc.init</span> request on the same document.</p>
+<pre>
+{
+	"type": "file.open",
+	"doc": "1"
+}
+</pre>
+<pre>
+{
+	"type": "file.open",
+	"doc": "1",
+	"user": "1"
+}
+</pre>
+
+<h3>File unsubscription</h3>
+<pre>
+{
+	"type": "file.close",
+	"doc": "1"
+}
+</pre>
+<pre>
+{
+	"type": "file.close",
+	"doc": "1",
+	"user": "1"
+}
+</pre>
+
+<style type="text/css" scoped>
+body {
+	margin-left: 10vw;
+	margin-right: 10vw;
+	background-color: #f5f5f5;
+	color: #3e3e3e;
+	font-family: sans-serif;
+}
+h1, h2, h3 {
+	margin-bottom: 0;
+}
+pre {
+	background-color: #3e3e3e;
+	color: #f5f5f5;
+	tab-size: 2;
+	padding: 1em;
+}
+pre, .mono {
+	font-family: 'Source Code Pro', monospace;
+}
+</style>
+
+</body>
+</html>
