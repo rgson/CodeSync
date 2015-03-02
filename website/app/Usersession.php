@@ -3,31 +3,36 @@
 use Illuminate\Database\Eloquent\Model;
 
 class Usersession extends Model {
-
-	public static function insertUserAndSession($userid, $usersession)
+	protected $table = 'usersession';
+	protected $fillable = ['userid', 'usersession'];
+	public function scopeHandleUserAndSession() #is called as "::handleUserAndSession()
 	{
-		\DB::table('usersession')->insert(
-    		array(
-    			'userid' => $userid,
-    			'usersession' => $usersession)
-		);
+		$userid = \Auth::user()->id;
+		
+		Usersession::where('userid', '=', $userid)->delete();
+
+		do {
+			$usersession = uniqid(null, true);			
+		}
+		while($this->duplicateSessionExists($usersession));
+		
+		Usersession::create(['userid' => $userid,'usersession' => $usersession]);
+		
 	}
 
-	public static function getUser($userid)
+	private function duplicateSessionExists($usersession)
 	{
-		$userExist = \DB::table('usersession')->where('userid', $userid)->first();
-		
-		if(is_null($userExist)){
+		$sessionExist = \DB::table('usersession')->where('usersession', $usersession)->first();
+	
+		if(is_null($sessionExist)){
 			return false;
 		}
 		else {		
-			return true;;
+			return true;
 		}
 	}
 
-	public static function deleteUserAndSession($userid)
-	{
-		\DB::table('usersession')->where('userid', $userid)->delete();
-	}
 
 }
+
+

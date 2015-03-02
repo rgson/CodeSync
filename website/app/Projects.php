@@ -9,4 +9,13 @@ class Projects extends Model {
 		return Projects::join('projacc', 'id', '=', 'projacc.projid')->
 		where('projacc.userid', "=", \Auth::user()->id)->get();
 	}
+
+	public function getProject($ownerId, $projectName)
+	{
+		return Projects::join('projacc', 'id', '=', 'projacc.projid')
+		->where('projacc.userid', '=', \Auth::user()->id)
+		->where('projects.owner', '=', $ownerId)
+		->where('projects.name', '=', $projectName)
+		->get();
+	}
 }

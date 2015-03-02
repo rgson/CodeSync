@@ -16,7 +16,7 @@ class CreateProjectsTable extends Migration {
 		{
 			$table->increments('id');
 			$table->string('name');
-			$table->string('owner');
+			$table->integer('owner')->length(10)->unsigned();
 			$table->timestamps();
 		});
 	}
