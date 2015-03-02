@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Projects;
 class HomeController extends Controller {
 
 	/*
@@ -30,7 +31,9 @@ class HomeController extends Controller {
 	 */
 	public function index()
 	{
-		return view('home');
+		$projects = Projects::projects();
+		
+		return view('home')->with('projects', $projects);
 	}
 
 }

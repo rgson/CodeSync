@@ -15,11 +15,7 @@ Route::get('/', 'WelcomeController@index');
 
 Route::get('home', 'HomeController@index');
 
-/*Route::controllers ([
-	'chat' => 'Chat\ChatController'
-	]);*/
-
-Route::get('messages', 'Chat\ChatController@index');
+Route::get('chatMessage', 'ChatController@index');
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',

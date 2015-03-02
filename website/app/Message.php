@@ -1,28 +1,31 @@
-<? php namespace App;
+<?php namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
 class Message extends Model {
 
-	/**
-	 * The database table used by the model.
-	 *
-	 * @var string
-	 */
-	protected $table = 'chat_messages';
+	public function insert($from, $project, $msg)
+	{
+		 \DB::table('message')->insert([
+			'from' => $from,
+			'project' => $project,
+			'msg ' => $msg
+			]);
+	} 
 
-	/**
-	 * The attributes that are mass assignable.
-	 *
-	 * @var array
-	 */
-	protected $fillable = ['from', 'msg'];
+	public function deleteMsg($msgId) {
+		\DB::table('message')->where('Id', $msgId)->delete();
 
-	/**
-	 * The attributes excluded from the model's JSON form.
-	 *
-	 * @var array
-	 */
-	protected $hidden = ['id', 'project'];
+	}
+
+	public function getAllMsg() {
+		 return \DB::table('message')->get();
+		 
+	}
+
+	public function findSingleMsg($name) {
+			return \DB::table('message')->where('from', $name)->first();
+	}
+	
 
 }
