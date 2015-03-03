@@ -25,13 +25,16 @@
 			</style>
 					<table class='exempel'>
 					<tr>
-						<th>Project name</th><th>Owner</th>
+						<th>Project name</th><th>Owner</th><th>Placeholder</th>
 					</tr>
-					
+						<?php $counter = 0; ?>
 						@foreach ($projects as $project)
 						<tr>
 							<td>{{ $project->name }}</td>
-							<td>{{ $project->owner }}</td>
+							<td>{{ $ownerNames[$project->owner][0]->ownername }}</td>
+							<td>{{ HTML::link('/project/$project->id/$project->name') }}</td>
+							<td>{{ HTML::link('/') }}</td>
+							project/{ownerId}/{name}
 						<tr>
 						@endforeach
 						

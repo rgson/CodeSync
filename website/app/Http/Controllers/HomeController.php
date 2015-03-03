@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 use App\Projects;
+use App\User;
 class HomeController extends Controller {
 
 	/*
@@ -21,6 +22,7 @@ class HomeController extends Controller {
 	public function __construct()
 	{
 		$this->middleware('auth');
+			
 
 	}
 
@@ -30,11 +32,28 @@ class HomeController extends Controller {
 	 * @return Response
 	 */
 	public function index()
-	{		 		
-		$projects = Projects::projects();
+	{
+		$Projects = new Projects;
+		$projects = $Projects->getProjects();		
+	
+		$ownerNames = $this->ownerName($Projects, $projects);
+	
+		return view('home')
+		->with('projects', $projects)
+		->with('ownerNames', $ownerNames);
 		
-		return view('home')->with('projects', $projects);
 
 	}
 
+	private function ownerName($P, $projects)
+	{
+		$arr = array();	
+		foreach ($projects as $key => $value) {
+						
+			$arr[$value->owner] = $P->getProjectOwnerName($value);
+		
+		}
+
+		return $arr;
+	}
 }
