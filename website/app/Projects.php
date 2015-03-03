@@ -13,10 +13,9 @@ class Projects extends Model {
 	public function getProject($ownerId, $projectName)
 	{
 		return Projects::join('projacc', 'id', '=', 'projacc.projid')
-		->where('projacc.userid', '=', \Auth::user()->id)
-		->where('projects.owner', '=', $ownerId)
+		->where('projacc.userid', '=', \Auth::user()->id)		
 		->where('projects.name', '=', $projectName)
-		->get();
+		->first();
 	}
 
 	public function getProjectOwnerName($project){

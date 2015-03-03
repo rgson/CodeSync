@@ -8,7 +8,7 @@
 				<div class="panel-heading">Editor</div>
 
 				<div class="panel-body">
-					You are logged in!
+					Kodeditorsidan
 					
 				</div>
 				

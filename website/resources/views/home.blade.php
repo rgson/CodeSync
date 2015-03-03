@@ -25,16 +25,16 @@
 			</style>
 					<table class='exempel'>
 					<tr>
-						<th>Project name</th><th>Owner</th><th>Placeholder</th>
-					</tr>
-						<?php $counter = 0; ?>
+						<th>Project name</th><th>Owner</th><th>Placeholder</th><th>Placeholder2</th>
+					</tr>		
 						@foreach ($projects as $project)
+						
 						<tr>
 							<td>{{ $project->name }}</td>
 							<td>{{ $ownerNames[$project->owner][0]->ownername }}</td>
-							<td>{{ HTML::link('/project/$project->id/$project->name') }}</td>
-							<td>{{ HTML::link('/') }}</td>
-							project/{ownerId}/{name}
+							<td>{!! HTML::linkaction('EditorController@project', 'Open', array($project->id, $project->name)) !!}</td>
+							<td>Klick på hela tr (inte bara td?) visar info (inte reload)? T.ex. users</td>
+							
 						<tr>
 						@endforeach
 						

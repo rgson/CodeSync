@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 use App\Projects;
 use App\User;
+use App\Projacc;
 class HomeController extends Controller {
 
 	/*
@@ -27,22 +28,23 @@ class HomeController extends Controller {
 	}
 
 	/**
-	 * Show the application dashboard to the user.
+	 * Show the projects.
 	 *
 	 * @return Response
 	 */
 	public function index()
 	{
 		$Projects = new Projects;
+		$ProjectUsers = new Projacc;
+
 		$projects = $Projects->getProjects();		
-	
+		$projectUsers = $ProjectUsers->getAllUsersWithAccess(1); #using projid. Will be moved 
+																#and used when clicking a project in the list		
 		$ownerNames = $this->ownerName($Projects, $projects);
 	
 		return view('home')
 		->with('projects', $projects)
-		->with('ownerNames', $ownerNames);
-		
-
+		->with('ownerNames', $ownerNames);		
 	}
 
 	private function ownerName($P, $projects)
