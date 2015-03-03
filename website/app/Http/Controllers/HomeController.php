@@ -34,10 +34,11 @@ class HomeController extends Controller {
 	 */
 	public function index()
 	{
-		$Projects = new Projects;
-		$ProjectUsers = new Projacc;
+		$Projects = new Projects;		
 
-		$projects = $Projects->getProjects();		
+		$projects = $Projects->getProjects();	
+
+		$ProjectUsers = new Projacc;	
 		$projectUsers = $ProjectUsers->getAllUsersWithAccess(1); #using projid. Will be moved 
 																#and used when clicking a project in the list		
 		$ownerNames = $this->ownerName($Projects, $projects);

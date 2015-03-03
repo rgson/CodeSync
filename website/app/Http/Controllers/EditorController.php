@@ -30,7 +30,7 @@ class EditorController extends Controller {
 	public function project($ownerId, $projectName)
 	{
 		$projectName = rawurldecode($projectName);
-		var_dump($this->checkProjectAccess($ownerId, $projectName));
+		
 		if(!$this->checkProjectAccess($ownerId, $projectName)){ ## check if access, else 404
 			return view('errors/404');
 		} 
