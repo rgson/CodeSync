@@ -14,9 +14,9 @@
 Route::get('/', 'WelcomeController@index');
 
 Route::get('home', 'HomeController@index');
-Route::get('project/{ownerId}/{name}', 'EditorController@project');
+Route::get('/{ownerId}/{name}', 'EditorController@project');
 
-Route::get('projects/members', 'ProjectsController@getMembers');
+Route::get('project/{projectid}/members', 'ProjectsController@getMembers');
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',

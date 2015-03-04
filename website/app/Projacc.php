@@ -9,7 +9,9 @@ class Projacc extends Model {
 	public function getAllUsersWithAccess($projid)
 	{
 		return Projacc::join('users', 'userid', '=', 'users.id')
+		->join('projects', 'projid', '=', 'projects.id')
 		->where('projacc.projid', '=', $projid)
-		->get(array('users.name'));
+		->orderBy('name', 'asc')
+		->get(array('users.name', 'users.id', 'projects.owner'));
 	}
 }

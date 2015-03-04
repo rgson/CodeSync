@@ -1,20 +1,7 @@
 <?php namespace App\Http\Controllers;
-use Illuminate\Support\Facades\Input;
-use App\Projects;
-use App\User;
+
 use App\Projacc;
 class ProjectsController extends Controller {
-
-	/*
-	|--------------------------------------------------------------------------
-	| Home Controller
-	|--------------------------------------------------------------------------
-	|
-	| This controller renders your application's "dashboard" for users that
-	| are authenticated. Of course, you are free to change or remove the
-	| controller as you wish. It is just here to get your app started!
-	|
-	*/
 
 	/**
 	 * Create a new controller instance.
@@ -28,11 +15,14 @@ class ProjectsController extends Controller {
 
 	}
 
-	public function getMembers() { 
-		$members = Input::get('members');
+	public function getMembers($projid) { 
+		
+		$projacc = new Projacc;	
+		$members = $projacc->getAllUsersWithAccess($projid);
+		$members = json_decode($members);
+		$members['authuser'] = \Auth::user()->id;
+		$members = json_encode($members);
 		echo $members;
-
-	
 	}
 
 

@@ -11,65 +11,71 @@
 				
 			</div>
 			<style> 
-			.exempel {
+			.projects {
 				box-shadow: 10px 10px 5px #888888;
 				float: left;
 				width: 78%;
 			}
-			.exempel table, th, tr, td{
+			.projects table, th, tr, td{
 				 padding: 5px;
 			}
-			.exempel tr {
+			.projects tr {
 				cursor: pointer;
 				border: solid 1px;
 			}
 
-			.list {
+			#members {
 				width: 18%;
-				float:left;
+				height: 300px;
+				float: left;
 				margin-left: 20px;
-				
-			}
-			.list ul {
-				list-style-type: none;
-				border: solid 1px;
-				background-color: lightgrey;
+				background-color: #F5F5F5;
 			}
 
-			.list ul li {
-				width: 100px;
-				height: 30px;
+
+			#projectmembers table, th, tr, td{
+				width: 100%;
+				padding: 5px;
+			}
+
+			#projectmembers tr {
+				
 				
 			}
-			.list p {
-				text-decoration: bold;
+			.removeuser{
+				cursor: pointer;
 			}
+
+			.selected{
+				background-color: lightblue;
+			}
+			
+
+		
 
 			</style>
-			<div>
-			
-			
-		
-					<table class='exempel'>
+			<div>	
+					<table class='projects'>
 					<tr>
-						<th>Project name</th><th>Owner</th><th>Placeholder</th><th>Placeholder2</th>
+						<th>Project name</th><th>Owner</th>
 					</tr>		
 						@foreach ($projects as $project)
 						
 						<tr class='projdata' data-value={{ $project->id }}>
 							<td>{!! HTML::linkaction('EditorController@project', $project->name, array($project->id, $project->name)) !!}</td>
 							<td>{{ $ownerNames[$project->owner][0]->ownername }}</td>
-							<td></td>		
-							<td></td>				
+					
 						<tr>
 						@endforeach
 						
 					</table>
 				</div>
-				<div class='list'>
-					<p>Members</p>
-					{!! HTML::ul(array('a', 'b'), array('class' => 'mylist')) !!}
-					
+				<div id='members'>
+					<table id='projectmembers'>
+						<tr>
+							<th>Members</th><th>
+						</tr>																			
+					</table>									
 				</div>
 		</div>
 	</div>
