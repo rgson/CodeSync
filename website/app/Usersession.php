@@ -35,4 +35,3 @@ class Usersession extends Model {
 
 }
 
-

@@ -17,7 +17,11 @@ class CreateUserSessionTable extends Migration {
 			$table->integer('userid')->length(10)->unsigned();
 			$table->string('usersession');			
 			$table->timestamps();
+<<<<<<< HEAD
 			$table->primary('usersession');	
+=======
+			$table->primary('userid');	
+>>>>>>> dev-johan
 		});
 	}
 

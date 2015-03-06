@@ -1,7 +1,12 @@
 <?php namespace App\Http\Controllers;
+<<<<<<< HEAD
 use App\Projects;
 use App\User;
 use App\Projacc;
+=======
+
+use App\Projects;
+>>>>>>> dev-johan
 class HomeController extends Controller {
 
 	/*
@@ -34,6 +39,7 @@ class HomeController extends Controller {
 	 */
 	public function index()
 	{
+<<<<<<< HEAD
 		$Projects = new Projects;
 		$ProjectUsers = new Projacc;
 
@@ -45,6 +51,11 @@ class HomeController extends Controller {
 		return view('home')
 		->with('projects', $projects)
 		->with('ownerNames', $ownerNames);		
+=======
+		$projects = Projects::projects();
+		
+		return view('home')->with('projects', $projects);
+>>>>>>> dev-johan
 	}
 
 	private function ownerName($P, $projects)
