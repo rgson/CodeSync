@@ -8,7 +8,7 @@ class EditorController extends Controller {
 	| Editor Controller
 	|--------------------------------------------------------------------------
 	|
-	| Main controller page for the project
+	| Main controller page for the chosen project
 	|
 	*/
 
@@ -22,26 +22,27 @@ class EditorController extends Controller {
 		$this->middleware('auth');
 	}
 
+
 	/**
 	 * Show the editor page.
 	 *
 	 * @return Response
 	 */
-	public function project($ownerId, $projectName)
-	{
-		$projectName = rawurldecode($projectName);
+	public function project($projectid, $projectname)
+	}
+		#!! projectname not used !!
 		
-		if(!$this->checkProjectAccess($ownerId, $projectName)){ ## check if access, else 404
+		# check if access, else 404
+		if(!$this->checkProjectAccess($projectid))
 			return view('errors/404');
-		} 
-	
+		 	
 		Usersession::handleUserAndSession();
 		return view('editor');
 	}
 
-	private function checkProjectAccess($ownerId, $projectName){
+	private function checkProjectAccess($projectid){
 		$projects = new Projects;
-		return $projects->getProject($ownerId, $projectName); 
+		return $projects->getProject($projectid); 
 	}
 
 }

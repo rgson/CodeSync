@@ -5,7 +5,7 @@
 	<div class="row">
 		<div class="col-md-10 col-md-offset-1">
 			<div class="panel panel-default">
-				<div class="panel-heading">Dina projekt</div>
+				<div class="panel-heading">Your active projects</div>
 
 			
 				
@@ -14,7 +14,7 @@
 			.projects {
 				box-shadow: 10px 10px 5px #888888;
 				float: left;
-				width: 78%;
+				width: 77%;
 			}
 			.projects table, th, tr, td{
 				 padding: 5px;
@@ -25,17 +25,18 @@
 			}
 
 			#members {
-				width: 18%;
+				width: 20%;
 				height: 300px;
 				float: left;
 				margin-left: 20px;
-				background-color: #F5F5F5;
+				
 			}
 
 
 			#projectmembers table, th, tr, td{
 				width: 100%;
 				padding: 5px;
+
 			}
 
 			#projectmembers tr {
@@ -71,6 +72,7 @@
 					</table>
 				</div>
 				<div id='members'>
+				<p>test</p>
 					<table id='projectmembers'>
 						<tr>
 							<th>Members</th><th>

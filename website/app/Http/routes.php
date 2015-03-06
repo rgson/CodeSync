@@ -12,11 +12,13 @@
 */
 
 Route::get('/', 'WelcomeController@index');
-
 Route::get('home', 'HomeController@index');
-Route::get('/{ownerId}/{name}', 'EditorController@project');
+Route::get('/{projectid}/{name}', 'EditorController@project');
 
+# Project member endpoints
 Route::get('project/{projectid}/members', 'ProjectsController@getMembers');
+Route::delete('project/{projectid}/member/{userid}', 'ProjectsController@deleteMember');
+Route::post('project/{projectid}/member', 'ProjectsController@addMember');
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',

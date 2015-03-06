@@ -6,23 +6,24 @@ class Projects extends Model {
 
 	public function getProjects() 
 	{
-		return Projects::join('projacc', 'id', '=', 'projacc.projid')->
-		where('projacc.userid', "=", \Auth::user()->id)->get();
+		return Projects::join('projacc', 'id', '=', 'projacc.projid')		
+				->where('projacc.userid', "=", \Auth::user()->id)
+				->orderBy('name', 'asc')
+				->get();
 	}
 
-	public function getProject($ownerId, $projectName)
+	public function getProject($projectid)
 	{
 		return Projects::join('projacc', 'id', '=', 'projacc.projid')
-		->where('projacc.userid', '=', \Auth::user()->id)		
-		->where('projects.name', '=', $projectName)
-		->first();
+				->where('projacc.userid', '=', \Auth::user()->id)		
+				->where('projects.id', '=', $projectid)
+				->first();
 	}
 
-	public function getProjectOwnerName($project){
+	public function getProjectOwnerName($project)
+	{
 		return \DB::table('users')->select('name as ownername')
-						->where('id', '=', $project->owner)
-						->get();
-
-		
+				->where('id', '=', $project->owner)
+				->get();		
 	}
 }
