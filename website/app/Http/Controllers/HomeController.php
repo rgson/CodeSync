@@ -1,12 +1,9 @@
 <?php namespace App\Http\Controllers;
-<<<<<<< HEAD
-use App\Projects;
-use App\User;
-use App\Projacc;
-=======
 
-use App\Projects;
->>>>>>> dev-johan
+use App\Project;
+use App\User;
+use App\ProjectAccess;
+
 class HomeController extends Controller {
 
 	/*
@@ -28,7 +25,7 @@ class HomeController extends Controller {
 	public function __construct()
 	{
 		$this->middleware('auth');
-			
+
 
 	}
 
@@ -39,32 +36,26 @@ class HomeController extends Controller {
 	 */
 	public function index()
 	{
-<<<<<<< HEAD
-		$Projects = new Projects;
-		$ProjectUsers = new Projacc;
+		$Projects = new Project;
+		$ProjectUsers = new ProjectAccess;
 
-		$projects = $Projects->getProjects();		
-		$projectUsers = $ProjectUsers->getAllUsersWithAccess(1); #using projid. Will be moved 
-																#and used when clicking a project in the list		
+		$projects = $Projects->getProjects();
+		$projectUsers = $ProjectUsers->getAllUsersWithAccess(1); #using projid. Will be moved
+																#and used when clicking a project in the list
 		$ownerNames = $this->ownerName($Projects, $projects);
-	
+
 		return view('home')
 		->with('projects', $projects)
-		->with('ownerNames', $ownerNames);		
-=======
-		$projects = Projects::projects();
-		
-		return view('home')->with('projects', $projects);
->>>>>>> dev-johan
+		->with('ownerNames', $ownerNames);
 	}
 
 	private function ownerName($P, $projects)
 	{
-		$arr = array();	
+		$arr = array();
 		foreach ($projects as $key => $value) {
-						
+
 			$arr[$value->owner] = $P->getProjectOwnerName($value);
-		
+
 		}
 
 		return $arr;

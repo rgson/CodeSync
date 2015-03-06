@@ -1,7 +1,7 @@
 <?php namespace App\Http\Controllers;
-use App\Usersession;
-use App\Projects;
-class EditorController extends Controller {
+use App\UserSession;
+use App\Project;
+class ProjectController extends Controller {
 
 	/*
 	|--------------------------------------------------------------------------
@@ -27,21 +27,21 @@ class EditorController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function project($ownerId, $projectName)
+	public function index($ownerId, $projectName)
 	{
 		$projectName = rawurldecode($projectName);
 		var_dump($this->checkProjectAccess($ownerId, $projectName));
 		if(!$this->checkProjectAccess($ownerId, $projectName)){ ## check if access, else 404
 			return view('errors/404');
-		} 
-	
-		Usersession::handleUserAndSession();
+		}
+
+		UserSession::handleUserAndSession();
 		return view('editor');
 	}
 
 	private function checkProjectAccess($ownerId, $projectName){
-		$projects = new Projects;
-		return $projects->getProject($ownerId, $projectName); 
+		$projects = new Project;
+		return $projects->getProject($ownerId, $projectName);
 	}
 
 }
