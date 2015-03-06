@@ -3,29 +3,34 @@
 use Illuminate\Database\Eloquent\Model;
 
 class Message extends Model {
+	protected $table = "message";
 
-	public function insert($from, $project, $msg)
+	public function insertDb($from, $project, $msg)
 	{
+		$date = new \DateTime; //Creates a timestamp.
+
 		 \DB::table('message')->insert([
 			'from' => $from,
 			'project' => $project,
-			'msg ' => $msg
+			'msg' => $msg,
+			'created_at' => $date,
+			'updated_at' => $date
 			]);
-	} 
-
-	public function deleteMsg($msgId) {
-		\DB::table('message')->where('Id', $msgId)->delete();
-
 	}
 
-	public function getAllMsg() {
+	public function getAllMessages() {
 		 return \DB::table('message')->get();
 		 
 	}
 
-	public function findSingleMsg($name) {
-			return \DB::table('message')->where('from', $name)->first();
-	}
-	
+	public function findAllMessagesForProject($project) {
+		$message = \DB::table('message')->
+		where('project', '=', $project)->
+		orderBy('created_at', 'asc')->
+		take(100)->
+		get();
+		
+		return $message;
+	}	
 
 }

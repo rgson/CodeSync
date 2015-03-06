@@ -16,7 +16,7 @@ class ChatMessages extends Migration {
 		{
 			$table->increments('id');
 			$table->string('from');
-			$table->string('project');
+			$table->int('project')->length(10)->unsigned();
 			$table->string('msg');
 			$table->timestamps();
 		});
