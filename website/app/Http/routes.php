@@ -20,7 +20,7 @@ Route::get('chatMsg', 'ChatController@getAllMsg');
 
 Route::get('projectMsg/{project}', 'ChatController@getMsgForProject');
 
-Route::get('newMsg', 'ChatController@postNewMsg');
+Route::post('newMsg', 'ChatController@postNewMsg');
 
 Route::controllers([
 	'auth' => 'Auth\AuthController',

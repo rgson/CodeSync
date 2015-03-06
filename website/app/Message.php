@@ -33,4 +33,13 @@ class Message extends Model {
 		return $message;
 	}	
 
+	public function searchString($str) {
+		$value = str_contains($str, '##make');
+		if ($value) {
+			return true;
+		}
+
+		return false;
+	}
+
 }
