@@ -1,5 +1,5 @@
 <?php namespace App\Http\Controllers;
-use App\Projects;
+use App\Project;
 use App\User;
 class HomeController extends Controller {
 
@@ -22,11 +22,11 @@ class HomeController extends Controller {
 	 */
 	public function index()
 	{
-		$Projects = new Projects;		
+		$Project = new Project;		
 
-		$projects = $Projects->getProjects();	
+		$projects = $Project->getProjects();	
 	
-		$ownerNames = $this->ownerName($Projects, $projects);
+		$ownerNames = $this->ownerName($Project, $projects);
 	
 		return view('home')
 		->with('projects', $projects)

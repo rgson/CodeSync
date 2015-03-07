@@ -4,7 +4,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserSession extends Model {
 	protected $table = 'user_sessions';
-	protected $fillable = ['userid', 'usersession'];
+	protected $fillable = ['user', 'session'];
 	public function scopeHandleUserAndSession() #is called as "::handleUserAndSession()
 	{
 		$userid = \Auth::user()->id;
@@ -31,4 +31,5 @@ class UserSession extends Model {
 
 
 }
+
 

@@ -1,7 +1,7 @@
 <?php namespace App\Http\Controllers;
-use App\Projacc;
-use App\Projects;
-class ProjectsController extends Controller {
+use App\ProjectAccess;
+use App\Project;
+class ProjectAccessController extends Controller {
 
 	private $projacc;
 	/**
@@ -12,15 +12,15 @@ class ProjectsController extends Controller {
 	public function __construct()
 	{
 		$this->middleware('auth');
-		$this->projacc = new Projacc;			
+		$this->projacc = new ProjectAccess;			
 	}
 
-	public function getMembers($projid) 
+	public function get($projid) 
 	{ 										
 		echo $this->getAuthUserAndMembers($projid);		
 	}
 
-	public function deleteMember($projid, $userid) 
+	public function delete($projid, $userid) 
 	{
 		if($this->hasOwnerRights($projid))
 		{	
@@ -46,11 +46,9 @@ class ProjectsController extends Controller {
 
 	private function hasOwnerRights($projid) 
 	{
-		$owner = Projects::where(['id' => $projid, 'owner' => \Auth::user()->id])->first();
-		if(is_null($owner))
-			return false;
-		
-		return true;			
+		$owner = Project::where(['id' => $projid, 'owner' => \Auth::user()->id])->first();
+		return !is_null($owner);
+					
 	}
 }
 

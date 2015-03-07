@@ -13,25 +13,28 @@
 Route::get('/', 'WelcomeController@index');
 Route::get('welcome', 'WelcomeController@index');
 Route::get('home', 'HomeController@index');
-Route::get('{projectid}/{name}', 'ProjectController@index');
-Route::get('{projectid}', 'ProjectController@index');
+Route::get('{projectid}/{name?}', 'ProjectController@index')->where('projectid', '[0-9]+');
+Route::get('{projectid}', 'ProjectController@index')->where('projectid', '[0-9]+');
 Route::controllers([
 	'auth' => 'Auth\AuthController',
 	'password' => 'Auth\PasswordController',
 ]);
 // AJAX endpoints
-Route::get('projects', 'ProjectController@list');
+Route::get('projects', 'ProjectController@get');
 Route::post('projects', 'ProjectController@create');
-Route::get('project/{projectid}', 'ProjectController@details');
-Route::delete('project/{projectid}', 'ProjectController@delete');
-Route::get('project/{projectid}/members', 'ProjectAccessController@list');
-Route::post('project/{projectid}/members', 'ProjectAccessController@create');
-Route::delete('project/{projectid}/member/{userid}', 'ProjectAccessController@delete');
-Route::get('project/{projectid}/chat', 'ChatController@list');
-Route::post('project/{projectid}/chat', 'ChatController@create');
-Route::get('project/{projectid}/files', 'FileController@list');
-Route::post('project/{projectid}/files', 'FileController@create');
-Route::delete('project/{projectid}/file/{fileid}', 'FileController@delete');
+Route::get('project/{projectid}', 'ProjectController@details')->where('projectid', '[0-9]+');
+Route::delete('project/{projectid}', 'ProjectController@delete')->where('projectid', '[0-9]+');
+
+Route::get('project/{projectid}/members', 'ProjectAccessController@get')->where('projectid', '[0-9]+'); # i
+Route::post('project/{projectid}/members', 'ProjectAccessController@create')->where('projectid', '[0-9]+');
+Route::delete('project/{projectid}/member/{userid}', 'ProjectAccessController@delete')->where('projectid', '[0-9]+')->where('userid', '[0-9]+'); # i
+
+Route::get('project/{projectid}/chat', 'ChatController@get')->where('projectid', '[0-9]+');
+Route::post('project/{projectid}/chat', 'ChatController@create')->where('projectid', '[0-9]+');
+
+Route::get('project/{projectid}/files', 'FileController@get')->where('projectid', '[0-9]+');
+Route::post('project/{projectid}/files', 'FileController@create')->where('projectid', '[0-9]+');
+Route::delete('project/{projectid}/file/{fileid}', 'FileController@delete')->where('projectid', '[0-9]+')->where('fileid', '[0-9]+');
 // Obsolete endpoints (to be removed!)
 Route::get('chatMsg', 'ChatController@getAllMsg');
 Route::get('projectMsg/{project}', 'ChatController@getMsgForProject');

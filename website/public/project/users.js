@@ -57,10 +57,10 @@ function buildUserList(response, projectid){
 
 		if(member != auth){					
 			if(auth === member.owner && member.id !== auth){
-				$('#members table').append("<tr><td>" + member.name + "</td><td><img  class='removeuser' src='images/Remove-icon.png' alt='remove user' data-user='" + member.id + "' data-proj='" + projectid + "'></td></tr>")
+				$('#members table').append("<tr><td>" + member.username + "</td><td><img  class='removeuser' src='images/Remove-icon.png' alt='remove user' data-user='" + member.id + "' data-proj='" + projectid + "'></td></tr>")
 			} 
 			else {				
-				$('#members table').append("<tr><td>" + member.name + "</td></tr>")
+				$('#members table').append("<tr><td>" + member.username + "</td></tr>")
 			}
 		}
 	});

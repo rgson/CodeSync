@@ -63,7 +63,7 @@
 						@foreach ($projects as $project)
 						
 						<tr class='projdata' data-value={{ $project->id }}>
-							<td>{!! HTML::linkaction('EditorController@project', $project->name, array($project->id, $project->name)) !!}</td>
+							<td>{{ $project->name }}</td>
 							<td>{{ $ownerNames[$project->owner][0]->ownername }}</td>
 					
 						<tr>

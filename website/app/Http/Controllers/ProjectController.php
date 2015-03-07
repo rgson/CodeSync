@@ -5,7 +5,7 @@ class ProjectController extends Controller {
 
 	/*
 	|--------------------------------------------------------------------------
-	| Editor Controller
+	| Project Controller
 	|--------------------------------------------------------------------------
 	|
 	| Main controller page for the project
@@ -22,26 +22,27 @@ class ProjectController extends Controller {
 		$this->middleware('auth');
 	}
 
+
 	/**
 	 * Show the editor page.
 	 *
 	 * @return Response
 	 */
-	public function index($ownerId, $projectName)
-	{
-		$projectName = rawurldecode($projectName);
-		var_dump($this->checkProjectAccess($ownerId, $projectName));
-		if(!$this->checkProjectAccess($ownerId, $projectName)){ ## check if access, else 404
+	public function get($projectid, $projectname)
+	}
+		#!! projectname not used !!
+		
+		# check if access, else 404
+		if(!$this->checkProjectAccess($projectid))
 			return view('errors/404');
-		}
-
-		UserSession::handleUserAndSession();
+		 	
+		Usersession::handleUserAndSession();
 		return view('editor');
 	}
 
-	private function checkProjectAccess($ownerId, $projectName){
+	private function checkProjectAccess($projectid){
 		$projects = new Project;
-		return $projects->getProject($ownerId, $projectName);
+		return $projects->getProject($projectid); 
 	}
 
 }
