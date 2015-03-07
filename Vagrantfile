@@ -20,6 +20,12 @@ cat >/etc/apache2/sites-available/000-default.conf <<EOL
 EOL
 sudo service apache2 restart
 echo "CREATE DATABASE kodeditor" | mysql -u root -proot
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+cd /vagrant/website
+composer update
+php artisan migrate
+php artisan db:seed
 SETUP
 
 Vagrant.configure("2") do |config|

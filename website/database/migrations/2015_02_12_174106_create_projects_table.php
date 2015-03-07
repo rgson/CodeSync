@@ -18,7 +18,7 @@ class CreateProjectsTable extends Migration {
 			$table->string('name');
 			$table->integer('owner')->length(10)->unsigned();
 			$table->timestamps();
-			$table->foreign('owner')->references('id')->on('user');
+			$table->foreign('owner')->references('id')->on('users')->onDelete('cascade');
 		});
 	}
 
