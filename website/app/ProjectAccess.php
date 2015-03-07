@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 class ProjectAccess extends Model {
 
 	protected $table = 'project_access';
+	protected $fillable = ['project', 'user'];
 
 	public function getAllUsersWithAccess($projid) 
 	{

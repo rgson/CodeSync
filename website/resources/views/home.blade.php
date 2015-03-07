@@ -51,6 +51,18 @@
 				background-color: lightblue;
 			}
 			
+			#username{
+				float: left;
+				width: 80%;
+			}
+
+			#addmemberbtn {
+				float: left;
+				width: 17%;
+				text-indent: -999px;
+				background-image: url("images/add_user-icon.png");
+				background-size: 100% 100%;
+			}
 
 		
 
@@ -72,7 +84,11 @@
 					</table>
 				</div>
 				<div id='members'>
-				<p>test</p>
+				<div>
+						{!! Form::text('username', 'username', array('placeholder' => 'Username ..', 'id' => 'username')) !!}
+						{!! Form::submit('addmember', array('id' => 'addmemberbtn')) !!}
+				</div>
+				
 					<table id='projectmembers'>
 						<tr>
 							<th>Members</th><th>

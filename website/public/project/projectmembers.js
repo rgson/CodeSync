@@ -1,13 +1,13 @@
 $(document).ready(function(){
 
-// Remove the user on click
+// Delete the member on click
 $(document).on('click', '.removeuser', function(){
 
 	var projectid = $(this).data('proj');
 	var userid = $(this).data('user');
 
 	$.ajax({
-		url: '/project/' + projectid + '/member/' + userid,
+		url: 'project/' + projectid + '/member/' + userid,
 		data: {
 			'projectid' : projectid,
 			'userid' : userid
@@ -15,7 +15,7 @@ $(document).on('click', '.removeuser', function(){
 		cache: false,
 		type: 'DELETE',
 		success: function(response, projectid){			
-			buildUserList(response, projectid);			
+			buildMemberList(response, projectid);		
 		}
 		
 	});
@@ -24,6 +24,7 @@ $(document).on('click', '.removeuser', function(){
 
 // Get members for the selected project
 $('.projdata').click(function(){
+
 	var selected = $(this).hasClass('selected');
 	$('.projdata').removeClass('selected');
 	if(!selected){
@@ -33,23 +34,57 @@ $('.projdata').click(function(){
 	var projectid = $(this).data('value');
 	
 	$.ajax({
-		url: '/project/' + projectid + '/members',
+		url: 'project/' + projectid + '/members',
 		data: {
 			'projectid' : projectid
 		},
 		cache: false,
 		type: 'GET',
 		success: function(response){
-			buildUserList(response, projectid);	
+			buildMemberList(response, projectid);					
 		}
 		
 	});
 
 });
 
-function buildUserList(response, projectid){
-	$('#members tr').slice(1).remove();
+// Give an existing user member access
+$('#addmemberbtn').click(function(){	
+
+	var projectid = $('.selected').data('value'); // Get the value from the selected row
 	
+	var username = $('#username').val();
+
+	if(projectid == null || username == null) // No project chosen or no username input
+		return false;	
+
+	$.ajax({
+		url: 'project/' + projectid + '/members',
+		data: {
+			'projectid' : projectid,
+			'username' : username
+		},
+		cache: false,
+		type: 'POST',
+		success: function(response){
+			if(response == 'invalid'){
+				// add invalid class	
+			}
+			else
+			{
+				buildMemberList(response, projectid);
+			}
+								
+		}
+
+	});
+	$('#username').val('');
+
+});
+
+function buildMemberList(response, projectid){
+	$('#members tr').slice(1).remove();
+
 	var members = $.parseJSON(response);
 	var auth = members.authuser;
 
