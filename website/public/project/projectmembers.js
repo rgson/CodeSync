@@ -1,5 +1,6 @@
 $(document).ready(function(){
-
+var client_filter = false;
+var old_value;
 // Delete the member on click
 $(document).on('click', '.removeuser', function(){
 
@@ -8,14 +9,10 @@ $(document).on('click', '.removeuser', function(){
 
 	$.ajax({
 		url: 'project/' + projectid + '/member/' + userid,
-		data: {
-			'projectid' : projectid,
-			'userid' : userid
-		},
 		cache: false,
 		type: 'DELETE',
 		success: function(response, projectid){			
-			buildMemberList(response, projectid);		
+			buildMemberTable(response, projectid);		
 		}
 		
 	});
@@ -24,7 +21,7 @@ $(document).on('click', '.removeuser', function(){
 
 // Get members for the selected project
 $('.projdata').click(function(){
-
+	$('#username').val('');
 	var selected = $(this).hasClass('selected');
 	$('.projdata').removeClass('selected');
 	if(!selected){
@@ -35,13 +32,11 @@ $('.projdata').click(function(){
 	
 	$.ajax({
 		url: 'project/' + projectid + '/members',
-		data: {
-			'projectid' : projectid
-		},
 		cache: false,
 		type: 'GET',
 		success: function(response){
-			buildMemberList(response, projectid);					
+
+			buildMemberTable(response, projectid);					
 		}
 		
 	});
@@ -50,7 +45,7 @@ $('.projdata').click(function(){
 
 // Give an existing user member access
 $('#addmemberbtn').click(function(){	
-
+	
 	var projectid = $('.selected').data('value'); // Get the value from the selected row
 	
 	var username = $('#username').val();
@@ -61,7 +56,6 @@ $('#addmemberbtn').click(function(){
 	$.ajax({
 		url: 'project/' + projectid + '/members',
 		data: {
-			'projectid' : projectid,
 			'username' : username
 		},
 		cache: false,
@@ -72,17 +66,73 @@ $('#addmemberbtn').click(function(){
 			}
 			else
 			{
-				buildMemberList(response, projectid);
-			}
-								
+				buildMemberTable(response, projectid);
+			}								
 		}
-
 	});
 	$('#username').val('');
+});
+
+
+// Get existing users dynamically from input in textbox
+$('#username').bind('input propertychange', function(){		
+
+	var username = $('#username').val();
+	if (typeof this.xhr !== 'undefined')
+		this.xhr.abort();
+
+	switch(username.length) {
+		case 0:
+		case 1:
+			client_filter = false;
+			$('#userlist li').remove();
+			break;
+		default:
+			if(client_filter === false || old_value.indexOf(username) > -1){
+					this.xhr = $.ajax({
+				url: 'project/' + username,
+				cache: false,
+				type: 'GET',
+				success: function(response){
+					var users = $.parseJSON(response);	
+					$('#userlist li').remove();
+					$.each(users, function(i, user) {
+
+						$('#userlist').append("<li>" + user.username + "</li>");
+					});		
+					client_filter = true;
+					old_value = username;
+				}
+
+				});
+
+			}
+			else {
+				 $('#userlist li').each(function(){
+				var text = $(this).text();
+				if (text.indexOf(username) == 0)
+				$(this).show()
+				else
+				$(this).hide();
+				});
+			}	
+			
+	}
 
 });
 
-function buildMemberList(response, projectid){
+// Set textbox from chosen search value
+$(document).on('click', '#userlist li', function(){
+
+	var user = $(this).text();
+	$('#username').val(user);
+	$('#userlist li').remove();
+
+});
+
+
+// Helper function to build the member table
+function buildMemberTable(response, projectid){
 	$('#members tr').slice(1).remove();
 
 	var members = $.parseJSON(response);
