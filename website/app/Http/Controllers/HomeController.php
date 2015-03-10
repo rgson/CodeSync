@@ -1,6 +1,6 @@
 <?php namespace App\Http\Controllers;
 use App\Project;
-use App\User;
+
 class HomeController extends Controller {
 
 	/**
@@ -24,23 +24,11 @@ class HomeController extends Controller {
 	{
 		$Project = new Project;		
 
-		$projects = $Project->getProjects();	
-	
-		$ownerNames = $this->ownerName($Project, $projects);
-	
+		$projects = $Project->getProjects();			
+		
 		return view('home')
-		->with('projects', $projects)
-		->with('ownerNames', $ownerNames);		
+		->with('projects', $projects);	
 	}
 
-	private function ownerName($P, $projects)
-	{
-		$arr = array();	
-		foreach ($projects as $key => $value) 
-		{					
-			$arr[$value->owner] = $P->getProjectOwnerName($value);		
-		}
 
-		return $arr;
-	}
 }

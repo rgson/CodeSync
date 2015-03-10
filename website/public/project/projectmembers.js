@@ -20,7 +20,7 @@ $(document).on('click', '.removeuser', function(){
 });
 
 // Get members for the selected project
-$('.projdata').click(function(){
+$(document).on('click', '.projdata', function(){
 	$('#username').val('');
 	var selected = $(this).hasClass('selected');
 	$('.projdata').removeClass('selected');
@@ -30,7 +30,7 @@ $('.projdata').click(function(){
 
 	var projectid = $(this).data('value');
 	
-	$.ajax({
+	this.xhr = $.ajax({
 		url: 'project/' + projectid + '/members',
 		cache: false,
 		type: 'GET',
@@ -78,8 +78,7 @@ $('#addmemberbtn').click(function(){
 $('#username').bind('input propertychange', function(){		
 
 	var username = $('#username').val();
-	if (typeof this.xhr !== 'undefined')
-		this.xhr.abort();
+	
 
 	switch(username.length) {
 		case 0:
@@ -88,8 +87,8 @@ $('#username').bind('input propertychange', function(){
 			$('#userlist li').remove();
 			break;
 		default:
-			if(client_filter === false || old_value.indexOf(username) > -1){
-					this.xhr = $.ajax({
+			if(client_filter === false){
+				$.ajax({
 				url: 'project/' + username,
 				cache: false,
 				type: 'GET',
@@ -133,7 +132,7 @@ $(document).on('click', '#userlist li', function(){
 
 // Helper function to build the member table
 function buildMemberTable(response, projectid){
-	$('#members tr').slice(1).remove();
+	$('#projectmembers tr').slice(1).remove();
 
 	var members = $.parseJSON(response);
 	var auth = members.authuser;
@@ -142,10 +141,10 @@ function buildMemberTable(response, projectid){
 
 		if(member != auth){					
 			if(auth === member.owner && member.id !== auth){
-				$('#members table').append("<tr><td>" + member.username + "</td><td><img  class='removeuser' src='images/Remove-icon.png' alt='remove user' data-user='" + member.id + "' data-proj='" + projectid + "'></td></tr>")
+				$('#projectmembers').append("<tr><td>" + member.username + "</td><td><img  class='removeuser' src='images/Remove-icon.png' alt='remove user' data-user='" + member.id + "' data-proj='" + projectid + "'></td></tr>");
 			} 
 			else {				
-				$('#members table').append("<tr><td>" + member.username + "</td></tr>")
+				$('#projectmembers').append("<tr><td>" + member.username + "</td></tr>");
 			}
 		}
 	});

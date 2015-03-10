@@ -5,13 +5,15 @@ use Illuminate\Database\Eloquent\Model;
 class Project extends Model {
 
 	protected $table = 'projects';
+	protected $fillable = ['name', 'owner'];
 
 	public function getProjects() 
 	{
-		return Project::join('project_access', 'id', '=', 'project_access.project')		
+		return Project::join('project_access', 'id', '=', 'project_access.project')	
+				->join('users', 'owner', '=', 'users.id')	
 				->where('project_access.user', "=", \Auth::user()->id)
 				->orderBy('name', 'asc')
-				->get();
+				->get(array('projects.id', 'projects.name', 'projects.owner', 'users.username'));
 	}
 
 	public function getProject($projectid)

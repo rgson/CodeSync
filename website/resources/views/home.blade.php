@@ -9,15 +9,15 @@
 			</div>
 										
 			<style> 
-			.projects {
+			#projects {
 				float: left;	
 				width: 77%;
 			}
 			
-			.proj table, th, tr, td{
+			#proj table, th, tr, td{
 				 padding: 5px;
 			}
-			.proj tr {
+			#proj tr {
 				
 				border: solid 1px;
 			}
@@ -89,10 +89,10 @@
 		
 
 			</style>
-				<div class='projects'>	
+				<div id='projects'>	
 					{!! Form::text('projectname', '', array('placeholder' => 'Project name ..', 'id' => 'projectname')) !!}
 					{!! Form::submit('addproject', array('id' => 'addprojectbtn')) !!}
-					<table class='proj'>
+					<table id='proj'>
 						<tr>
 							<th>Project name</th><th>Owner</th>
 						</tr>		
@@ -100,8 +100,8 @@
 						
 						<tr class='projdata' data-value={{ $project->id }}>
 							<td>{{ $project->name }}</td>
-							<td>{{ $ownerNames[$project->owner][0]->ownername }}</td>
-					
+							<td>{{ $project->username }}</td>
+							<td><img  class='removeproject' src='images/remove_project-icon.png' alt='remove project'</td>				
 						<tr>
 						@endforeach
 						
