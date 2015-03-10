@@ -95,13 +95,16 @@
 					<table id='proj'>
 						<tr>
 							<th>Project name</th><th>Owner</th>
-						</tr>		
+						</tr>	
+
 						@foreach ($projects as $project)
 						
 						<tr class='projdata' data-value={{ $project->id }}>
 							<td>{{ $project->name }}</td>
 							<td>{{ $project->username }}</td>
-							<td><img  class='removeproject' src='images/remove_project-icon.png' alt='remove project'</td>				
+							<?php if( \Auth::user()->id == $project->owner) { ?>
+							<td><img  class='removeproject' src='images/Remove-icon.png' alt='remove project'</td>				
+							<?php } ?>
 						<tr>
 						@endforeach
 						
