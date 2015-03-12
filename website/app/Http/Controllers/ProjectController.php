@@ -32,7 +32,7 @@ class ProjectController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function get($projectid, $projectname)
+	public function index($projectid, $projectname)
 	{
 		#!! projectname not used !!
 		
@@ -70,7 +70,9 @@ class ProjectController extends Controller {
 
 	private function checkProjectAccess($projectid)
 	{		
-		return $this->projects->getProject($projectid); 
+		$project = $this->projects->getProject($projectid); 
+		var_dump($project);
+		return !is_null($project);
 	}
 
 	private function isDuplicate($projectname)

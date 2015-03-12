@@ -20,7 +20,6 @@ class UserSession extends Model {
 			'user' => $userid,
 			'session' => $usersession
 			]);
-
 	}
 
 	private function duplicateSessionExists($usersession)
@@ -28,8 +27,6 @@ class UserSession extends Model {
 		$sessionExist = \DB::table('user_sessions')->where('session', $usersession)->first();
 		return !is_null($sessionExist);
 	}
-
-
 }
 
 

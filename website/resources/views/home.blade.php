@@ -1,6 +1,7 @@
 @extends('app')
 
 @section('content')
+<main id='home'> 
 <div class="container">
 	<div class="row">
 		<div class="col-md-10 col-md-offset-1">
@@ -14,10 +15,10 @@
 				width: 77%;
 			}
 			
-			#proj table, th, tr, td{
+			#showprojects table, th, tr, td{
 				 padding: 5px;
 			}
-			#proj tr {
+			#showprojects tr {
 				
 				border: solid 1px;
 			}
@@ -34,13 +35,13 @@
 			}
 
 
-			#projectmembers table, th, tr, td{
+			#showmembers table, th, tr, td{
 				width: 100%;
 				padding: 5px;
 
 			}
 
-			#projectmembers tr {
+			#showmembers tr {
 				
 				
 			}
@@ -52,11 +53,7 @@
 				background-color: lightblue;
 			}
 			
-			#username{
-				float: left;
-				width: 80%;
-			}
-
+			
 			#addmemberbtn {
 				float: left;
 				width: 26px;
@@ -79,6 +76,11 @@
 				width: 200px;
 			}
 
+			#username{
+				float: left;
+				width: 80%;
+			}
+
 			#addprojectbtn {
 				
 				width: 26px;
@@ -86,13 +88,28 @@
 				background-image: url("images/add_folder-icon.png");
 				background-size: 100% 100%;
 			}
+
+			.owneronly{
+				display: none;
+			}
+			
+			#openproject{
+				cursor: pointer;
+				margin-left: 20px;
+			}
+
+			#removeproject{
+				cursor: pointer;
+			}
 		
 
 			</style>
 				<div id='projects'>	
 					{!! Form::text('projectname', '', array('placeholder' => 'Project name ..', 'id' => 'projectname')) !!}
 					{!! Form::submit('addproject', array('id' => 'addprojectbtn')) !!}
-					<table id='proj'>
+					<a class='owneronly' id='openproject'>Open project</a>
+					<img src='images/Remove-icon.png' id='removeproject' class='owneronly'>
+					<table id='showprojects'>
 						<tr>
 							<th>Project name</th><th>Owner</th>
 						</tr>	
@@ -101,29 +118,27 @@
 						
 						<tr class='projdata' data-value={{ $project->id }}>
 							<td>{{ $project->name }}</td>
-							<td>{{ $project->username }}</td>
-							<?php if( \Auth::user()->id == $project->owner) { ?>
-							<td><img  class='removeproject' src='images/Remove-icon.png' alt='remove project'</td>				
-							<?php } ?>
-						<tr>
+							<td>{{ $project->username }}</td>																							
+						</tr>
 						@endforeach
 						
 					</table>
 				</div>
 				<div id='members'>
-					<div>
-							{!! Form::text('username', '', array('placeholder' => 'Username ..', 'id' => 'username')) !!}
-							{!! Form::submit('addmember', array('id' => 'addmemberbtn')) !!}
-							<br>
-							<br>
+					<div id='addmember' class='owneronly'>
+						
+						{!! Form::text('username', '', array('placeholder' => 'Username ..', 'id' => 'username')) !!}
+						{!! Form::submit('addmember', array('id' => 'addmemberbtn')) !!}						
+						<br>
+						<br>
 							
 						<ul id='userlist'></ul>
 					
 							
 					</div>				
-						<table id='projectmembers'>
+						<table id='showmembers'>
 							<tr>
-								<th>Members</th><th>
+								<th>Members</th>
 							</tr>																			
 						</table>									
 				</div>
@@ -131,4 +146,12 @@
 		</div>
 	</div>
 </div>
+</main>
+
 @endsection
+
+@section('scripts')
+	<script src="/scripts/projectmembers.js"></script>
+	<script src="/scripts/project.js"></script>
+@endsection
+
