@@ -71,7 +71,7 @@ class ProjectController extends Controller {
 	private function checkProjectAccess($projectid)
 	{		
 		$project = $this->projects->getProject($projectid); 
-		var_dump($project);
+		
 		return !is_null($project);
 	}
 
