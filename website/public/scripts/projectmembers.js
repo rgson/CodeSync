@@ -94,7 +94,7 @@ $('#username').bind('input propertychange', function(){
 	if(username.length >= 3 && (old_value != shortusername)) {
 		if(typeof this.xhr !== 'undefined')	
 		this.xhr.abort();
-	
+
 		this.xhr = $.ajax({
 		url: 'project/' + shortusername,
 		cache: false,
@@ -105,11 +105,8 @@ $('#username').bind('input propertychange', function(){
 			$.each(users, function(i, user) {
 
 				$('#userlist').append("<li>" + user.username + "</li>");
-			});		
-			$('#userlist li').each(function(){
-				filterResponse(username);
-			});
-			
+			});					
+				filterResponse(username);						
 			}
 		});
 		
