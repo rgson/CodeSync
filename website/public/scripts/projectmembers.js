@@ -1,5 +1,5 @@
 $(document).ready(function(){
-
+var request;
 var old_value = '';
 
 // Delete the member on click
@@ -21,7 +21,10 @@ $(document).on('click', '.removeuser', function(){
 // Get members and show options for the selected project
 $(document).on('click', '.projdata', function(){
 	clearOnClick();
-
+	if(request != null){ // Abort old scope requests
+		request.abort();
+		request = null;
+	}
 	var selected = $(this).hasClass('selected');
 	$('.projdata').removeClass('selected');
 	if(!selected){
@@ -36,7 +39,7 @@ $(document).on('click', '.projdata', function(){
 	$('#openproject').attr('href', projectid + "/" + projectname);	
 	
 
-	$.ajax({
+	request = $.ajax({
 		url: 'project/' + projectid + '/members',
 		cache: false,
 		type: 'GET',
@@ -82,12 +85,16 @@ $('#addmemberbtn').click(function(){
 });
 
 // Get existing users dynamically from input in textbox
-$('#username').bind('input propertychange', function(){		
+$('#username').bind('input propertychange', function(){	
+	if(typeof this.xhr !== 'undefined')	
+		this.xhr.abort();
+
 	var username = $('#username').val();
-	
-	if(username.length == 3 || (old_value.length < 3 && username.length > 3)) {
-		var shortusername = username.substring(0, 3);
-		$.ajax({
+	var shortusername = username.substring(0, 3); //use the short for query, full for filter
+
+	if(username.length >= 3 && (old_value != shortusername)) {
+		
+		this.xhr = $.ajax({
 		url: 'project/' + shortusername,
 		cache: false,
 		type: 'GET',
@@ -109,7 +116,7 @@ $('#username').bind('input propertychange', function(){
 	else {
 		filterResponse(username);	
 	}	
-	old_value = username;			
+	old_value = shortusername;			
 });
 
 // Set textbox from chosen search value

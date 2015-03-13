@@ -47,7 +47,7 @@ class ProjectController extends Controller {
 	public function create()
 	{
 		$projectname = Input::get('projectname');
-		if(!$this->isDuplicate($projectname))
+		if(!$this->isDuplicate($projectname) && $projectname != '')
 		{
 			$userid = \Auth::user()->id;
 			Project::create(['name' => $projectname, 'owner' => $userid]);	

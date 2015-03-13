@@ -4,7 +4,7 @@ $(document).ready(function(){
 $(document).on('click', '#addprojectbtn', function(){	
 	var projectname = $('#projectname').val();
 
-	if(projectname == null) // No point in processing if no input
+	if(projectname == '') // No point in processing if no input
 		return false;	
 
 	$.ajax({
