@@ -39,8 +39,9 @@ class ProjectController extends Controller {
 		# check if access, else 404
 		if(!$this->checkProjectAccess($projectid))
 			return view('errors/404');
-		 	
-		Usersession::handleUserAndSession();
+		
+		$usersession = new Usersession;	
+		$usersession->handleUserAndSession($projectid);
 		return view('editor');
 	}
 
