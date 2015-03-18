@@ -3,6 +3,7 @@ var DiffMatchPatch = require('diff_match_patch').diff_match_patch;
 var XXHash = require('xxhash');
 var log = require('./log');
 var messageFactory = require('./message_factory');
+var database = require('./database');
 
 module.exports = {
 	Document: Document,
@@ -263,61 +264,100 @@ function copy(source, target) {
 }
 
 /**
- * Validates the document, checking existence and permissions.
- * @param  {Integer}   documentid  The document's id.
- * @param  {Object}    user        The user.
- * @param  {Function}  callback    Callback for successful validation.
+ * Checks the existence of a file within a project.
+ * @param  {Integer}   documentid  The document's ID.
+ * @param  {Integer}   projectid   The project's ID.
+ * @param  {Function}  onSuccess   Callback for successful validation.
  * @return {Void}
  */
-function validateFile(documentid, user, callback) {
-	// TODO: Check existence within project and user permissions.
-	var exists = false, hasAccess = true;
-	if (!exists)
-		callback(new Error('Invalid document'));
-	else if (!hasAccess)
-		callback(new Error('Permission denied'));
-	else
-		callback();
+function validateFile(documentid, projectid, onSuccess) {
+	database.fileExists(documentid, projectid, function(exists) {
+		log.d('Validate file ' + documentid + ': ' + exists);
+		if (exists)
+			onSuccess();
+	});
 }
 
 /**
  * Creates a new document within a project.
  * @param   {Integer}   projectid  The project's ID.
  * @param   {String}    path       The new document's path.
- * @param   {Function}  callback   Callback for successful operations.
+ * @param   {Function}  onSuccess  Callback for successful operations.
  * @return  {Void}
  */
-function createFile(projectid, path, callback) {
-	// TODO: implement
-	var documentid = 1;
-	var success = false;
-	if (success)
-		callback(documentid);
+function createFile(projectid, path, onSuccess) {
+	if (validFilePath(path)) {
+		database.insertFile(projectid, path, onSuccess,
+			function transactionCallback(documentid, callback) {
+				var dir = FILE_PATH_PREFIX + projectid;
+				var file = dir + '/' + documentid;
+				fs.mkdir(dir, function(err) {
+					if (!err || err.code === 'EEXIST') {
+						fs.open(file, 'w', function(err, fd) {
+							if (!err) {
+								fs.close(fd, function(err) {
+									if (!err) callback();
+									else callback(err);
+								});
+							} else callback(err);
+						});
+					} else callback(err);
+				});
+			}
+		);
+	}
 }
 
 /**
  * Deletes an existing document.
  * @param   {Integer}   documentid  The document's ID.
- * @param   {Function}  callback    Callback for successful operations.
+ * @param   {Integer}   projectid   The project's ID.
+ * @param   {Function}  onSuccess   Callback for successful operations.
  * @return  {Void}
  */
-function deleteFile(documentid, callback) {
-	// TODO: implement
-	var success = false;
-	if (success)
-		callback();
+function deleteFile(documentid, projectid, onSuccess) {
+	database.deleteFile(documentid, function() {
+		var file = FILE_PATH_PREFIX + projectid + '/' + documentid;
+		fs.unlink(file, function(err) {
+			if (err)
+				log.e(err.message);
+		});
+		onSuccess();
+	});
 }
 
 /**
  * Sets a new path for an existing document.
  * @param   {Integer}   documentid  The document's ID.
  * @param   {String}    path        The new path.
- * @param   {Function}  callback    Callback for successful operations.
+ * @param   {Function}  onSuccess   Callback for successful operations.
  * @return  {Void}
  */
-function moveFile(documentid, path, callback) {
-	// TODO: implement
-	var success = false;
-	if (success)
-		callback();
+function moveFile(documentid, path, onSuccess) {
+	if (validFilePath(path))
+		database.updateFile(documentid, path, onSuccess);
+}
+
+function validFilePath(path) {
+	var sections, subsections, i, j;
+
+	// No empty paths.
+	if (!path)
+		return false;
+
+	sections = path.split('/');
+	for (i = 0; i < sections.length; i++) {
+		// No leading, trailing or double slashes.
+		if (sections[i].length < 1)
+			return false;
+
+		subsections = sections[i].split('.');
+		for (j = 1; j < subsections.length; j++) {
+			// No trailing or double dots.
+			if (subsections[j].length < 1)
+				return false;
+		}
+	}
+
+	return true;
 }

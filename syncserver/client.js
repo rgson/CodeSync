@@ -2,6 +2,7 @@ var log = require('./log');
 var Document = require('./document').Document;
 var documentUtils = require('./document').utils;
 var messageFactory = require('./message_factory');
+var database = require('./database');
 
 module.exports = Client;
 
@@ -123,25 +124,23 @@ function handleDocSync(message, user) {
 
 /** Handles file.create messages. */
 function handleFileCreate(message, user) {
-	documentUtils.validate(message.doc, user, function() {
-		documentUtils.create(user.projectid, message.path, function(documentid) {
-			broadcast(user.projectid, new messageFactory.FileCreateBroadcast(documentid, message.path));
-		});
+	documentUtils.create(user.projectid, message.path, function(documentid) {
+		broadcast(user.projectid, new messageFactory.FileCreateBroadcast(documentid, message.path));
 	});
 }
 
 /** Handles file.delete messages. */
 function handleFileDelete(message, user) {
-	documentUtils.validate(message.doc, user, function() {
-		documentUtils.delete(message.doc, function() {
-			broadcast(user.projectid, new messageFactory.FileDeleteBroadcast(documentid));
+	documentUtils.validate(message.doc, user.projectid, function() {
+		documentUtils.delete(message.doc, user.projectid, function() {
+			broadcast(user.projectid, new messageFactory.FileDeleteBroadcast(message.doc));
 		});
 	});
 }
 
 /** Handles file.move messages. */
 function handleFileMove(message, user) {
-	documentUtils.validate(message.doc, user, function() {
+	documentUtils.validate(message.doc, user.projectid, function() {
 		documentUtils.move(message.doc, message.path, function() {
 			broadcast(user.projectid, new messageFactory.FileMoveBroadcast(message.doc, message.path));
 		});
@@ -151,7 +150,7 @@ function handleFileMove(message, user) {
 /** Handles file.open messages. */
 function handleFileOpen(message, user) {
 	if (!user.documents[message.doc]) {
-		documentUtils.validate(message.doc, user, function() {
+		documentUtils.validate(message.doc, user.projectid, function() {
 			user.documents[message.doc] = new Document(message.doc, user);
 			user.documents[message.doc].init();
 			broadcast(user.projectid, new messageFactory.FileOpenBroadcast(message.doc, user.userid));
@@ -212,12 +211,10 @@ function broadcast(projectid, message) {
  * @return  {Void}
  */
 function authenticate(session, onSuccess, onFailure) {
-	// TODO: authenticate and delete session from db
-	var userid = 1, projectid = 1;
-	if (session == '123')
-		onSuccess(userid, projectid);
-	else if (session == '321')
-		onSuccess(userid + 1, projectid);
-	else
-		onFailure();
+	database.getSession(session, function(userid, projectid) {
+		if (userid && projectid)
+			onSuccess(userid, projectid);
+		else
+			onFailure();
+	});
 }
