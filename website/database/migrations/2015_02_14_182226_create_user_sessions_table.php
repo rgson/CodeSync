@@ -16,9 +16,11 @@ class CreateUserSessionsTable extends Migration {
 		{
 			$table->integer('user')->length(10)->unsigned();
 			$table->string('session');
+			$table->integer('project')->length(10)->unsigned();
 			$table->timestamps();
 			$table->primary('session');
 			$table->foreign('user')->references('id')->on('users')->onDelete('cascade');
+			$table->foreign('project')->references('id')->on('projects')->onDelete('cascade');
 		});
 	}
 
