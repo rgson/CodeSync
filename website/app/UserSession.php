@@ -4,7 +4,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserSession extends Model {
 	protected $table = 'user_sessions';
-	protected $fillable = ['user', 'session'];
+	protected $fillable = ['user', 'session', 'project'];
 	public function handleUserAndSession($projectid) 
 	{
 		$userid = \Auth::user()->id;
@@ -15,7 +15,7 @@ class UserSession extends Model {
 			$usersession = uniqid(null, true);
 		}
 		while($this->duplicateSessionExists($usersession));
-		
+
 		UserSession::create([
 			'user' => $userid,
 			'session' => $usersession,

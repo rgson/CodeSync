@@ -13,11 +13,13 @@ class UserSessionsSeeder extends Seeder {
 
         UserSession::create([
         	'user' => 1,
-        	'session' => 'abc'
+        	'session' => 'abc',
+            'project' => 1
         	]);
         UserSession::create([
             'user' => 2,
-            'session' => '123'
+            'session' => '123',
+            'project' => 2
             ]);
     }
 
