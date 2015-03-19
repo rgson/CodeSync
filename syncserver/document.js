@@ -8,10 +8,10 @@ var database = require('./database');
 module.exports = {
 	Document: Document,
 	utils: {
-		validate: validateFile,
-		create: createFile,
+		'validate': validateFile,
+		'create': createFile,
 		'delete': deleteFile,
-		move: moveFile
+		'move': moveFile
 	}
 };
 
@@ -191,7 +191,7 @@ function sendDiffs(document) {
 /**
  * Calculates the xxhash of a UTF-8 string.
  * @param  {String} str  A UTF-8 string to be hashed.
- * @return {String}      An xxhash.
+ * @return {Integer}     An xxhash.
  */
 function hash(str) {
 	var xxhash = new XXHash(0xC0DED1FF); // :)

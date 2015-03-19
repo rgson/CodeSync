@@ -8,9 +8,9 @@ module.exports = {
 		this.session = session;
 	},
 
-	UserAuthResponse: function(success) {
+	UserAuthResponse: function(user) {
 		this.type = 'user.auth';
-		this.success = success;
+		this.user = user;
 	},
 
 	DocInitRequest: function(doc) {
@@ -24,14 +24,7 @@ module.exports = {
 		this.body = body;
 	},
 
-	DocSyncRequest: function(doc, remotev, edits) {
-		this.type = 'doc.sync';
-		this.doc = doc;
-		this.remotev = remotev;
-		this.edits = edits;
-	},
-
-	DocSyncResponse: function(doc, remotev, edits) {
+	DocSyncMessage: function(doc, remotev, edits) {
 		this.type = 'doc.sync';
 		this.doc = doc;
 		this.remotev = remotev;
@@ -107,7 +100,7 @@ module.exports = {
 			case 'doc.sync':
 				// TODO: Validate content of edits.
 				if (!msg.doc || !doc.remotev || !doc.edits) return undefined;
-				return new this.DocSyncRequest(msg.doc, msg.remotev, msg.edits);
+				return new this.DocSyncMessage(msg.doc, msg.remotev, msg.edits);
 
 			case 'file.create':
 				if (!msg.path) return undefined;
