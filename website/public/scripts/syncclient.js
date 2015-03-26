@@ -49,21 +49,21 @@ function SyncClient(session) {
 		'close': undefined
 	};
 
-	this.on = function on(action) {
+	this.on = function(action, callback) {
 		if (Object.keys(listeners).indexOf(action) !== -1)
 			listeners[action] = callback;
-	}
+	};
 
-	this.do = function do(action) {
+	this.do = function(action) {
 		if (!client) return console.err('Client undefined');
 		switch (action) {
-			case 'create': return client.Create(arguments[1]);
-			case 'delete': return client.Delete(arguments[1]);
-			case 'move': return client.Move(arguments[1], arguments[2]);
-			case 'open': return client.Open(arguments[1], arguments[2], arguments[3]);
-			case 'close': return client.Close(arguments[1]);
+			case 'create': return client.create(arguments[1]);
+			case 'delete': return client.delete(arguments[1]);
+			case 'move': return client.move(arguments[1], arguments[2]);
+			case 'open': return client.open(arguments[1], arguments[2], arguments[3]);
+			case 'close': return client.close(arguments[1]);
 		}
-	}
+	};
 }
 
 

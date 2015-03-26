@@ -1,15 +1,18 @@
 @extends('app')
 
 @section('content')
-<main id='editor'> 
+<main id='editor'>
 <div class="container">
 	<div class="row">
 		<div class="col-md-10 col-md-offset-1">
+			<textarea id="editor-1" class="editor">
+
+			</textarea>
 			<div class="panel panel-default">
 				<div class="panel-heading">Editor</div>
 				<div class="panel-body">
 					Kodeditorsidan
-						<style> 
+						<style>
 							.messageBubble {
 								margin: 40px;
 							  	display: inline-block;
@@ -79,12 +82,19 @@
 							<div class="write">
 								<textarea name="writeMsg" rows="3" cols="40"></textarea><br>
 								<input type="submit" value="Send message">
-							</div>					
-						</div>					
-				</div>				
-			</div>	
+							</div>
+						</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
 </main>
+@endsection
+
+@section('scripts')
+	<script src="/scripts/libs/xxhash.min.lmd.js"></script>
+	<script src="/scripts/libs/diff_match_patch.js"></script>
+	<script src="/scripts/syncclient.js"></script>
+	<script src="/scripts/editor.js"></script>
 @endsection
