@@ -7,6 +7,7 @@ var database = require('./database');
 module.exports = Client;
 
 var projectSubscriptions = {};
+var broadcastQueue = {};
 
 /**
  * Constructs a new Client object.
@@ -43,7 +44,7 @@ function Client(connection) {
 		connection.send(msg, function(err) {
 			if (err) {
 				log.e(err.message);
-				that.drop();
+				this.drop();
 			}
 		});
 	}
@@ -191,7 +192,8 @@ function unsubscribe(user) {
 function broadcast(projectid, message) {
 	var subscribers = projectSubscriptions[projectid];
 	for (var i = subscribers.length - 1; i >= 0; i--)
-		subscribers[i].send(message);
+		if (subscribers[i])		// i may end up out of bounds due to recursive broadcasts for disconnected users.
+			subscribers[i].send(message);
 }
 
 /**

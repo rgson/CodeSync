@@ -1,33 +1,35 @@
 (function() {
 
-	SyncClient.on('create', function(id, path) {
-		var args = {id: id, path: path};
+	SyncClient.on('create', function(args) {
 		console.log('create: ' + args);
 	});
-	SyncClient.on('delete', function(id) {
-		var args = {id: id};
+	SyncClient.on('delete', function(args) {
 		console.log('delete: ' + args);
 	});
-	SyncClient.on('move', function(id, path) {
-		var args = {id: id, path: path};
+	SyncClient.on('move', function(args) {
 		console.log('move: ' + args);
 	});
-	SyncClient.on('open', function(id, userid) {
-		var args = {id: id, userid: userid};
+	SyncClient.on('open', function(args) {
 		console.log('open: ' + args);
 	});
-	SyncClient.on('close', function(id, userid) {
-		var args = {id: id, userid: userid};
+	SyncClient.on('close', function(args) {
 		console.log('close: ' + args);
 	});
 
-	SyncClient.do('open', 1,
-		function getText() {
+	setTimeout(function() {
+		SyncClient.do('create', {path: 'test.txt'});
+	}, 1000);
+
+/*
+	SyncClient.do('open', {
+		doc: 1,
+		get: function() {
 			return $('#editor-1').val();
 		},
-		function setText(text) {
+		set: function(text) {
 			$('#editor-1').val(text);
 		}
-	);
+	});
+*/
 
 })();
