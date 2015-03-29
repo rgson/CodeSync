@@ -254,7 +254,7 @@ function Document(id, client, getText, setText) {
 				},
 				edits: []
 			};
-			that.source.write(that.state.text);
+			that.write();
 		}
 		else {
 			that.state = undefined;
@@ -269,26 +269,34 @@ function Document(id, client, getText, setText) {
 		if (message) {
 			removeAcknowledgedEdits(that, message);
 			// Beware: State-altering if:s!
-			if (assertVersion(that, message))
-				if (patches = patchShadow(that, message))
-					if (patchMain(that, message, patches))
-						sendDiffs(that);
+			if (assertVersion(that, message)) {
+				if (patches = patchShadow(that, message)) {
+					patchMain(that, patches);
+				}
+			}
 		}
 		else {
 			sendDiffs(that);
 		}
+	}
+
+	this.read = function() {
+		that.state.text = that.source.read();
+	}
+
+	this.write = function() {
+		that.source.write(that.state.text);
 	}
 }
 
 function removeAcknowledgedEdits(document, message) {
 	var edits = document.state.edits;
 	var count;
-
 	for (count in edits)
-		if (message.remotev <= edits[count].localv)
+		if (message.remotev > edits[count].localv)
 			break;
-
-	edits.splice(0, count);
+	if (count !== undefined)
+		edits.splice(0, (count | 0) + 1);
 }
 
 function assertVersion(document, message) {
@@ -346,15 +354,16 @@ function patchShadow(document, message) {
 }
 
 function patchMain(document, patches) {
-	var count, i;
+	var i;
 	// Apply the successful patches to the main text.
-	document.state.text = document.source.read();
-	for (i = 0, count = patches.length; i < count; i++)
+	document.read();
+	for (i in patches)
 		document.state.text = dmp.patch_apply(patches[i], document.state.text)[0];
-	document.source.write(document.state.text);
+	document.write();
 }
 
 function sendDiffs(document) {
+	document.read();
 	var shadow = document.state.shadow;
 	var text = document.state.text;
 	var edits = document.state.edits;
@@ -386,7 +395,7 @@ function sendDiffs(document) {
 function hash(str) {
 	var xxhash = new XXH(0xC0DED1FF); // :)
 	xxhash.update(str);
-	return xxhash.digest();
+	return xxhash.digest().toString();
 }
 
 /**

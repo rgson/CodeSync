@@ -61,13 +61,17 @@ function Document(documentid, client) {
 
 	/** Handles a doc.sync message. */
 	this.sync = function(message) {
+		var document = this;
 		var patches;
-		removeAcknowledgedEdits(this, message);
+		removeAcknowledgedEdits(document, message);
 		// Beware: State-altering if:s!
-		if (assertVersion(this, message))
-			if (patches = patchShadow(this, message))
-				if (patchMain(this, message, patches))
-					sendDiffs();
+		if (assertVersion(document, message)) {
+			if (patches = patchShadow(document, message)) {
+				patchMain(document, patches, function callback() {
+					sendDiffs(document);
+				});
+			}
+		}
 	}
 
 }
@@ -75,12 +79,11 @@ function Document(documentid, client) {
 function removeAcknowledgedEdits(document, message) {
 	var edits = document.state.edits;
 	var count;
-
 	for (count in edits)
-		if (message.remotev <= edits[count].localv)
+		if (message.remotev > edits[count].localv)
 			break;
-
-	edits.splice(0, count);
+	if (count !== undefined)
+		edits.splice(0, (count | 0) + 1);
 }
 
 function assertVersion(document, message) {
@@ -137,7 +140,7 @@ function patchShadow(document, message) {
 	return patches;
 }
 
-function patchMain(document, patches) {
+function patchMain(document, patches, callback) {
 	var count, i;
 	// Apply the successful patches to the main text as one atomic operation.
 	lock(document, function() {
@@ -145,19 +148,22 @@ function patchMain(document, patches) {
 		read(document, function(err, data) {
 			if (err) {
 				log.e(e.message);
-				return unlock(document);
-			}
-
-			document.state.text = data;
-			for (i = 0, count = patches.length; i < count; i++)
-				document.state.text = dmp.patch_apply(patches[i], document.state.text)[0];
-			write(document, function(err) {
-				if (err) {
-					log.e(e.message);
-					text = data;	// Abort patching.
-				}
 				unlock(document);
-			});
+				callback();
+			}
+			else {
+				document.state.text = data;
+				for (i = 0, count = patches.length; i < count; i++)
+					document.state.text = dmp.patch_apply(patches[i], document.state.text)[0];
+				write(document, function(err) {
+					if (err) {
+						log.e(e.message);
+						text = data;	// Abort patching.
+					}
+					unlock(document);
+					callback();
+				});
+			}
 
 		});
 
@@ -171,9 +177,9 @@ function sendDiffs(document) {
 	var client = document.client;
 	var documentid = document.documentid;
 
-	var diffs = dmp.diff_main(shadow, text);
+	var diffs = dmp.diff_main(shadow.text, text);
 	dmp.diff_cleanupEfficiency(diffs);
-	var patches = dmp.patch_make(shadow, diffs);
+	var patches = dmp.patch_make(shadow.text, diffs);
 
 	if (patches.length > 0) {
 		shadow.text = text;
