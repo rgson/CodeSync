@@ -4,10 +4,11 @@ if (!window.WebSocket)
 	return alert("You browser does not support WebSocket, which is needed to perform document synchronization. Please update your browser.");
 
 if (!window.SyncClient) {
-	var messageFactory = new MessageFactory();
-	var dmp = new diff_match_patch();
 	window.SyncClient = new SyncClient();
 }
+
+var messageFactory = new MessageFactory();
+var dmp = new diff_match_patch();
 
 
 ////////////////
@@ -20,7 +21,7 @@ if (!window.SyncClient) {
  */
 function SyncClient(session) {
 	var HOST = "ws://localhost:32358/";		// TODO: don't hardcode this
-	var EDITS_INTERVAL = 500;
+	var EDITS_INTERVAL = 2000;
 	var session, connection, client, listeners, editsInterval;
 
 	session = cookie('sync_session');		// TODO: set this cookie from server
@@ -124,40 +125,40 @@ function Client(session, connection) {
 	}
 
 	this.sync = function() {
-		if (this.userid)
-			for (var id in this.documents)
-				this.documents[id].sync();
+		if (that.userid)
+			for (var id in that.documents)
+				that.documents[id].sync();
 	}
 
 	this.listen = function(listener) {
-		this.listener = listener;
+		that.listener = listener;
 	}
 
 	this.create = function(path) {
-		if (this.userid && path)
-			this.send(new messageFactory.FileCreateRequest(path));
+		if (that.userid && path)
+			that.send(new messageFactory.FileCreateRequest(path));
 	}
 
 	this.delete = function(doc) {
-		if (this.userid && doc)
-			this.send(new messageFactory.FileDeleteRequest(doc));
+		if (that.userid && doc)
+			that.send(new messageFactory.FileDeleteRequest(doc));
 	}
 
 	this.move = function(doc, path) {
-		if (this.userid && doc && path)
-			this.send(new messageFactory.FileMoveRequest(doc, path));
+		if (that.userid && doc && path)
+			that.send(new messageFactory.FileMoveRequest(doc, path));
 	}
 
 	this.open = function(doc, getText, setText) {
-		if (this.userid && doc && getText && setText) {
-			this.documents[doc] = new Document(doc, this, getText, setText);
-			this.send(new messageFactory.FileOpenRequest(doc));
+		if (that.userid && doc && getText && setText) {
+			that.documents[doc] = new Document(doc, that, getText, setText);
+			that.send(new messageFactory.FileOpenRequest(doc));
 		}
 	}
 
 	this.close = function(doc) {
-		if (this.userid && doc)
-			this.send(new messageFactory.FileCloseRequest(doc));
+		if (that.userid && doc)
+			that.send(new messageFactory.FileCloseRequest(doc));
 	}
 
 	connection.onmessage = function onMessage(msg) {
@@ -186,12 +187,12 @@ function Client(session, connection) {
 			that.userid = message.user;
 		}
 		function handleDocInit(message) {
-			if (documents[message.doc])
-				documents[message.doc].init(message);
+			if (that.documents[message.doc])
+				that.documents[message.doc].init(message);
 		}
 		function handleDocSync(message) {
-			if (documents[message.doc])
-				documents[message.doc].sync(message);
+			if (that.documents[message.doc])
+				that.documents[message.doc].sync(message);
 		}
 		function handleFileCreate(message) {
 			if (listener)
@@ -239,36 +240,43 @@ function Document(id, client, getText, setText) {
 
 	this.init = function(message) {
 		if (message) {
-			this.state = {
+			that.state = {
 				text: message.body,
 				shadow: {
 					text: message.body,
-					localv: 0,
-					remotev: 0
+					localv: 1,
+					remotev: 1
 				},
 				backup: {
 					text: message.body,
-					localv: 0,
-					remotev: 0
+					localv: 1,
+					remotev: 1
 				},
 				edits: []
-			}
+			};
+			that.source.write(that.state.text);
 		}
 		else {
-			this.state = undefined;
-			this.client.send(new messageFactory.DocInitRequest(this.documentid));
+			that.state = undefined;
+			that.client.send(new messageFactory.DocInitRequest(that.documentid));
 		}
 	}
 
 	this.sync = function(message) {
-		if (!state) return;
 		var patches;
-		removeAcknowledgedEdits(this, message);
-		// Beware: State-altering if:s!
-		if (assertVersion(this, message))
-			if (patches = patchShadow(this, message))
-				if (patchMain(this, message, patches))
-					sendDiffs();
+		if (!that.state) return;
+
+		if (message) {
+			removeAcknowledgedEdits(that, message);
+			// Beware: State-altering if:s!
+			if (assertVersion(that, message))
+				if (patches = patchShadow(that, message))
+					if (patchMain(that, message, patches))
+						sendDiffs(that);
+		}
+		else {
+			sendDiffs(that);
+		}
 	}
 }
 
@@ -277,10 +285,10 @@ function removeAcknowledgedEdits(document, message) {
 	var count;
 
 	for (count in edits)
-		if (message.remotev <= edits[i].localv)
+		if (message.remotev <= edits[count].localv)
 			break;
 
-	edits[i].splice(0, count);
+	edits.splice(0, count);
 }
 
 function assertVersion(document, message) {
@@ -353,9 +361,9 @@ function sendDiffs(document) {
 	var client = document.client;
 	var documentid = document.documentid;
 
-	var diffs = dmp.diff_main(shadow, text);
+	var diffs = dmp.diff_main(shadow.text, text);
 	dmp.diff_cleanupEfficiency(diffs);
-	var patches = dmp.patch_make(shadow, diffs);
+	var patches = dmp.patch_make(shadow.text, diffs);
 
 	if (patches.length > 0) {
 		shadow.text = text;

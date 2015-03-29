@@ -99,7 +99,7 @@ module.exports = {
 
 			case 'doc.sync':
 				// TODO: Validate content of edits.
-				if (!msg.doc || !doc.remotev || !doc.edits) return undefined;
+				if (!msg.doc || !msg.remotev || !msg.edits) return undefined;
 				return new this.DocSyncMessage(msg.doc, msg.remotev, msg.edits);
 
 			case 'file.create':

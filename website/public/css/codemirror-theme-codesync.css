@@ -1,0 +1,33 @@
+/*
+		CodeSync CodeMirror Theme.
+    Based on the theme 'Tomorrow Night - Eighties' by Chris Kempson.
+*/
+
+.cm-s-codesync.CodeMirror {background: #1E1E1E; color: #CCCCCC;}
+.cm-s-codesync div.CodeMirror-selected {background: #2D2D2D !important;}
+.cm-s-codesync.CodeMirror ::selection { background: rgba(45, 45, 45, 0.99); }
+.cm-s-codesync.CodeMirror ::-moz-selection { background: rgba(45, 45, 45, 0.99); }
+.cm-s-codesync .CodeMirror-gutters {background: #1E1E1E; border-right: 0px;}
+.cm-s-codesync .CodeMirror-guttermarker { color: #f2777a; }
+.cm-s-codesync .CodeMirror-guttermarker-subtle { color: #777; }
+.cm-s-codesync .CodeMirror-linenumber {color: #515151;}
+.cm-s-codesync .CodeMirror-cursor {border-left: 1px solid #6A6A6A !important;}
+
+.cm-s-codesync span.cm-comment {color: #d27b53;}
+.cm-s-codesync span.cm-atom {color: #a16a94;}
+.cm-s-codesync span.cm-number {color: #a16a94;}
+
+.cm-s-codesync span.cm-property, .cm-s-codesync span.cm-attribute {color: #99cc99;}
+.cm-s-codesync span.cm-keyword {color: #f2777a;}
+.cm-s-codesync span.cm-string {color: #ffcc66;}
+
+.cm-s-codesync span.cm-variable {color: #99cc99;}
+.cm-s-codesync span.cm-variable-2 {color: #6699cc;}
+.cm-s-codesync span.cm-def {color: #f99157;}
+.cm-s-codesync span.cm-bracket {color: #CCCCCC;}
+.cm-s-codesync span.cm-tag {color: #f2777a;}
+.cm-s-codesync span.cm-link {color: #a16a94;}
+.cm-s-codesync span.cm-error {background: #f2777a; color: #6A6A6A;}
+
+.cm-s-codesync .CodeMirror-activeline-background {background: #343600 !important;}
+.cm-s-codesync .CodeMirror-matchingbracket { text-decoration: underline; color: white !important;}

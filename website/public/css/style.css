@@ -1,0 +1,138 @@
+* {
+	box-sizing: border-box;
+}
+
+body {
+	height: 100vh;
+}
+
+#navbar {
+	border-radius: 0;
+	height: 50px;
+	overflow: hidden;
+}
+
+main {
+	padding-top: 70px;
+}
+
+#editor {
+	padding-top: 50px;
+	height: 100%;
+	width: 100%;
+	background-color: #333333;
+	color: #f5f5f5;
+}
+
+#editor #wrapper {
+	position: relative;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+}
+
+#editor #files {
+	position: absolute;
+	width: 200px;
+	padding: 10px;
+	top: 0;
+	bottom: 0;
+	overflow: auto;
+}
+
+#editor #files ul {
+	list-style: none;
+	padding-left: 1em;
+}
+
+#editor #files > ul {
+	padding-left: 0;
+}
+
+#editor #files span {
+	display: block;
+	cursor: pointer;
+}
+
+#editor #files span:hover {
+	background-color: #E2CC66;
+	color: #1E1E1E;
+}
+
+#editor #workspace {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 200px;
+	right: 0;
+}
+
+#editor #workspace textarea {
+	width: 100%;
+	height: 100%;
+	border: none;
+	outline: none;
+	background-color: inherit;
+	font-family: monospace;
+	tab-size: 2;
+	resize: none;
+}
+
+#editor #workspace .CodeMirror {
+	width: 100%;
+	height: 100%;
+}
+
+#editor #chat {
+	position: fixed;
+	z-index: 100;
+	right: 0;
+	bottom: 0;
+	background-color: #f5f5f5;
+	color: #3e3e3e;
+	width: 300px;
+}
+
+#editor #chat > * {
+	padding: 10px;
+}
+
+#editor #chat .head {
+	background-color: #5d99cc;
+	color: #f5f5f5;
+	cursor: pointer;
+	font-size: 20px;
+	height: 40px;
+}
+
+#editor #chat .body {
+	height: 300px;
+	overflow-y: scroll;
+}
+
+#editor #chat .message .sender {
+	display: block;
+	font-weight: bold;
+}
+
+#editor #chat .footer textarea {
+	width: 100%;
+	resize: vertical;
+}
+
+#editor #chat,
+#editor #chat .body,
+#editor #chat .footer {
+	transition: all 0.25s ease-in-out;
+}
+
+#editor #chat.closed {
+	width: 40px
+}
+
+#editor #chat.closed .body,
+#editor #chat.closed .footer {
+	visibility: hidden;
+	height: 0;
+	padding: 0;
+}

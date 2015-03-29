@@ -45,13 +45,13 @@ function Document(documentid, client) {
 				text: data,		// The current version of the text on disk.
 				shadow: {			// The state of the document as of the last diff calculation.
 					text: data,
-					localv: 0,
-					remotev: 0
+					localv: 1,
+					remotev: 1
 				},
 				backup: {			// The state of the document before the last diff calculation.
 					text: data,
-					localv: 0,
-					remotev: 0
+					localv: 1,
+					remotev: 1
 				},
 				edits: []			// Queued edits not yet confirmed received by the client.
 			};
@@ -77,10 +77,10 @@ function removeAcknowledgedEdits(document, message) {
 	var count;
 
 	for (count in edits)
-		if (message.remotev <= edits[i].localv)
+		if (message.remotev <= edits[count].localv)
 			break;
 
-	edits[i].splice(0, count);
+	edits.splice(0, count);
 }
 
 function assertVersion(document, message) {

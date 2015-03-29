@@ -44,7 +44,7 @@ function Client(connection) {
 		connection.send(msg, function(err) {
 			if (err) {
 				log.e(err.message);
-				this.drop();
+				that.drop();
 			}
 		});
 	}
