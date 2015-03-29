@@ -95,7 +95,7 @@
 			
 			#openproject{
 				cursor: pointer;
-				margin-left: 20px;
+				margin-left: 20px;				
 			}
 
 			#removeproject{
@@ -107,7 +107,7 @@
 				<div id='projects'>	
 					{!! Form::text('projectname', '', array('placeholder' => 'Project name ..', 'id' => 'projectname')) !!}
 					{!! Form::submit('addproject', array('id' => 'addprojectbtn')) !!}
-					<a class='owneronly' id='openproject'>Open project</a>
+					<a id='openproject'>Open project</a>
 					<img src='images/Remove-icon.png' id='removeproject' class='owneronly'>
 					<table id='showprojects'>
 						<tr>

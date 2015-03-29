@@ -1,6 +1,7 @@
 $(document).ready(function(){
 var request;
 var old_value = '';
+$('#openproject').hide();
 
 // Delete the member on click
 $(document).on('click', '.removeuser', function(){
@@ -51,6 +52,7 @@ $(document).on('click', '.projdata', function(){
 			else
 				$('.owneronly').hide();			
 
+			$('#openproject').show();
 			buildMemberTable(response, projectid);					
 		}		
 	});
@@ -137,6 +139,7 @@ function filterResponse(username){
 }
 
 function clearOnClick(){
+	$('#openproject').hide();
 	$('.owneronly').hide();	
 	$('#username').val('');
 	$('#userlist li').remove();
