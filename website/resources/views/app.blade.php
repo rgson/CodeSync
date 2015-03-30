@@ -1,75 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
 <head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="csrf-token" content="{{ csrf_token() }}" />
-
-
-	<title>Laravel</title>
-
-	<link href="/css/app.css" rel="stylesheet">
-
-	<!-- Fonts -->
-	<link href='//fonts.googleapis.com/css?family=Roboto:400,300' rel='stylesheet' type='text/css'>
-
-	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-	<!--[if lt IE 9]>
-		<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-		<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-	<![endif]-->
+	<meta charset='utf-8'>
+	<meta name='csrf-token' content='{{ csrf_token() }}' />
+	<title>CodeSync</title>
+	<link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href='/css/nonresponsive.css'>
+	<link rel="stylesheet" type="text/css" href='/css/style.css'>
+	@yield('stylesheets')
 </head>
 <body>
-	<nav class="navbar navbar-default">
-		<div class="container-fluid">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-					<span class="sr-only">Toggle Navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-			</div>
 
-			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-				<ul class="nav navbar-nav">
-					<li><a href="/">"Home", ska leda till vart och finnas när?</a></li>
-				</ul>
-
-				<ul class="nav navbar-nav navbar-right">
-					@if (Auth::guest())
-						<li><a href="/auth/register">Register</a></li>
-					@else
-						<li class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ Auth::user()->username }} <span class="caret"></span></a>
-							<ul class="dropdown-menu" role="menu">
-								<li><a href="/auth/logout">Logout</a></li>
-							</ul>
-						</li>
-					@endif
-				</ul>
-			</div>
+	<nav id='navbar' class='navbar navbar-inverse navbar-fixed-top'>
+		<div class='container-fluid'>
+			<a class='navbar-brand navbar-left' href='/'>CodeSync</a>
+			<ul class='nav navbar-nav navbar-right'>
+				@if (Auth::guest())
+					<li><a href='/auth/register'>Register</a></li>
+				@else
+					<li><p class='navbar-text'>[insert username]</p></li>
+					<li><a href='/auth/logout'>Logout</a></li>
+				@endif
+			</ul>
 		</div>
 	</nav>
 
 	@yield('content')
 
-	<!-- Scripts 	
-	
-		<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js'></script>
-	-->
-	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-	<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/js/bootstrap.min.js"></script>
-
-	<script type="text/javascript">
-    	$.ajaxSetup({
-        	headers: {
-            	'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        	}
-    	});
+	<script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+	<script src='//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/js/bootstrap.min.js'></script>
+	<script type='text/javascript'>
+		$.ajaxSetup({headers: {'X-CSRF-TOKEN': $('meta[name=\'csrf-token\']').attr('content')}});
 	</script>
+
 	@yield('scripts')
+
 </body>
 </html>

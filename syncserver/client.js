@@ -7,6 +7,7 @@ var database = require('./database');
 module.exports = Client;
 
 var projectSubscriptions = {};
+var broadcastQueue = {};
 
 /**
  * Constructs a new Client object.
@@ -61,15 +62,12 @@ function Client(connection) {
 			if (!message)
 				throw new Error('Invalid message: ' + msg);
 
-			if (!that.userid && message.type !== 'user.auth') {
-				that.send(new messageFactory.UserAuthResponse(false));
+			if (!that.userid && message.type !== 'user.auth')
 				throw new Error('Connection must start with authentication.');
-			}
 
 			switch(message.type) {
 				case 'user.auth':		return handleUserAuth(message, that);
 				case 'doc.init':		return handleDocInit(message, that);
-				case 'doc.stop':		return handleDocStop(message, that);
 				case 'doc.sync':		return handleDocSync(message, that);
 				case 'file.create':	return handleFileCreate(message, that);
 				case 'file.delete':	return handleFileDelete(message, that);
@@ -95,10 +93,10 @@ function handleUserAuth(message, user) {
 			user.userid = userid;
 			user.projectid = projectid;
 			subscribe(user);
-			user.send(new messageFactory.UserAuthResponse(true));
+			user.send(new messageFactory.UserAuthResponse(userid));
 		},
 		function onFailure() {
-			user.send(new messageFactory.UserAuthResponse(false));
+			log.d('Authentication failed. Session: ' + message.session);
 			user.drop();
 		}
 	);
@@ -108,12 +106,6 @@ function handleUserAuth(message, user) {
 function handleDocInit(message, user) {
 	if (user.documents[message.doc])
 		user.documents[message.doc].init();
-}
-
-/** Handles doc.stop messages. */
-function handleDocStop(message, user) {
-	if (user.documents[message.doc])
-		user.documents[mesage.doc].stop();
 }
 
 /** Handles doc.sync messages. */
@@ -200,7 +192,8 @@ function unsubscribe(user) {
 function broadcast(projectid, message) {
 	var subscribers = projectSubscriptions[projectid];
 	for (var i = subscribers.length - 1; i >= 0; i--)
-		subscribers[i].send(message);
+		if (subscribers[i])		// i may end up out of bounds due to recursive broadcasts for disconnected users.
+			subscribers[i].send(message);
 }
 
 /**

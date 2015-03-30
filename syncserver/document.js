@@ -8,10 +8,10 @@ var database = require('./database');
 module.exports = {
 	Document: Document,
 	utils: {
-		validate: validateFile,
-		create: createFile,
+		'validate': validateFile,
+		'create': createFile,
 		'delete': deleteFile,
-		move: moveFile
+		'move': moveFile
 	}
 };
 
@@ -45,13 +45,13 @@ function Document(documentid, client) {
 				text: data,		// The current version of the text on disk.
 				shadow: {			// The state of the document as of the last diff calculation.
 					text: data,
-					localv: 0,
-					remotev: 0
+					localv: 1,
+					remotev: 1
 				},
 				backup: {			// The state of the document before the last diff calculation.
 					text: data,
-					localv: 0,
-					remotev: 0
+					localv: 1,
+					remotev: 1
 				},
 				edits: []			// Queued edits not yet confirmed received by the client.
 			};
@@ -61,13 +61,17 @@ function Document(documentid, client) {
 
 	/** Handles a doc.sync message. */
 	this.sync = function(message) {
+		var document = this;
 		var patches;
-		removeAcknowledgedEdits(this, message);
+		removeAcknowledgedEdits(document, message);
 		// Beware: State-altering if:s!
-		if (assertVersion(this, message))
-			if (patches = patchShadow(this, message))
-				if (patchMain(this, message, patches))
-					sendDiffs();
+		if (assertVersion(document, message)) {
+			if (patches = patchShadow(document, message)) {
+				patchMain(document, patches, function callback() {
+					sendDiffs(document);
+				});
+			}
+		}
 	}
 
 }
@@ -75,12 +79,11 @@ function Document(documentid, client) {
 function removeAcknowledgedEdits(document, message) {
 	var edits = document.state.edits;
 	var count;
-
 	for (count in edits)
-		if (message.remotev <= edits[i].localv)
+		if (message.remotev > edits[count].localv)
 			break;
-
-	edits[i].splice(0, count);
+	if (count !== undefined)
+		edits.splice(0, (count | 0) + 1);
 }
 
 function assertVersion(document, message) {
@@ -137,7 +140,7 @@ function patchShadow(document, message) {
 	return patches;
 }
 
-function patchMain(document, patches) {
+function patchMain(document, patches, callback) {
 	var count, i;
 	// Apply the successful patches to the main text as one atomic operation.
 	lock(document, function() {
@@ -145,19 +148,22 @@ function patchMain(document, patches) {
 		read(document, function(err, data) {
 			if (err) {
 				log.e(e.message);
-				return unlock(document);
-			}
-
-			document.state.text = data;
-			for (i = 0, count = patches.length; i < count; i++)
-				document.state.text = dmp.patch_apply(patches[i], document.state.text)[0];
-			write(document, function(err) {
-				if (err) {
-					log.e(e.message);
-					text = data;	// Abort patching.
-				}
 				unlock(document);
-			});
+				callback();
+			}
+			else {
+				document.state.text = data;
+				for (i = 0, count = patches.length; i < count; i++)
+					document.state.text = dmp.patch_apply(patches[i], document.state.text)[0];
+				write(document, function(err) {
+					if (err) {
+						log.e(e.message);
+						text = data;	// Abort patching.
+					}
+					unlock(document);
+					callback();
+				});
+			}
 
 		});
 
@@ -171,9 +177,9 @@ function sendDiffs(document) {
 	var client = document.client;
 	var documentid = document.documentid;
 
-	var diffs = dmp.diff_main(shadow, text);
+	var diffs = dmp.diff_main(shadow.text, text);
 	dmp.diff_cleanupEfficiency(diffs);
-	var patches = dmp.patch_make(shadow, diffs);
+	var patches = dmp.patch_make(shadow.text, diffs);
 
 	if (patches.length > 0) {
 		shadow.text = text;
@@ -191,7 +197,7 @@ function sendDiffs(document) {
 /**
  * Calculates the xxhash of a UTF-8 string.
  * @param  {String} str  A UTF-8 string to be hashed.
- * @return {String}      An xxhash.
+ * @return {Integer}     An xxhash.
  */
 function hash(str) {
 	var xxhash = new XXHash(0xC0DED1FF); // :)

@@ -1,25 +1,25 @@
 @extends('app')
 
 @section('content')
-<main id='home'> 
+<main id='home'>
 <div class="container">
 	<div class="row">
 		<div class="col-md-10 col-md-offset-1">
 			<div class="panel panel-default">
 				<div class="panel-heading">Your active projects</div>
 			</div>
-										
-			<style> 
+
+			<style>
 			#projects {
-				float: left;	
+				float: left;
 				width: 77%;
 			}
-			
+
 			#showprojects table, th, tr, td{
 				 padding: 5px;
 			}
 			#showprojects tr {
-				
+
 				border: solid 1px;
 			}
 			.projdata {
@@ -31,7 +31,7 @@
 				height: 300px;
 				float: left;
 				margin-left: 20px;
-				
+
 			}
 
 
@@ -42,8 +42,8 @@
 			}
 
 			#showmembers tr {
-				
-				
+
+
 			}
 			.removeuser{
 				cursor: pointer;
@@ -52,8 +52,8 @@
 			.selected{
 				background-color: lightblue;
 			}
-			
-			
+
+
 			#addmemberbtn {
 				float: left;
 				width: 26px;
@@ -72,7 +72,7 @@
 			}
 
 			#projectname {
-				
+
 				width: 200px;
 			}
 
@@ -82,7 +82,7 @@
 			}
 
 			#addprojectbtn {
-				
+
 				width: 26px;
 				text-indent: -999px;
 				background-image: url("images/add_folder-icon.png");
@@ -92,7 +92,7 @@
 			.owneronly{
 				display: none;
 			}
-			
+
 			#openproject{
 				cursor: pointer;
 				margin-left: 20px;				
@@ -101,10 +101,10 @@
 			#removeproject{
 				cursor: pointer;
 			}
-		
+
 
 			</style>
-				<div id='projects'>	
+				<div id='projects'>
 					{!! Form::text('projectname', '', array('placeholder' => 'Project name ..', 'id' => 'projectname')) !!}
 					{!! Form::submit('addproject', array('id' => 'addprojectbtn')) !!}
 					<a id='openproject'>Open project</a>
@@ -112,37 +112,37 @@
 					<table id='showprojects'>
 						<tr>
 							<th>Project name</th><th>Owner</th>
-						</tr>	
+						</tr>
 
 						@foreach ($projects as $project)
-						
+
 						<tr class='projdata' data-value={{ $project->id }}>
 							<td>{{ $project->name }}</td>
-							<td>{{ $project->username }}</td>																							
+							<td>{{ $project->username }}</td>
 						</tr>
 						@endforeach
-						
+
 					</table>
 				</div>
 				<div id='members'>
 					<div id='addmember' class='owneronly'>
-						
+
 						{!! Form::text('username', '', array('placeholder' => 'Username ..', 'id' => 'username')) !!}
-						{!! Form::submit('addmember', array('id' => 'addmemberbtn')) !!}						
+						{!! Form::submit('addmember', array('id' => 'addmemberbtn')) !!}
 						<br>
 						<br>
-							
+
 						<ul id='userlist'></ul>
-					
-							
-					</div>				
+
+
+					</div>
 						<table id='showmembers'>
 							<tr>
 								<th>Members</th>
-							</tr>																			
-						</table>									
+							</tr>
+						</table>
 				</div>
-		
+
 		</div>
 	</div>
 </div>
