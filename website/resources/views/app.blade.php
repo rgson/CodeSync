@@ -18,7 +18,7 @@
 				@if (Auth::guest())
 					<li><a href='/auth/register'>Register</a></li>
 				@else
-					<li><p class='navbar-text'>[insert username]</p></li>
+					<li><p class='navbar-text'>{{ Auth::user()->username }}</p></li>
 					<li><a href='/auth/logout'>Logout</a></li>
 				@endif
 			</ul>
