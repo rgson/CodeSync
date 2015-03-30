@@ -89,7 +89,6 @@ $('#addmemberbtn').click(function(){
 // Get existing users dynamically from input in textbox
 $('#username').bind('input propertychange', function(){	
 	
-
 	var username = $('#username').val();
 	var shortusername = username.substring(0, 3); //use the short for query, full for filter
 

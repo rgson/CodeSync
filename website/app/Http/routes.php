@@ -22,7 +22,6 @@ Route::controllers([
 // AJAX endpoints
 Route::get('projects', 'ProjectController@get');
 Route::post('projects', 'ProjectController@create');
-Route::get('project/{projectid}', 'ProjectController@details')->where('projectid', '[0-9]+');
 Route::delete('project/{projectid}', 'ProjectController@delete')->where('projectid', '[0-9]+');
 
 Route::get('project/{projectid}/members', 'ProjectAccessController@get')->where('projectid', '[0-9]+'); 

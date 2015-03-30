@@ -6,10 +6,9 @@
 	<div class="row">
 		<div class="col-md-10 col-md-offset-1">
 			<div class="panel panel-default">
-				<div class="panel-heading">Editor</div>
-				<div class="panel-body">
-					Kodeditorsidan
-						<style> 
+			<!-- Style for the chat -->
+			<style>  
+
 							.messageBubble {
 								margin: 40px;
 							  	display: inline-block;
@@ -65,6 +64,80 @@
 
 						</style>
 
+						<!-- Style for the file structure -->
+						<style>
+						#filestructure {
+							float: left;
+						}
+
+						#items {
+							list-style: none;
+							padding: 0px;
+							margin: 0px;
+							font-size: 16px;							
+						}
+
+						#cmenu{
+							display: none;
+							position: fixed;
+							border: 1px solid grey;
+							width: 120px;
+							background-color: lightgrey;
+							box-shadow: 2px 2px 1px grey;
+							cursor: pointer;
+						}
+						#items li
+						{
+							padding: 2px;
+							border-bottom: 1px solid grey;
+							border-bottom-style: dotted;
+						}
+						#items :hover {
+							background: grey;
+							color: white;
+						}
+						</style>
+				<div class="panel-heading">Editor</div>
+				<div class="panel-body">
+				<div id='filestructure'>
+					
+					<?php 
+						
+						function printFileStructure($fs)
+						{	
+
+							echo '<ul>';																				
+							foreach ($fs as $name => $id) 
+							{																
+								if(is_array($id))
+								{
+									echo '<li><span>' . $name . '</span>';
+									printFileStructure($id);
+									echo '</li>';
+								}
+								else
+								{
+									
+									echo "<li data-id='" . $id .  "'><span>" . $name . "</span></li>";
+								}
+							}
+							echo '</ul>';
+							
+						}
+						
+						printFileStructure($filestructure);
+					 ?>
+				</div>
+			
+				<div id='cmenu'>
+				<ul id='items'>
+					<li>Rename</li>
+					<li>Delete</li>
+				</ul>
+				</div>
+
+						
+						
 						<div class="code">
 							<label for="happyCoding"><br> Here is all the code!</label>
 
@@ -87,4 +160,8 @@
 	</div>
 </div>
 </main>
+@endsection
+
+@section('scripts')
+	<script src="/scripts/filestructure.js"></script>	
 @endsection

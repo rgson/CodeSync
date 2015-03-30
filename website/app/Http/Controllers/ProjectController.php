@@ -3,9 +3,11 @@ use Illuminate\Support\Facades\Input;
 use App\UserSession;
 use App\Project;
 use App\ProjectAccess;
+use App\Files;
 class ProjectController extends Controller {
 
 	private $projects;
+	private $id;
 	/*
 	|--------------------------------------------------------------------------
 	| Project Controller
@@ -24,6 +26,7 @@ class ProjectController extends Controller {
 	{
 		$this->middleware('auth');
 		$this->projects = new Project;
+		$this->id = array();
 	}
 
 
@@ -41,8 +44,10 @@ class ProjectController extends Controller {
 			return view('errors/404');
 		
 		$usersession = new Usersession;	
-		$usersession->handleUserAndSession($projectid);
-		return view('editor');
+		$usersession->handleUserAndSession($projectid);		
+		
+		return view('editor')
+		->with('filestructure', $this->getFileStructure($projectid));
 	}
 
 	public function create()
@@ -62,12 +67,48 @@ class ProjectController extends Controller {
 		}
 	}
 
-	public function delete($projectid){
+	public function delete($projectid)
+	{
 		Project::where(['id' => $projectid, 'owner' => \Auth::user()->id])->delete();
 		echo $this->projectsWithOwnerFlag();
 	}
 
-	# Helper functions
+	# Private functions
+	private function getFileStructure($projectid)
+	{	
+		$filepaths = Files::where(['project' => $projectid])->get(array('id', 'filepath'));		
+		$fp = array();
+		
+		foreach ($filepaths as $key => $value) {
+
+			$fp[$value['id']] = $value['filepath'];									
+		}
+	
+		return $this->createFileStructure($fp);	
+	}
+
+	private function createFileStructure($paths)
+	{		
+		$filepath = array();
+
+		foreach ($paths as $id => $path) {
+			
+			$parts = explode('/', $path);
+			$current = &$filepath;
+
+			for($i = 1, $max = count($parts); $i < $max; $i++)
+			{				
+				if(!isset($current[$parts[$i-1]]))
+				{
+					$current[$parts[$i-1]] = array();
+				}
+				$current = &$current[$parts[$i-1]];
+			}
+			$current[$parts[$i -1]] = $id;
+		}
+		
+		return $filepath;
+	}
 
 	private function checkProjectAccess($projectid)
 	{		
