@@ -3,15 +3,35 @@
 @section('content')
 <main id='editor'>
 	<div id='wrapper'>
-		<div id='filestructure'>
-			<?= printFileStructure($filestructure); ?>
+
+		<div id='col-1' class='column'>
+			<div id='filestructure'>
+				<?= printFileStructure($filestructure); ?>
+			</div>
 		</div>
 
-		<div id='workspace'>
-			<textarea id='code-editor' spellcheck='false'>
-				Synchronization has not been started (yet?).
-			</textarea>
+		<div id='res-1' class='resizer' data-left='#col-1' data-right='#col-2'>
 		</div>
+
+		<div id='col-2' class='column'>
+			<div class='workspace'>
+				<textarea id='editor-1' spellcheck='false'>
+					Synchronization has not been started (yet?).
+				</textarea>
+			</div>
+		</div>
+
+		<div id='res-2' class='resizer' data-left='#col-2' data-right='#col-3'>
+		</div>
+
+		<div id='col-3' class='column'>
+			<div class='workspace'>
+				<textarea id='editor-2' spellcheck='false'>
+					Synchronization has not been started (yet?).
+				</textarea>
+			</div>
+		</div>
+
 	</div>
 
 	<div id='chat' class='closed'>
