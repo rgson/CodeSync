@@ -3,8 +3,8 @@ $(function() {
 	$('#chat .head').click(function() {
 		$(this).parent().toggleClass('closed');
 	});
-	$("#chat .body").prop({
-		scrollTop: $("#chat .body").prop("scrollHeight")
+	$('#chat .body').prop({
+		scrollTop: $('#chat .body').prop('scrollHeight')
 	});
 
 	var code_editor = CodeMirror.fromTextArea($('#code-editor')[0],{
@@ -47,8 +47,5 @@ $(function() {
 		});
 
 	}, 1000);
-
-
-
 
 });

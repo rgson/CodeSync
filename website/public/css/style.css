@@ -31,7 +31,7 @@ main {
 	overflow: hidden;
 }
 
-#editor #files {
+#editor #filestructure {
 	position: absolute;
 	width: 200px;
 	padding: 10px;
@@ -40,21 +40,21 @@ main {
 	overflow: auto;
 }
 
-#editor #files ul {
+#editor #filestructure ul {
 	list-style: none;
 	padding-left: 1em;
 }
 
-#editor #files > ul {
+#editor #filestructure > ul {
 	padding-left: 0;
 }
 
-#editor #files span {
+#editor #filestructure span {
 	display: block;
 	cursor: pointer;
 }
 
-#editor #files span:hover {
+#editor #filestructure span:hover {
 	background-color: #E2CC66;
 	color: #1E1E1E;
 }
@@ -88,7 +88,7 @@ main {
 	z-index: 100;
 	right: 0;
 	bottom: 0;
-	background-color: #f5f5f5;
+	background-color: #F5F5F5;
 	color: #3e3e3e;
 	width: 300px;
 }
@@ -98,7 +98,7 @@ main {
 }
 
 #editor #chat .head {
-	background-color: #5d99cc;
+	background-color: #5D99CC;
 	color: #f5f5f5;
 	cursor: pointer;
 	font-size: 20px;
@@ -135,4 +135,31 @@ main {
 	visibility: hidden;
 	height: 0;
 	padding: 0;
+}
+
+.context-menu {
+	position: fixed;
+	z-index: 100;
+	min-width: 100px;
+	background-color: #F5F5F5;
+	color: #3E3E3E;
+}
+
+.context-menu.closed {
+	visibility: hidden;
+}
+
+.context-menu ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.context-menu li {
+	cursor: pointer;
+	padding: 2px;
+}
+
+.context-menu li:hover {
+	background-color: #E2CC66;
 }

@@ -1,120 +1,17 @@
 @extends('app')
 
 @section('content')
-<!-- Style for the file structure -->
-		<style>
-		#filestructure {
-			float: left;
-		}
-
-		#items {
-			list-style: none;
-			padding: 0px;
-			margin: 0px;
-			font-size: 16px;							
-		}
-
-		#cmenu{
-			display: none;
-			position: fixed;
-			border: 1px solid grey;
-			width: 120px;
-			background-color: lightgrey;
-			box-shadow: 2px 2px 1px grey;
-			cursor: pointer;
-		}
-		#items li
-		{
-			padding: 2px;
-			border-bottom: 1px solid grey;
-			border-bottom-style: dotted;
-		}
-		#items :hover {
-			background: grey;
-			color: white;
-		}
-		</style>
-<main id='editor'> 
+<main id='editor'>
 	<div id='wrapper'>
-		<div id='filestructure'>					
-			<?php 				
-				function printFileStructure($fs)
-				{	
-					echo '<ul>';																				
-					foreach ($fs as $name => $id) 
-					{																
-						if(is_array($id))
-						{
-							echo '<li><span>' . $name . '</span>';
-							printFileStructure($id);
-							echo '</li>';
-						}
-						else
-						{
-							
-							echo "<li data-id='" . $id .  "'><span>" . $name . "</span></li>";
-						}
-					}
-					echo '</ul>';					
-				}
-						
-				printFileStructure($filestructure);
-			?>
+		<div id='filestructure'>
+			<?= printFileStructure($filestructure); ?>
 		</div>
 
 		<div id='workspace'>
 			<textarea id='code-editor' spellcheck='false'>
-var MAX_DENOMINATOR = 1000;
-
-var longest_denominator = 0;
-var longest_length = 0;
-var i, length;
-
-for (i = MAX_DENOMINATOR; i &gt; longest_length; i = i - 1) {
-	length = find_recurrence_length(i);
-	console.log(i + &#39;: &#39; + length);
-	if (longest_length &lt; length) {
-		longest_length = length;
-		longest_denominator = i;
-	}
-}
-return longest_denominator;
-
-
-
-function find_recurrence_length(denominator) {
-	var b = &#39;1&#39;, mod;
-	if (denominator % 2 === 0 || denominator % 5 === 0)
-		return 0;
-	do {
-		b += &#39;0&#39;;
-		mod = big_mod(b, denominator);
-	} while (mod !== 1 &amp;&amp; b.length &lt; denominator);
-	return (mod === 1 ? b.length - 1 : undefined);
-}
-
-function big_mod(dividend, divisor) {
-	var temp, mod = &#39;&#39;, take;
-	do {
-		dividend = mod.toString() + dividend;
-		take = 16 - (divisor - 1).toString().length;
-		temp = parseInt(dividend.substr(0, take));
-		dividend = dividend.substr(take);
-		mod = temp % divisor;
-	} while (dividend.length);
-	return mod;
-}
-
-			</textarea>						
+				Synchronization has not been started (yet?).
+			</textarea>
 		</div>
-	</div>				
-				
-			
-	<div id='cmenu'>
-	<ul id='items'>
-		<li>Rename</li>
-		<li>Delete</li>
-	</ul>
 	</div>
 
 	<div id='chat' class='closed'>
@@ -144,6 +41,13 @@ function big_mod(dividend, divisor) {
 		</div>
 	</div>
 
+	<div id='filemenu' class='context-menu closed'>
+		<ul>
+			<li>Rename</li>
+			<li>Delete</li>
+		</ul>
+	</div>
+
 </main>
 @endsection
 
@@ -159,6 +63,23 @@ function big_mod(dividend, divisor) {
 	<script src='/libs/codemirror/mode/javascript.js'></script>
 	<script src='/scripts/syncclient.js'></script>
 	<script src='/scripts/editor.js'></script>
-	<script src="/scripts/filestructure.js"></script>	
+	<script src="/scripts/filestructure.js"></script>
 
 @endsection
+
+<?php
+function printFileStructure($fs) {
+	echo '<ul>';
+	foreach ($fs as $name => $id) {
+		if(is_array($id)) {
+			echo '<li><span>' . $name . '</span>';
+			printFileStructure($id);
+			echo '</li>';
+		}
+		else {
+			echo "<li data-id='" . $id .  "'><span>" . $name . "</span></li>";
+		}
+	}
+	echo '</ul>';
+}
+?>
