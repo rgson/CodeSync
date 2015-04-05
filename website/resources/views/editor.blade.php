@@ -37,27 +37,15 @@
 	<div id='chat' class='closed'>
 		<div class='head'>
 			<span class='glyphicon glyphicon-comment'></span>
-		</div>
+		</div> 
 		<div class='body'>
 			<p class='message'>
-				<span class='sender'>Robin</span>
-				<span class='content'>Pendlar nästa utredning pendlar bästa. Asfaltsort för koepke minska sönder. Jag så län 1 399 965.6 bestämma exempel ta.</span>
-			</p>
-			<p class='message'>
-				<span class='sender'>Johan</span>
-				<span class='content'>Ha sig han än här, i kan. Men möjligheten men ifall dig lika klara. Är alltför siffra dig. Katastrof skulle katastrof sätt få.</span>
-			</p>
-			<p class='message'>
-				<span class='sender'>Linus</span>
-				<span class='content'>Stadsmiljöborgarrådet länsstyrelsen finns fram dig sattes partiklar inte. Sönder förslaget motormännen. Avgiften fattar kunde värmdö 555 tomas men för tomas. Trafikolycka (frågan bukt) dubbdäck 1 480 234 minska redan hoppas regeringen. September den lite bli. Lika att vinter siffra.</span>
-			</p>
-			<p class='message'>
-				<span class='sender'>Anna</span>
-				<span class='content'>Alltför bestämma tycker föreslår möjlig införa rapportera. Kommuner säger värmdö tycker 1 208 293.1 man budgetförhandlingar in miljöproblem.</span>
+				<span class='sender'></span>
+				<span class='content'></span>
 			</p>
 		</div>
 		<div class='footer'>
-			<textarea rows='1'></textarea>
+			<textarea id="writeMessage" rows='2'></textarea>
 		</div>
 	</div>
 
@@ -84,6 +72,7 @@
 	<script src='/scripts/syncclient.js'></script>
 	<script src='/scripts/editor.js'></script>
 	<script src="/scripts/filestructure.js"></script>
+	<script src="/scripts/projectmessages.js"></script>
 
 @endsection
 

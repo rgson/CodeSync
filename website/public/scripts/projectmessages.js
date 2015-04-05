@@ -1,40 +1,84 @@
+//Global vaiables
+var lastMsg = 0;	
 
-//Send message.
-$('#sendMessage').click(function() {
-	var messageContent = $('selected').data('value');
-	var projectid = window.location.href.split("/")[3];
+$(document).ready(function()  {
 
-	//if message is empty
-	if (messageContent == null || messageContent == '') {
-		return false;
+	$('#writeMessage').keypress(function(e) {
+		//Check if enter is pressed
+		if (e.keyCode==13) {
+			//Send message.
+			var content = $('#writeMessage').val();
+			var projectid = window.location.href.split("/")[3];
+
+			//Erase information in textarea.
+			$('#writeMessage').val('');
+
+			//if message is empty
+			if (content == null || content == '') {
+				return false;
+			}
+							
+			$.ajax({
+				url: '/project/' + projectid + '/chat',
+				data: {
+					'content' : content,
+					'project' : projectid
+				},
+				cache: false,
+				type: 'POST'
+			});
+		}
+	});
+
+	//Ordinary polling with recursion.
+	(function getMessages() {
+		var projectid = window.location.href.split("/")[3];
+
+		setInterval(function() {
+			$.ajax({
+				url: '/project/' + projectid + '/chat',
+				type: 'GET',
+				cache: false,
+				data: {'last_message' : window.lastMsg },		
+				success: function(responseObj) {   
+					if (responseObj.length > 0) {    
+						window.lastMsg = getLastDateTime(responseObj);	
+						buildMessageTable(responseObj);
+					}		
+				getMessages();
+				}, dataType: "json"
+			});
+		}, 2000);
+	}) ();
+
+	//Long  polling
+	/*(function getMessages() {
+		var projectid = window.location.href.split("/")[3];
+	   setInterval(function() {
+	       $.ajax({ 
+	       url: '/project/' + projectid + '/chat',
+	       type: 'GET',
+	       cache: false,
+	       data: {'last_message' : window.lastId },	
+	        success: function(responseObj) {
+	           if (responseObj.length > 0) {     
+						window.lastId = getLastId(responseObj);	
+						buildMessageTable(responseObj)	
+					}
+	       }, dataType: "json", 
+	       	  complete: getMessages() }); 
+	    }, 2000);
+	})();*/
+
+	function buildMessageTable(messages) {
+		$.each(messages, function(i, message) {
+			$('.sender').append(message[0]);
+			$('.content').append(message[1].content);
+		});
 	}
 
-	$.ajax({
-		url: '/project/' + projectid + '/chat',
-		data: {
-			'messageContent' : messageContent
-		};
-		cache: false,
-		type 'POST',
-		success: function(response) {
-			if (response == 'invalid') {
-				window.alert("message could not be added to conversation, please try again.");
-			}
-			else {
-				buildMessageTable(response ,'projectid')
-			}
-		}
+	function getLastDateTime(responseObj) {
+		return responseObj[responseObj.length -1][1].created_at;
+	}
 
-	});
-})
-
-function buildMessageTable(response) {
-	$('#showProjectConversation').slice(1, 4);
-
-	var messages = $.parseJSON(response);
-
-	$.each(messages, function(i, message) {
-		$('#showwProjectConversation').append("<tr><td>" + message.sender + "</td>" +
-			"<td>" + message.created_at "</td>" + "<td>" + message.content + "</td></tr>");
-	})
-}
+});

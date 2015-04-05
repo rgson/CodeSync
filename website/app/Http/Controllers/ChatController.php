@@ -5,27 +5,26 @@ use Illuminate\Support\Facades\Input;
 
 class ChatController extends Controller {
 
-	public function getAllMsg()
-	{
-		$all_messages = Message::all();
-		return view('chatMessages')->with('all_messages', $all_messages);
+	
+	public function get($project) {
+		$messages = new Message();
+		$m = new Message();
+		$extendedMessages = [];
+		
+		$lastMsg = Input::get('last_message');
+		
+		$messages = $messages->findAllMessagesForProject($project, $lastMsg);
+		
+		return $extendedMessages = $m->addUsername($messages);
 	}
 
-	public function getMsgForProject($project) {
-		$project_messages = new Message();
-		$project_messages = $project_messages->findAllMessagesForProject($project);
-		return view('chatMessages')->with('project_messages', $project_messages);
-	}
 
-	public function postNewMsg() {
-		if (Input::has('from') && Input::has('project') && Input::has('msg')) {
-			Message::create([
-				'sender' => $from,
-				'project' => $project,
-				'content' = $msg
-				]);
-		} else {
-			echo "All textboxes need to be filled";
-		}
+	public function create() {
+		$newMessage = new Message;
+		$newMessage->content = Input::get('content');
+		$newMessage->project = Input::get('project');
+		$newMessage->sender =  \Auth::user()->id;
+		
+		$newMessage->save();
 	}
 }
