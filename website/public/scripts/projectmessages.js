@@ -1,11 +1,11 @@
 //Global vaiables
-var lastMsg = 0;	
+var lastMsg = 0;
 
 $(document).ready(function()  {
 
 	$('#writeMessage').keypress(function(e) {
-		//Check if enter is pressed
-		if (e.keyCode==13) {
+		//Check if "ENTER" is pressed
+		if (e.keyCode==13 && !e.shiftKey) {
 			//Send message.
 			var content = $('#writeMessage').val();
 			var projectid = window.location.href.split("/")[3];
@@ -14,10 +14,10 @@ $(document).ready(function()  {
 			$('#writeMessage').val('');
 
 			//if message is empty
-			if (content == null || content == '') {
+			if (content == null || content == "" || ($.trim(content).length === 0)) {
 				return false;
 			}
-							
+
 			$.ajax({
 				url: '/project/' + projectid + '/chat',
 				data: {
@@ -27,6 +27,9 @@ $(document).ready(function()  {
 				cache: false,
 				type: 'POST'
 			});
+
+			//Resetting the cursor in textarea.
+			$('#writeMessage').trigger(e);
 		}
 	});
 
@@ -39,12 +42,12 @@ $(document).ready(function()  {
 				url: '/project/' + projectid + '/chat',
 				type: 'GET',
 				cache: false,
-				data: {'last_message' : window.lastMsg },		
-				success: function(responseObj) {   
-					if (responseObj.length > 0) {    
-						window.lastMsg = getLastDateTime(responseObj);	
+				data: {'last_message' : window.lastMsg },
+				success: function(responseObj) {
+					if (responseObj.length > 0) {
+						window.lastMsg = getLastDateTime(responseObj);
 						buildMessageTable(responseObj);
-					}		
+					}
 				getMessages();
 				}, dataType: "json"
 			});
@@ -55,26 +58,32 @@ $(document).ready(function()  {
 	/*(function getMessages() {
 		var projectid = window.location.href.split("/")[3];
 	   setInterval(function() {
-	       $.ajax({ 
+	       $.ajax({
 	       url: '/project/' + projectid + '/chat',
 	       type: 'GET',
 	       cache: false,
-	       data: {'last_message' : window.lastId },	
+	       data: {'last_message' : window.lastId },
 	        success: function(responseObj) {
-	           if (responseObj.length > 0) {     
-						window.lastId = getLastId(responseObj);	
-						buildMessageTable(responseObj)	
+	           if (responseObj.length > 0) {
+						window.lastId = getLastId(responseObj);
+						buildMessageTable(responseObj)
 					}
-	       }, dataType: "json", 
-	       	  complete: getMessages() }); 
+	       }, dataType: "json",
+	       	  complete: getMessages() });
 	    }, 2000);
 	})();*/
 
 	function buildMessageTable(messages) {
-		$.each(messages, function(i, message) {
-			$('.sender').append(message[0]);
-			$('.content').append(message[1].content);
+		$.each(messages, function(i, msg) {
+			$('.body').append(
+	    	 	$('<div/>', {'class': 'message'}).append(
+		            $('<span/>', {'class': 'sender', text: msg[0]})
+	            ).append(
+	            	$('<span/>', {'class': 'content', text: msg[1].content}))
+	    	);
 		});
+		//Scrolls to bottom of div, shows last message.
+		$('.body').scrollTop($('.body')[0].scrollHeight);
 	}
 
 	function getLastDateTime(responseObj) {

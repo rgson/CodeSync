@@ -8,7 +8,7 @@ class Message extends Model {
 			->orderBy('created_at', 'asc')
 			->take(100)
 			->get();
-			
+
 		return $messages;
 	}
 
@@ -18,7 +18,7 @@ class Message extends Model {
 		if ($numberOfMessages > 0) {
 			$extended = [];
 			$users = User::all();
-			
+
 			$k = 0;
 			do {
 				foreach ($users as $user) {
@@ -29,8 +29,8 @@ class Message extends Model {
 
 				$k++;
 			} while ($k != $numberOfMessages);
-			
+
 			return $extended;
 		}
 	}
-} 
+}
