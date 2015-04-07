@@ -37,7 +37,7 @@ $(document).ready(function()  {
 	(function getMessages() {
 		var projectid = window.location.href.split("/")[3];
 
-		setInterval(function() {
+		setTimeout(function() {
 			$.ajax({
 				url: '/project/' + projectid + '/chat',
 				type: 'GET',
@@ -47,17 +47,19 @@ $(document).ready(function()  {
 					if (responseObj.length > 0) {
 						window.lastMsg = getLastDateTime(responseObj);
 						buildMessageTable(responseObj);
-					}
-				getMessages();
-				}, dataType: "json"
+					} 			
+				}, 
+				dataType: "json",
+				complete : getMessages()
 			});
-		}, 2000);
+		}, 2000)
 	}) ();
+
 
 	//Long  polling
 	/*(function getMessages() {
 		var projectid = window.location.href.split("/")[3];
-	   setInterval(function() {
+	   setTimeout(function() {
 	       $.ajax({
 	       url: '/project/' + projectid + '/chat',
 	       type: 'GET',
@@ -69,7 +71,8 @@ $(document).ready(function()  {
 						buildMessageTable(responseObj)
 					}
 	       }, dataType: "json",
-	       	  complete: getMessages() });
+	       	  complete: getMessages() 
+	       	});
 	    }, 2000);
 	})();*/
 
