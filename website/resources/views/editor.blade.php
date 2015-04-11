@@ -37,12 +37,14 @@
 	<div id='chat' class='closed'>
 		<div class='head'>
 			<span class='glyphicon glyphicon-comment'></span>
-		</div> 
+		</div>
 		<div class='body'>
-			<p class='message'>
-				<span class='sender'></span>
-				<span class='content'></span>
+		@foreach ($messages as $message)
+			<p class='message' data-id='{{ $message->id }}'>
+				<span class='sender'>{{ $message->sendername }}</span>
+				<span class='content'>{{ $message->content }}</span>
 			</p>
+		@endforeach
 		</div>
 		<div class='footer'>
 			<textarea id="writeMessage" rows='2'></textarea>

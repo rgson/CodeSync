@@ -1,28 +1,48 @@
 <?php namespace App\Http\Controllers;
 
-use App\Message;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Http\Response;
+use App\Message;
+use App\User;
 
 class ChatController extends Controller {
 
 	public function get($project) {
-		$messages = new Message();
-		$m = new Message();
-		$extendedMessages = [];
+		$after = Input::get('after');
+		$before = Input::get('before');
+		$poll = Input::get('poll', !!$after);	// Defaults to true for requests with 'after'
 
-		$lastMsg = Input::get('last_message');
+		if ((!$after && !$before) || ($after && $before))
+			return response('', 400);
 
-		$messages = $messages->findAllMessagesForProject($project, $lastMsg);
+		if ($poll && $after) {
+			do {
+				$messages = Message::after($project, $after);
+				sleep(1);
+			} while ($messages->isEmpty());
+		}
+		else if ($after)
+			$messages = Message::after($project, $after);
+		else
+			$messages = Message::before($project, $before);
 
-		return $extendedMessages = $m->addUsername($messages);
+		$messages_array = [];
+		foreach ($messages as $message) {
+			$messages_array[] = [
+				'id' => $message->id,
+				'sender' => $message->sendername,
+				'content' => $message->content
+			];
+		}
+
+		return $messages_array;
 	}
 
-	public function create() {
+	public function create($project) {
 		$newMessage = new Message;
 		$newMessage->content = Input::get('content');
-		$newMessage->project = Input::get('project');
-		$newMessage->sender =  \Auth::user()->id;
-
+		$newMessage->project = $project;
+		$newMessage->sender = \Auth::user()->id;
 		$newMessage->save();
 	}
 }
