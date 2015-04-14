@@ -71,10 +71,11 @@
 	<script src='/libs/diff_match_patch.js'></script>
 	<script src='/libs/codemirror/codemirror.js'></script>
 	<script src='/libs/codemirror/mode/javascript.js'></script>
-	<script src='/scripts/syncclient.js'></script>
 	<script src='/scripts/editor.js'></script>
-	<script src="/scripts/filestructure.js"></script>
-	<script src="/scripts/projectmessages.js"></script>
+	<script src='/scripts/editor.syncclient.js'></script>
+	<script src="/scripts/editor.files.js"></script>
+	<script src="/scripts/editor.chat.js"></script>
+	<script src="/scripts/editor.resizer.js"></script>
 
 @endsection
 

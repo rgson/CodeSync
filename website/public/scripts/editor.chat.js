@@ -1,16 +1,23 @@
-$(document).ready(function()  {
+$(function() {
 
 	var projectid = window.location.href.split("/")[3];
-
 	var waitingForResponse = false;
-
 	var firstMessage = 0;
 	var lastMessage = 0;
 	var messages = $('#chat .body .message');
+
 	if (messages.length) {
 		firstMessage = $(messages[0]).data('id') | 0;
 		lastMessage = $(messages[messages.length - 1]).data('id') | 0;
 	}
+
+	$('#chat .head').click(function() {
+		$(this).parent().toggleClass('closed');
+	});
+
+	$('#chat .body').prop({
+		scrollTop: $('#chat .body').prop('scrollHeight')
+	});
 
 	$('#writeMessage').keypress(function(e) {
 		//Check if "ENTER" is pressed

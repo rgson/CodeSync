@@ -95,7 +95,7 @@
 
 			#openproject{
 				cursor: pointer;
-				margin-left: 20px;				
+				margin-left: 20px;
 			}
 
 			#removeproject{
@@ -151,7 +151,7 @@
 @endsection
 
 @section('scripts')
-	<script src="/scripts/projectmembers.js"></script>
-	<script src="/scripts/project.js"></script>
+	<script src="/scripts/projects.js"></script>
+	<script src="/scripts/projects.members.js"></script>
 @endsection
 
