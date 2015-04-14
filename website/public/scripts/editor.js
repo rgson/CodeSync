@@ -1,13 +1,5 @@
 $(function() {
 
-	var editor_1 = CodeMirror.fromTextArea($('#editor-1')[0],{
-		mode: 'javascript',
-		theme: 'codesync',
-		lineNumbers: true,
-		indentWithTabs: true,
-		tabSize: 2
-	});
-
 	SyncClient.on('create', function(args) {
 		console.log('create: ' + args);
 	});
@@ -25,19 +17,11 @@ $(function() {
 	});
 
 	setTimeout(function() {
-		/*	SyncClient.do('create', {path: 'test.txt'}); */
+		/*SyncClient.do('create', {path: 'test.txt'});*/
 
-		SyncClient.do('open', {
-			doc: 1,
-			get: function() {
-				return editor_1.getValue();
-			},
-			set: function(text) {
-				var cursor = editor_1.getCursor('head');
-				editor_1.setValue(text);
-				editor_1.setCursor(cursor)
-			}
-		});
+
+		var id = 1;
+		Tabs.open(id, $('#filestructure li[data-id="'+id+'"] span').text());
 
 	}, 1000);
 

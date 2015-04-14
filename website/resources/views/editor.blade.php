@@ -14,8 +14,10 @@
 		</div>
 
 		<div id='col-2' class='column'>
-			<div class='workspace'>
-				<textarea id='editor-1' spellcheck='false'>
+			<div id='workspace-1' class='workspace'>
+				<div class='tabs'>
+				</div>
+				<textarea class='editor' spellcheck='false'>
 					Synchronization has not been started (yet?).
 				</textarea>
 			</div>
@@ -25,8 +27,10 @@
 		</div>
 
 		<div id='col-3' class='column'>
-			<div class='workspace'>
-				<textarea id='editor-2' spellcheck='false'>
+			<div id='workspace-2'  class='workspace'>
+				<div class='tabs'>
+				</div>
+				<textarea class='editor' spellcheck='false'>
 					Synchronization has not been started (yet?).
 				</textarea>
 			</div>
@@ -76,6 +80,7 @@
 	<script src="/scripts/editor.files.js"></script>
 	<script src="/scripts/editor.chat.js"></script>
 	<script src="/scripts/editor.resizer.js"></script>
+	<script src="/scripts/editor.workspace.js"></script>
 
 @endsection
 

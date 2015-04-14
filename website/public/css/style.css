@@ -84,8 +84,7 @@ main {
 }
 
 #editor #filestructure span:hover {
-	background-color: #E2CC66;
-	color: #1E1E1E;
+	color: #E2CC66;
 }
 
 #editor .workspace {
@@ -161,6 +160,28 @@ main {
 	visibility: hidden;
 	height: 0;
 	padding: 0;
+}
+
+#editor .workspace .tabs {
+	padding: 5px 5px 0 5px;
+	min-height: 35px;
+}
+
+#editor .workspace .tabs .tab {
+	display: inline-block;
+	padding: 5px 10px;
+	color: #9D9D9D;
+	background-color: #1E1E1E;
+	cursor: pointer;
+}
+
+#editor .workspace .tabs .tab.active {
+	color: #F5F5F5;
+}
+
+#editor .workspace .tabs .tab:hover,
+#editor .workspace .tabs .tab.active:hover {
+	color: #E2CC66;
 }
 
 .context-menu {
