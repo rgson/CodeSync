@@ -27,6 +27,13 @@ $(document).ready(function(){
 				});
 				break;
 		}
+		event.preventDefault();
+	});
+
+	$(document).on('click', '#filestructure li[data-id] span', function(event) {
+		var $this = $(this);
+		Tabs.open($this.parent().data('id'), $this.text());
+		event.preventDefault();
 	});
 
 	// "Right click menu" chosen option event
