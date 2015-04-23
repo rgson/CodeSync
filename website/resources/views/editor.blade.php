@@ -17,9 +17,7 @@
 			<div id='workspace-1' class='workspace'>
 				<div class='tabs'>
 				</div>
-				<textarea class='editor' spellcheck='false'>
-					Synchronization has not been started (yet?).
-				</textarea>
+				<textarea class='editor' spellcheck='false'></textarea>
 			</div>
 		</div>
 
@@ -30,9 +28,7 @@
 			<div id='workspace-2'  class='workspace'>
 				<div class='tabs'>
 				</div>
-				<textarea class='editor' spellcheck='false'>
-					Synchronization has not been started (yet?).
-				</textarea>
+				<textarea class='editor' spellcheck='false'></textarea>
 			</div>
 		</div>
 
