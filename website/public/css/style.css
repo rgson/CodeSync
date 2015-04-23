@@ -187,9 +187,13 @@ main {
 
 #editor .workspace .tab .close {
 	cursor: pointer;
-	opacity: 0.8;
-	color: inherit;
+	opacity: 1;
 	text-shadow: none;
+	color: #9D9D9D;
+}
+
+#editor .workspace .tab .close:hover {
+	color: #FF8822;
 }
 
 .context-menu {
