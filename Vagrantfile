@@ -20,7 +20,12 @@ cat >/etc/apache2/sites-available/000-default.conf <<EOL
 </VirtualHost>
 EOL
 service apache2 restart
-echo "CREATE DATABASE codesync" | mysql -u root -proot
+cat >/home/vagrant/.my.cnf <<EOL
+[mysql]
+user=root
+password=root
+EOL
+echo "CREATE DATABASE codesync" | mysql
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
 cd /vagrant/website
