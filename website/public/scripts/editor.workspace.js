@@ -1,6 +1,6 @@
 $(function() {
 
-	var hoveringWorkspace;
+	var lastFocusedWorkspace;
 	var workspaces = {};
 	var tabsLocation = {};
 
@@ -9,9 +9,8 @@ $(function() {
 			var keys = Object.keys(workspaces);
 			if (!id) throw new Error('Must specify a file ID');
 			if (!keys.length) throw new Error('No workspaces found');
-			if (!tabsLocation[id]) {
-				workspaces[keys[0]].add(new Tab(id, title));
-			}
+			if (!tabsLocation[id])
+				workspaces[lastFocusedWorkspace || keys[0]].add(new Tab(id, title));
 			workspaces[tabsLocation[id]].activate(id);
 		}
 	};
@@ -20,15 +19,6 @@ $(function() {
 		var workspace = new Workspace(elem);
 		workspaces[workspace.id] = workspace;
 	});
-
-	$('.workspace').hover(
-		function enter() {
-			hoveringWorkspace = $(this).attr('id');
-		},
-		function exit() {
-			hoveringWorkspace = undefined;
-		}
-	);
 
 	$(document).on('click', '.tab', function() {
 		var id = $(this).data('id');
@@ -49,6 +39,10 @@ $(function() {
 			lineNumbers: true,
 			indentWithTabs: true,
 			tabSize: 2
+		});
+
+		this.editor.on('focus', function() {
+			lastFocusedWorkspace = that.id;
 		});
 
 		this.activate = function(id) {
