@@ -25,7 +25,7 @@ cat >/home/vagrant/.my.cnf <<EOL
 user=root
 password=root
 EOL
-echo "CREATE DATABASE codesync" | mysql
+echo "CREATE DATABASE codesync" | mysql -u root -proot
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
 cd /vagrant/website
