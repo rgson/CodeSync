@@ -293,24 +293,31 @@ function validateFile(documentid, projectid, onSuccess) {
  */
 function createFile(projectid, path, onSuccess) {
 	if (validFilePath(path)) {
-		database.insertFile(projectid, path, onSuccess,
-			function transactionCallback(documentid, callback) {
-				var dir = FILE_PATH_PREFIX + projectid;
-				var file = dir + '/' + documentid;
-				fs.mkdir(dir, function(err) {
-					if (!err || err.code === 'EEXIST') {
-						fs.open(file, 'w', function(err, fd) {
-							if (!err) {
-								fs.close(fd, function(err) {
-									if (!err) callback();
-									else callback(err);
+		database.pathExists(path, projectid, function(exists) {
+			if (exists) {
+				log.d('Duplicate file path for ' + projectid + ' (' + path + ')');
+			}
+			else {
+				database.insertFile(projectid, path, onSuccess,
+					function transactionCallback(documentid, callback) {
+						var dir = FILE_PATH_PREFIX + projectid;
+						var file = dir + '/' + documentid;
+						fs.mkdir(dir, function(err) {
+							if (!err || err.code === 'EEXIST') {
+								fs.open(file, 'w', function(err, fd) {
+									if (!err) {
+										fs.close(fd, function(err) {
+											if (!err) callback();
+											else callback(err);
+										});
+									} else callback(err);
 								});
 							} else callback(err);
 						});
-					} else callback(err);
-				});
+					}
+				);
 			}
-		);
+		});
 	}
 }
 

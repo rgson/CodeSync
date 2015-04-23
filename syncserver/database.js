@@ -7,6 +7,7 @@ var pool = mysql.createPool(config.database);
 module.exports = {
 	getSession: getSession,
 	fileExists: fileExists,
+	pathExists: pathExists,
 	insertFile: insertFile,
 	updateFile: updateFile,
 	deleteFile: deleteFile
@@ -36,14 +37,22 @@ function getSession(session, callback) {
 }
 
 function fileExists(documentid, projectid, callback) {
-	var sql = 'SELECT * FROM files'
-		+ ' INNER JOIN projects ON files.project = projects.id'
-		+ ' WHERE files.id = ? AND projects.id = ?';
+	var sql = 'SELECT * FROM files WHERE files.id = ? AND files.project = ?';
 	var params = [documentid, projectid];
 	pool.query(sql, params, function(err, rows) {
 		if (err)
 			log.e(err.message);
-		callback(!!rows);
+		callback(rows.length > 0);
+	});
+}
+
+function pathExists(path, projectid, callback) {
+	var sql = 'SELECT * FROM files WHERE files.filepath = ? AND files.project = ?';
+	var params = [path, projectid];
+	pool.query(sql, params, function(err, rows) {
+		if (err)
+			log.e(err.message);
+		callback(rows.length > 0);
 	});
 }
 
