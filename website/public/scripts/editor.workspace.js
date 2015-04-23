@@ -20,9 +20,26 @@ $(function() {
 		workspaces[workspace.id] = workspace;
 	});
 
-	$(document).on('click', '.tab', function() {
+	$(document).on('mousedown', '.tab', function(event) {
 		var id = $(this).data('id');
-		workspaces[tabsLocation[id]].activate(id);
+		var workspace = workspaces[tabsLocation[id]];
+		switch (event.which) {
+			case 1:
+				workspace.activate(id);
+				event.preventDefault();
+				break;
+			case 2:
+				workspace.remove(id);
+				event.preventDefault();
+				break;
+		}
+	});
+
+	$(document).on('click', '.tab .close', function(event) {
+		var id = $(this).parent().data('id');
+		var workspace = workspaces[tabsLocation[id]];
+		workspace.remove(id);
+		event.preventDefault();
 	});
 
 	function Workspace(element) {
@@ -63,15 +80,19 @@ $(function() {
 			}
 		}
 
-		this.remove = function(tab) {
-			if (tab.id === activeTab) {
-				tab.deactivate();
-				activeTab = undefined;
+		this.remove = function(id) {
+			var tab = tabs[id];
+			if (tab !== undefined) {
+				if (id === activeTab) {
+					tab.deactivate();
+					activeTab = undefined;
+				}
+				tab.setWorkspace(undefined);
+				tabsLocation[id] = undefined;
+				tab.element.detach();
+				tab.close();
+				delete tabs[id];
 			}
-			tab.setWorkspace(undefined);
-			tabsLocation[tab.id] = undefined;
-			tab.element.detach();
-			delete tabs[tab.id];
 		}
 	}
 
@@ -82,7 +103,9 @@ $(function() {
 		var content = '';
 
 		this.id = id;
-		this.element = $('<div>', {'class': 'tab', 'data-id': id, 'text': title});
+		this.element =
+			$('<div>', {'class': 'tab', 'data-id': id, 'text': title})
+				.append($('<i>', {'class': 'fa fa-close close'}));
 
 		this.activate = function() {
 			if (!active) {
@@ -97,12 +120,17 @@ $(function() {
 				that.element.removeClass('active');
 				active = false;
 				content = workspace.editor.getValue();
+				workspace.editor.setValue('')
 			}
 		}
 
 		this.setWorkspace = function(value) {
 			that.deactivate();
 			workspace = value;
+		}
+
+		this.close = function() {
+			SyncClient.do('close', {doc: that.id});
 		}
 
 		SyncClient.do('open', {

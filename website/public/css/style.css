@@ -185,6 +185,13 @@ main {
 	color: #E2CC66;
 }
 
+#editor .workspace .tab .close {
+	cursor: pointer;
+	opacity: 0.8;
+	color: inherit;
+	text-shadow: none;
+}
+
 .context-menu {
 	position: fixed;
 	z-index: 100;
