@@ -22,6 +22,8 @@ $(function() {
 
 		var id = 1;
 		Tabs.open(id, $('#filestructure li[data-id="'+id+'"] span').text());
+		var id = 2;
+		Tabs.open(id, $('#filestructure li[data-id="'+id+'"] span').text());
 
 	}, 1000);
 

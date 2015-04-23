@@ -30,10 +30,10 @@ $(function() {
 		}
 	);
 
-	$('.tab').click(function() {
+	$(document).on('click', '.tab', function() {
 		var id = $(this).data('id');
 		workspaces[tabsLocation[id]].activate(id);
-	})
+	});
 
 	function Workspace(element) {
 		var that = this;
@@ -85,7 +85,7 @@ $(function() {
 		var that = this;
 		var active = false;
 		var workspace;
-		var content;
+		var content = '';
 
 		this.id = id;
 		this.element = $('<div>', {'class': 'tab', 'data-id': id, 'text': title});

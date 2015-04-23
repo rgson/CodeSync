@@ -167,20 +167,21 @@ main {
 	min-height: 35px;
 }
 
-#editor .workspace .tabs .tab {
+#editor .workspace .tab {
 	display: inline-block;
 	padding: 5px 10px;
+	margin: 0 1px;
 	color: #9D9D9D;
 	background-color: #1E1E1E;
 	cursor: pointer;
 }
 
-#editor .workspace .tabs .tab.active {
+#editor .workspace .tab.active {
 	color: #F5F5F5;
 }
 
-#editor .workspace .tabs .tab:hover,
-#editor .workspace .tabs .tab.active:hover {
+#editor .workspace .tab:hover,
+#editor .workspace .tab.active:hover {
 	color: #E2CC66;
 }
 
