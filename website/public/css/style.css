@@ -40,16 +40,16 @@ main {
 
 #editor .column#col-1 {
 	left: 0;
-	right: 80vw;
+	right: 90vw;
 }
 
 #editor .column#col-2 {
-	left: 20vw;
-	right: 40vw;
+	left: 10vw;
+	right: 45vw;
 }
 
 #editor .column#col-3 {
-	left: 60vw;
+	left: 55vw;
 	right: 0;
 }
 
@@ -163,17 +163,17 @@ main {
 }
 
 #editor .workspace .tabs {
-	padding: 5px 5px 0 5px;
-	min-height: 35px;
+	min-height: 30px;
 }
 
 #editor .workspace .tab {
 	display: inline-block;
 	padding: 5px 10px;
-	margin: 0 1px;
+	margin: 2px 1px 0 1px;
 	color: #9D9D9D;
 	background-color: #1E1E1E;
 	cursor: pointer;
+	min-width: 100px;
 }
 
 #editor .workspace .tab.active {
