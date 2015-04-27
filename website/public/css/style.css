@@ -15,7 +15,12 @@ body {
 }
 
 main {
-	padding: 70px 15px 0;
+	padding-top: 70px;
+}
+
+main:not(#editor) {
+	padding-left: 15px;
+	padding-right: 15px;
 }
 
 #editor {
