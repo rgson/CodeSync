@@ -3,6 +3,30 @@
 @section('content')
 <main id='welcome'>
 	<h1>CodeSync</h1>
+	<div id='login'>
+		<div class="panel panel-default">
+			<div class="panel-body">
+				@if (count($errors) > 0)
+					<div class="alert alert-danger">
+						<strong>Whoops!</strong> There were some problems with your input.<br><br>
+						<ul>
+							@foreach ($errors->all() as $error)
+								<li>{{ $error }}</li>
+							@endforeach
+						</ul>
+					</div>
+				@endif
+
+				<form class="form-horizontal" role="form" method="POST" action="/auth/login">
+					<input type="hidden" name="_token" value="{{ csrf_token() }}">
+					<input type="email" class="form-control" name="email" value="{{ old('email') }}">
+					<input type="password" class="form-control" name="password">
+					<button type="submit" class="btn btn-primary">Login</button>
+					<a href="/password/email">Forgot Your Password?</a>
+				</form>
+			</div>
+		</div>
+	</div>
 	<div id='top'>
 		<div id='intro'>
 			<p>
@@ -21,30 +45,6 @@
 			cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
 			proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 			</p>
-		</div>
-		<div id='login'>
-			<div class="panel panel-default">
-				<div class="panel-body">
-					@if (count($errors) > 0)
-						<div class="alert alert-danger">
-							<strong>Whoops!</strong> There were some problems with your input.<br><br>
-							<ul>
-								@foreach ($errors->all() as $error)
-									<li>{{ $error }}</li>
-								@endforeach
-							</ul>
-						</div>
-					@endif
-
-					<form class="form-horizontal" role="form" method="POST" action="/auth/login">
-						<input type="hidden" name="_token" value="{{ csrf_token() }}">
-						<input type="email" class="form-control" name="email" value="{{ old('email') }}">
-						<input type="password" class="form-control" name="password">
-						<button type="submit" class="btn btn-primary">Login</button>
-						<a href="/password/email">Forgot Your Password?</a>
-					</form>
-				</div>
-			</div>
 		</div>
 	</div>
 	<div id='featured'>

@@ -65,12 +65,12 @@ main {
 }
 
 #editor #filepath {
-	width: 140px;	
+	width: 140px;
 	color: black;
 }
 
 #editor #filepathInput{
-	visibility: hidden;	
+	visibility: hidden;
 }
 
 #editor #filestructure {
@@ -242,23 +242,18 @@ main {
 	text-align: justify;
 }
 
-#welcome #top {
-	display: flex;
-}
-
-#welcome #intro {
-	flex: 1;
-	margin-right: 2em;
-}
-
 #welcome #login {
-	width: 30%;
+	float: right;
+	width: 20%;
 	min-width: 250px;
+	max-width: 300px;
+	margin: 0 0 20px 20px;
 }
 
 #welcome #login .panel {
 	background-color: #1E1E1E;
 	border: none;
+	margin: 0;
 }
 
 #welcome #login input {
@@ -267,11 +262,12 @@ main {
 }
 
 #welcome #featured {
+	clear: both;
 	margin-top: 2em;
-    -moz-column-count: 3;
-    -moz-column-gap: 2em;
-    -webkit-column-count: 3;
-    -webkit-column-gap: 2em;
-    column-count: 3;
-    column-gap: 2em;
+	-moz-column-count: 3;
+	-moz-column-gap: 2em;
+	-webkit-column-count: 3;
+	-webkit-column-gap: 2em;
+	column-count: 3;
+	column-gap: 2em;
 }
