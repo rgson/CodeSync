@@ -5,6 +5,9 @@
 	<div id='wrapper'>
 
 		<div id='col-1' class='column'>
+			<div id='filepathInput'>
+				{!! Form::text('filepath', '', array('placeholder' => '', 'id' => 'filepath')) !!}				
+			</div>
 			<div id='filestructure'>
 				<?= printFileStructure($filestructure); ?>
 			</div>
@@ -53,8 +56,9 @@
 
 	<div id='filemenu' class='context-menu closed'>
 		<ul>
-			<li>Rename</li>
-			<li>Delete</li>
+			<li id='createFile'>Create</li>			
+			<li id='deleteFile'>Delete</li>
+			<li id='renameFile'>Rename</li>
 		</ul>
 	</div>
 
@@ -74,7 +78,7 @@
 	<script src='/scripts/editor.js'></script>
 	<script src='/scripts/editor.syncclient.js'></script>
 	<script src="/scripts/editor.files.js"></script>
-	<script src="/scripts/editor.chat.js"></script>
+	<!--<script src="/scripts/editor.chat.js"></script> -->
 	<script src="/scripts/editor.resizer.js"></script>
 	<script src="/scripts/editor.workspace.js"></script>
 
