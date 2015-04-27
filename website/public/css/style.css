@@ -238,10 +238,6 @@ main {
 	margin-top: 0;
 }
 
-#welcome {
-	text-align: justify;
-}
-
 #welcome #login {
 	float: right;
 	width: 20%;
@@ -261,8 +257,17 @@ main {
 	margin-bottom: 3px;
 }
 
+#welcome #login .alert {
+	margin-bottom: 3px;
+}
+
+#welcome #intro  {
+	text-align: justify;
+}
+
 #welcome #featured {
 	clear: both;
+	text-align: justify;
 	margin-top: 2em;
 	-moz-column-count: 3;
 	-moz-column-gap: 2em;
@@ -270,4 +275,13 @@ main {
 	-webkit-column-gap: 2em;
 	column-count: 3;
 	column-gap: 2em;
+}
+
+#welcome ul {
+	margin: 0;
+	padding: 0;
+}
+
+#welcome li {
+		list-style-position: inside;
 }
