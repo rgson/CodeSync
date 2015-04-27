@@ -17,10 +17,10 @@
 			<a class='navbar-brand navbar-left' href='/'>CodeSync</a>
 			<ul class='nav navbar-nav navbar-right'>
 				@if (Auth::guest())
-					<li><a href='/auth/register'>Register</a></li>
+					<li><a href='/register'>Register</a></li>
 				@else
 					<li><p class='navbar-text'>{{ Auth::user()->username }}</p></li>
-					<li><a href='/auth/logout'>Logout</a></li>
+					<li><a href='/logout'>Logout</a></li>
 				@endif
 			</ul>
 		</div>
