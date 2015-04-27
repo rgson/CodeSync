@@ -130,8 +130,8 @@ function Client(session, connection) {
 				that.documents[id].sync();
 	}
 
-	this.listen = function(listener) {
-		that.listener = listener;
+	this.listen = function(eventlistener) {
+		listener = eventlistener;
 	}
 
 	this.create = function(path) {
