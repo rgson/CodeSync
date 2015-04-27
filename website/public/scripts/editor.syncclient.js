@@ -33,8 +33,9 @@ function SyncClient(session) {
 		client = new Client(session, connection);
 		editsInterval = setInterval(client.sync, EDITS_INTERVAL);
 		client.listen(function(action, args) {
-			if (listeners[action])
-				listeners[action](args);
+			for (var i = listeners[action].length - 1; i >= 0; i--) {
+				listeners[action][i](args);
+			}
 		});
 		window.onbeforeunload = client.drop;
 	};
@@ -45,11 +46,11 @@ function SyncClient(session) {
 	};
 
 	listeners = {
-		'create': undefined,
-		'delete': undefined,
-		'move': undefined,
-		'open': undefined,
-		'close': undefined
+		'create': [],
+		'delete': [],
+		'move': [],
+		'open': [],
+		'close': []
 	};
 
 	/**
@@ -66,8 +67,22 @@ function SyncClient(session) {
 	 */
 	this.on = function(action, callback) {
 		if (Object.keys(listeners).indexOf(action) !== -1)
-			listeners[action] = callback;
+			listeners[action].push(callback);
 	};
+
+	/**
+	 * Removes an event listener.
+	 * @param  {String}   action     The type of event.
+	 * @param  {Function}  callback  The callback for this event to remove.
+	 * @return {Void}
+	 */
+	this.off = function(action, callback) {
+		if (Object.keys(listeners).indexOf(action) !== -1) {
+			var pos = listeners[action].indexOf(callback);
+			if (pos !== -1)
+				listeners[action].shift(pos, 1);
+		}
+	}
 
 	/**
 	 * Performs an action.
