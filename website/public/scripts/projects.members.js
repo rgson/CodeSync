@@ -142,11 +142,11 @@ function clearOnClick(){
 	$('.owneronly').hide();	
 	$('#username').val('');
 	$('#userlist li').remove();
-	$('#showmembers tr').slice(1).remove();
+	$('#showmembers li').slice(1).remove();
 }
 
 function buildMemberTable(response, projectid){
-	$('#showmembers tr').slice(1).remove();
+	$('#showmembers li').slice(1).remove();
 
 	var members = $.parseJSON(response);
 	var auth = members.authuser;	
@@ -155,9 +155,10 @@ function buildMemberTable(response, projectid){
 
 		if(member != auth){					
 			if(auth === member.owner && member.id !== auth)
-				$('#showmembers').append("<tr><td>" + member.username + "</td><td><img  class='removeuser' src='images/Remove-icon.png' alt='remove user' data-user='" + member.id + "' data-proj='" + projectid + "'></td></tr>");			 
+				$('#showmembers').append("<li>" + member.username + "<button class='removeuser btn btn-danger btn-xs'><span class='glyphicon glyphicon-remove' data-user='" + member.id + "' data-proj='" + projectid + "'></span></button></li>");			 
 			else 				
-				$('#showmembers').append("<tr><td>" + member.username + "</td></tr>");			
+				$('#showmembers').append("<li>" + member.username + "<button class='removeuser btn btn-danger btn-xs'><span class='glyphicon glyphicon-remove' data-user='" + member.id + "' data-proj='" + projectid + "'></span></button></li>");	
+				//$('#showmembers').append("<li>" + member.username + "</li>");			
 		}
 	});
 }

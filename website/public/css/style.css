@@ -19,8 +19,8 @@ main {
 }
 
 main:not(#editor) {
-	padding-left: 15px;
-	padding-right: 15px;
+	padding-left: 7.5vw;
+	padding-right: 7.5vw;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -307,4 +307,77 @@ h1, h2, h3, h4, h5, h6 {
 #resetpassword2 .panel {
 	max-width: 450px;
 	margin: auto;
+}
+
+#home #projects table, 
+#home #projects td, 
+#home #projects th 
+{
+	
+	background-color: white;
+	height: 30px;
+
+}
+
+#home #projects th
+{
+	background-color: grey;
+	padding-left: 5px; 
+}
+
+#home #projects td
+{
+	color: black;
+	padding-left: 5px;
+}
+#home #projects table
+{
+	margin: 15px 0;
+	width: 100%;
+	table-layout: fixed;
+}
+#home #projects #table-projectname
+{
+	width: 60%;
+}
+#home #projects #table-projectowner
+{
+	width: 20%;
+}
+#home #projects #table-projectcreated
+{
+	width: 20%;
+}
+#home #projects .controls-add {
+	display: flex;
+}
+#home #projects .controls-add button {
+	flex-shrink: 0;
+}
+#home #projects .controls-add input {
+	margin-left: 5px;
+}
+#home #projects {
+	padding-left: 0;
+}
+#home #projectdetails {
+	padding-right: 0;
+}
+#home #members 
+{
+	color: white;
+}
+#home #showmembers
+{
+	list-style: none;
+	padding: 0;
+}
+#home #showmembers li
+{
+	clear: both;
+}
+#home #showmembers .removeuser
+{
+	float: right;
+	margin: 1px 0;
 }
