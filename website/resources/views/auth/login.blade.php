@@ -4,7 +4,7 @@
 <main id='welcome'>
 	<h1>CodeSync</h1>
 	<div id='login'>
-		<div class='panel panel-default'>
+		<div class='form-panel panel panel-default'>
 			<div class='panel-body'>
 				@if (count($errors) > 0)
 				<div class='alert alert-danger'>
@@ -19,7 +19,7 @@
 					<input type='hidden' name='_token' value='{{ csrf_token() }}'>
 					<input type='email' class='form-control' name='email' placeholder='E-mail' value='{{ old("email") }}'>
 					<input type='password' class='form-control' placeholder='Password' name='password'>
-					<button type='submit' class='btn btn-primary'>Login</button>
+					<button type='submit' class='form-control btn btn-primary'>Login</button>
 					<a href='/resetpassword'>Forgot Your Password?</a>
 				</form>
 			</div>
