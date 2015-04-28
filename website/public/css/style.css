@@ -288,5 +288,5 @@ main:not(#editor) {
 }
 
 #welcome li {
-		list-style-position: inside;
+	list-style-position: inside;
 }
