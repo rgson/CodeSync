@@ -266,6 +266,16 @@ main:not(#editor) {
 	margin-bottom: 3px;
 }
 
+#welcome #login button {
+	display: block;
+	width: 100%;
+}
+
+#welcome #login a {
+	display: block;
+	float: right;
+}
+
 #welcome #intro  {
 	text-align: justify;
 }

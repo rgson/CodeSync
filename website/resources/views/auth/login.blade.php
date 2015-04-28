@@ -17,8 +17,8 @@
 				@endif
 				<form class='form-horizontal' role='form' method='POST' action='/login'>
 					<input type='hidden' name='_token' value='{{ csrf_token() }}'>
-					<input type='email' class='form-control' name='email' value='{{ old("email") }}'>
-					<input type='password' class='form-control' name='password'>
+					<input type='email' class='form-control' name='email' placeholder='E-mail' value='{{ old("email") }}'>
+					<input type='password' class='form-control' placeholder='Password' name='password'>
 					<button type='submit' class='btn btn-primary'>Login</button>
 					<a href='/resetpassword'>Forgot Your Password?</a>
 				</form>
