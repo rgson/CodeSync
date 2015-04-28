@@ -36,12 +36,12 @@
 				<div id='members'>
 					<h3>Members</h3>
 					<div id='addmember' class='owneronly'>
-						<input type='text' class='form-control' placeholder='Add member'> 
+						<input type='text' id='username' class='form-control' placeholder='Add member'> 
 						<ul id='userlist'></ul>
 					</div>
 					<ul id='showmembers'></ul>
 				</div>
-				<div id='settings'>
+				<div id='settings' class='owneronly'>
 					<h3>Settings</h3>
 					<button id='remove-project' class='btn btn-danger owneronly'>
 						<span class='glyphicon glyphicon-trash'></span>

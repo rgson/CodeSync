@@ -1,14 +1,13 @@
 $(document).ready(function(){
 var request;
 var old_value = '';
-$('#openproject').hide();
 
-// Delete the member on click
+// Remove the member on click
 $(document).on('click', '.removeuser', function(){
 
-	var projectid = $(this).data('proj');
-	var userid = $(this).data('user');
-
+	var projectid = $(this).children('span').data('proj');
+	var userid = $(this).children('span').data('user');
+	
 	$.ajax({
 		url: 'project/' + projectid + '/member/' + userid,
 		cache: false,
@@ -36,8 +35,8 @@ $(document).on('click', '.projdata', function(){
 	var projectid = $(this).data('value');
 	var projectname = $(this).find('td:first').text();	
 
-	$('#openproject').attr('data-projname', projectname);	
-	$('#openproject').attr('href', projectid + "/" + projectname);	
+	$('#remove-project').attr('data-id', projectid);	
+	$('#remove-project').attr('data-name', projectname);
 	
 
 	request = $.ajax({
@@ -52,15 +51,16 @@ $(document).on('click', '.projdata', function(){
 			else
 				$('.owneronly').hide();			
 
-			$('#openproject').show();
 			buildMemberTable(response, projectid);					
 		}		
 	});
 });
 
 // Give an existing user member access
-$('#addmemberbtn').click(function(){	
-	
+$('#username').keypress(function(e){	
+	if(e.which != 13)
+		return;
+
 	var projectid = $('.selected').data('value'); // Get the value from the selected row	
 	var username = $('#username').val();
 
@@ -106,14 +106,14 @@ $('#username').bind('input propertychange', function(){
 			$.each(users, function(i, user) {
 
 				$('#userlist').append("<li>" + user.username + "</li>");
-			});					
-				filterResponse(username);						
+			});	
+
+				filterResponse(username.toLowerCase());						
 			}
-		});
-		
+		});		
 	}
 	else {
-		filterResponse(username);	
+		filterResponse(username.toLowerCase());	
 	}	
 	old_value = shortusername;			
 });
@@ -129,7 +129,7 @@ $(document).on('click', '#userlist li', function(){
 
 function filterResponse(username){
 	$('#userlist li').each(function(){
-		var text = $(this).text();
+		var text = $(this).text().toLowerCase();
 		if (text.indexOf(username) == 0)
 			$(this).show()
 		else
@@ -138,15 +138,14 @@ function filterResponse(username){
 }
 
 function clearOnClick(){
-	$('#openproject').hide();
 	$('.owneronly').hide();	
 	$('#username').val('');
 	$('#userlist li').remove();
-	$('#showmembers li').slice(1).remove();
+	$('#showmembers li').remove();
 }
 
 function buildMemberTable(response, projectid){
-	$('#showmembers li').slice(1).remove();
+	$('#showmembers li').remove();
 
 	var members = $.parseJSON(response);
 	var auth = members.authuser;	
@@ -155,10 +154,9 @@ function buildMemberTable(response, projectid){
 
 		if(member != auth){					
 			if(auth === member.owner && member.id !== auth)
-				$('#showmembers').append("<li>" + member.username + "<button class='removeuser btn btn-danger btn-xs'><span class='glyphicon glyphicon-remove' data-user='" + member.id + "' data-proj='" + projectid + "'></span></button></li>");			 
-			else 				
-				$('#showmembers').append("<li>" + member.username + "<button class='removeuser btn btn-danger btn-xs'><span class='glyphicon glyphicon-remove' data-user='" + member.id + "' data-proj='" + projectid + "'></span></button></li>");	
-				//$('#showmembers').append("<li>" + member.username + "</li>");			
+				$('#showmembers').append("<li>" + member.username + "<button class='removeuser btn btn-danger btn-xs'><span class='glyphicon glyphicon-remove' data-user='" + member.id + "' data-proj='" + projectid + "'></span></button></li>");				 
+			else 	
+				$('#showmembers').append("<li>" + member.username + "</li>");									
 		}
 	});
 }
