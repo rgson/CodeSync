@@ -2,7 +2,7 @@
 
 @section('content')
 <main id='home'>
-	
+
 	<div class="container">
 		<div class="row">
 			<div id='projects' class="col-sm-9">
@@ -32,13 +32,13 @@
 
 				</table>
 			</div>
-				
-			<div id='projectdetails' class='col-sm-3'>	
+
+			<div id='projectdetails' class='col-sm-3'>
 				<div id='members'>
 					<h3>Members</h3>
 					<div id='addmember' class='owneronly'>
-						<input type='text' id='username' class='form-control' placeholder='Add member'> 
-						<ul id='userlist'></ul>
+						<input type='text' id='username' class='form-control' placeholder='Add member'>
+						<ul id='userlist' class='dropdown-menu'></ul>
 					</div>
 					<ul id='showmembers'></ul>
 				</div>

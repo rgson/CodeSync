@@ -309,9 +309,9 @@ h1, h2, h3, h4, h5, h6 {
 	margin: auto;
 }
 
-#home #projects table, 
-#home #projects td, 
-#home #projects th 
+#home #projects table,
+#home #projects td,
+#home #projects th
 {
 	height: 30px;
 
@@ -321,7 +321,7 @@ h1, h2, h3, h4, h5, h6 {
 {
 	background-color: #222;
 	padding-left: 5px;
-	color: #9d9d9d; 
+	color: #9d9d9d;
 }
 
 #home #projects td
@@ -331,7 +331,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 #home #projects tr
 {
-	background-color: white; 
+	background-color: white;
 	cursor: pointer;
 }
 #home #projects table
@@ -367,7 +367,7 @@ h1, h2, h3, h4, h5, h6 {
 #home #projectdetails {
 	padding-right: 0;
 }
-#home #members 
+#home #members
 {
 	color: white;
 }
@@ -375,6 +375,7 @@ h1, h2, h3, h4, h5, h6 {
 {
 	list-style: none;
 	padding: 0;
+	margin: 15px 0;
 }
 #home #showmembers li
 {
@@ -393,7 +394,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #home #projects .projdata.selected,
-#home #projects .projdata:hover {
+#home #projects .projdata:hover,
+#home #addmember #userlist > li:hover {
 	background-color: #66afe9;
 }
 #home #projectdetails #members h3
@@ -403,3 +405,25 @@ h1, h2, h3, h4, h5, h6 {
 	vertical-align: text-bottom;
 }
 
+#home #addmember {
+	position: relative;
+}
+
+#home #addmember #userlist {
+	left: 0;
+	right: 0;
+	display: block;
+	padding: 0;
+	margin-top: 0;
+	color: black;
+}
+
+#home #addmember #userlist:empty {
+	display: none;
+}
+
+#home #addmember #userlist > li {
+	padding: 3px 12px;
+	white-space: nowrap;
+	cursor: pointer;
+}
