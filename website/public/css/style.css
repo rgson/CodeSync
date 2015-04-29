@@ -313,22 +313,26 @@ h1, h2, h3, h4, h5, h6 {
 #home #projects td, 
 #home #projects th 
 {
-	
-	background-color: white;
 	height: 30px;
 
 }
 
 #home #projects th
 {
-	background-color: grey;
-	padding-left: 5px; 
+	background-color: #222;
+	padding-left: 5px;
+	color: #9d9d9d; 
 }
 
 #home #projects td
 {
 	color: black;
 	padding-left: 5px;
+}
+#home #projects tr
+{
+	background-color: white; 
+	cursor: pointer;
 }
 #home #projects table
 {
@@ -387,3 +391,15 @@ h1, h2, h3, h4, h5, h6 {
 	margin-top: 5px;
 	display: block;
 }
+
+#home #projects .projdata.selected,
+#home #projects .projdata:hover {
+	background-color: #66afe9;
+}
+#home #projectdetails #members h3
+{
+	padding-top: 15px;
+	height: 40px;
+	vertical-align: text-bottom;
+}
+
