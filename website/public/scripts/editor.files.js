@@ -132,8 +132,8 @@ $(document).ready(function(){
 		}
 		while(sibling.length);
 
-		if(create){
-			text = text + '/';
+		if (create && text.length) {
+			text += '/';
 		}
 		$('#filepath').val(text);
 		setCursorToTheEnd($('#filepath'));
