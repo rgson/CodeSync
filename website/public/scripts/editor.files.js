@@ -13,13 +13,18 @@ $(document).ready(function(){
 
 	// Right and left mouse click events for the file structure
 	$(document).on('mousedown', '#filestructure span', function(event) {
+
 		switch(event.which) {
+
 			case 1:
 				// Left
 				$(this).siblings('ul').toggle();
 				break;
 			case 3:
-				// Right				
+				// Right
+				$('#filemenu li#createFile').hide();
+				$('#filemenu li#deleteFile').show();
+				$('#filemenu li#renameFile').show();
 				file = this;
 				$filemenu = $('#filemenu');				
 				id = $(file).parent().data('id');
@@ -34,10 +39,45 @@ $(document).ready(function(){
 					'left': event.pageX,
 					'top': event.pageY
 				});
+
+				break;
+		}
+		event.preventDefault();
+		return false;
+	});
+
+
+	// Right and left mouse click events for the file structure
+	$(document).on('mousedown', '#filestructure', function(event) {
+
+		switch(event.which) {
+
+			case 1:
+				// Left
+				$(this).siblings('ul').toggle();
+				break;
+			case 3:
+				// Right
+				$('#filemenu li#deleteFile').hide();
+				$('#filemenu li#renameFile').hide();
+				$('#filemenu li#createFile').show();
+							
+				$filemenu = $('#filemenu');								
+				
+				$filemenu.removeClass('closed');
+				$filemenu.css({
+					'left': event.pageX,
+					'top': event.pageY
+				});
+
 				break;
 		}
 		event.preventDefault();
 	});
+
+
+
+
 
 	$(document).on('click', '#filestructure li[data-id] span', function(event) {
 		var $this = $(this);		
@@ -46,13 +86,13 @@ $(document).ready(function(){
 	});
 
 	// "Right click menu" chosen option event
-	$('#filemenu li').click(function() {	
+	$('#filemenu ul li').click(function() {	
 		
 		switch($(this).attr('id')) {
 			case 'createFile':
 				create = true;
 				$('#filepathInput').css('visibility', 'visible');
-				buildPath($(file), false);
+				buildPath($(file), true);
 				break;
 			case 'deleteFile':
 				SyncClient.do('delete', {doc: id});
@@ -93,13 +133,12 @@ $(document).ready(function(){
 		}		
 		while(sibling.length);
 
+		if(create){
+			text = text + '/';
+		}
 		$('#filepath').val(text);	
 		setCursorToTheEnd($('#filepath'));	
-	}
-
-	
-
-	
+	}	
 
 	SyncClient.on('move', function(args) {
 		console.log('move: ' + args);
