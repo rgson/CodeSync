@@ -67,7 +67,11 @@ $(document).on('click', '#rename-project', function(){
 			}
 			else{									
 				buildProjectTable(response);
-
+				$('#showprojects > tbody > tr').each(function(){
+					if($(this).attr('data-value') === projectid){
+						$(this).addClass('selected');
+					}
+				});
 			}
 		}		
 	});

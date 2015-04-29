@@ -139,7 +139,8 @@ function filterResponse(username){
 }
 
 function clearOnClick(){
-	$('.owneronly').hide();	
+	$('#projectdetails').hide();
+	$('.owneronly').hide();		
 	$('#username').val('');
 	$('#userlist li').remove();
 	$('#showmembers li').remove();
