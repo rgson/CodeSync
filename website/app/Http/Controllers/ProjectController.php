@@ -76,6 +76,22 @@ class ProjectController extends Controller {
 		echo $this->projectsWithOwnerFlag();
 	}
 
+	public function put($projectid)
+	{
+		$projectname = Input::get('projectname');	
+
+		if(!$this->isDuplicate($projectname) && $projectname != '')
+		{
+			$userid = \Auth::user()->id;
+			$project = Project::where(['id' => $projectid, 'owner' => $userid])->update(['name' => $projectname]);
+			echo $this->projectsWithOwnerFlag();
+		}
+		else
+		{
+			echo "invalid";
+		}
+	}
+
 	private function checkProjectAccess($projectid)
 	{
 		$project = $this->projects->getProject($projectid);
@@ -104,6 +120,10 @@ class ProjectController extends Controller {
 		return json_encode($projects);
 	}
 
-
+	private function hasOwnerRights($projectid) 
+	{
+		$owner = Project::where(['id' => $projectid, 'owner' => \Auth::user()->id])->first();
+		return !is_null($owner);				
+	}
 
 }

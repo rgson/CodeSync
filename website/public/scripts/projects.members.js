@@ -28,7 +28,7 @@ $(document).on('click', '.projdata', function(){
 	var selected = $(this).hasClass('selected');
 	$('.projdata').removeClass('selected');
 	if(!selected){
-		$(this).addClass('selected');
+		$(this).addClass('selected');		
 	}
 
 	// Get and add projectid and project name to the 'open project' element
@@ -51,6 +51,7 @@ $(document).on('click', '.projdata', function(){
 			else
 				$('.owneronly').hide();			
 
+			$('#projectdetails').show();
 			buildMemberTable(response, projectid);					
 		}		
 	});

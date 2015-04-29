@@ -2,10 +2,11 @@
 
 @section('content')
 <main id='home'>
-	<h1>Projects</h1>
+	
 	<div class="container">
 		<div class="row">
 			<div id='projects' class="col-sm-9">
+				<h1>Projects</h1>
 				<div class="controls-add">
 					<button id='create-project' class='btn btn-primary' type="button">
 						<span class='glyphicon glyphicon-plus'></span>
@@ -43,9 +44,13 @@
 				</div>
 				<div id='settings' class='owneronly'>
 					<h3>Settings</h3>
-					<button id='remove-project' class='btn btn-danger owneronly'>
+					<button id='remove-project' class='btn btn-danger'>
 						<span class='glyphicon glyphicon-trash'></span>
 						Remove
+					</button>
+					<button id='rename-project' class='btn btn-primary'>
+						<span class='glyphicon glyphicon-pencil'></span>
+						Rename
 					</button>
 				</div>
 			</div>

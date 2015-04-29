@@ -29,6 +29,7 @@ Route::post('/resetpassword', 'Auth\PasswordController@postEmail');
 Route::get('projects', 'ProjectController@get');
 Route::post('projects', 'ProjectController@create');
 Route::delete('project/{projectid}', 'ProjectController@delete')->where('projectid', '[0-9]+');
+Route::put('project/{projectid}', 'ProjectController@put')->where('projectid', '[0-9]+');
 
 Route::get('project/{projectid}/members', 'ProjectAccessController@get')->where('projectid', '[0-9]+');
 Route::post('project/{projectid}/members', 'ProjectAccessController@create')->where('projectid', '[0-9]+'); # post: username

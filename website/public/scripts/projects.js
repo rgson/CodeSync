@@ -13,6 +13,11 @@ $(document).on('keypress', '#projectname', function(e){
 	AddProject();	
 });
 
+// Reset text
+$(document).on('click', '#projectname', function(){	
+	$('#projectname').attr('placeholder', 'Project name');
+});
+
 // Delete the project on click
 $(document).on('click', '#remove-project', function(){
 
@@ -36,6 +41,39 @@ $(document).on('click', '#remove-project', function(){
 	});
 });
 
+// Rename the project
+$(document).on('click', '#rename-project', function(){
+
+	// Get values from the delete button
+	var projectid = $('#remove-project').attr('data-id');
+	var projectname = $('#remove-project').attr('data-name');
+
+	var pname = prompt('Please enter the new project name for ' + projectname);
+	
+	if(!pname)
+		return false;
+	else	
+
+	$.ajax({
+		url: 'project/' + projectid,
+		data: {
+			'projectname' : pname
+		},
+		cache: false,
+		type: 'PUT',
+		success: function(response){					
+			if(response == 'invalid'){
+				alert('You already own a project with that name!');	
+			}
+			else{									
+				buildProjectTable(response);
+
+			}
+		}		
+	});
+});
+
+
 // Open project on double click
 $(document).on('dblclick', '.projdata', function(){
 	var projectid = $(this).data('value');
@@ -58,7 +96,8 @@ function AddProject(){
 		type: 'POST',
 		success: function(response){
 			if(response == 'invalid'){
-				// add invalid class	
+				$('#projectname').attr('placeholder', 'You already own a project with the name: ' +projectname).val('').focus().blur();
+				$('#projectname').addClass('invalid');	
 			}
 			else{			
 				buildProjectTable(response);
@@ -79,12 +118,12 @@ function buildProjectTable(response){
 		$('#showprojects').append("<tr class='projdata' data-value='" + project.id + "'><td class='projectname'>" + project.name + "</td><td>" + project.username + "</td><td>" + project.created_at + "</td></tr>");		 
 				
 	});
-	$('.owneronly').hide();
 	$('#showmembers tr').slice(1).remove();
 }
 
 
 function clearOnClick(){
+	$('#projectdetails').hide();
 	$('.owneronly').hide();	
 	$('#username').val('');
 	$('#userlist li').remove();
