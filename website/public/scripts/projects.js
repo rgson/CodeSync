@@ -69,7 +69,9 @@ $(document).on('click', '#rename-project', function(){
 				buildProjectTable(response);
 				$('#showprojects > tbody > tr').each(function(){
 					if($(this).attr('data-value') === projectid){
-						$(this).addClass('selected');
+						$(this).addClass('selected');	
+						$('#remove-project').attr('data-id', projectid);	
+						$('#remove-project').attr('data-name', pname);
 					}
 				});
 			}
