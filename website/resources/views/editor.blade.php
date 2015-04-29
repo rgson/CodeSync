@@ -8,9 +8,7 @@
 			<div id='filepathInput'>
 				{!! Form::text('filepath', '', array('placeholder' => '', 'id' => 'filepath')) !!}				
 			</div>
-			<div id='filestructure'>
-				<?= printFileStructure($filestructure); ?>
-			</div>
+			<div id='filestructure'></div>
 		</div>
 
 		<div id='res-1' class='resizer' data-left='#col-1' data-right='#col-2'>
@@ -83,20 +81,3 @@
 	<script src="/scripts/editor.workspace.js"></script>
 
 @endsection
-
-<?php
-function printFileStructure($fs) {
-	echo '<ul>';
-	foreach ($fs as $name => $id) {
-		if(is_array($id)) {
-			echo '<li><span>' . $name . '</span>';
-			printFileStructure($id);
-			echo '</li>';
-		}
-		else {
-			echo "<li data-id='" . $id .  "'><span>" . $name . "</span></li>";
-		}
-	}
-	echo '</ul>';
-}
-?>

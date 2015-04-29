@@ -50,7 +50,6 @@ class ProjectController extends Controller {
 		$usersession->handleUserAndSession($projectid);
 
 		return view('editor')
-			->with('filestructure', $this->getFileStructure($projectid))
 			->with('messages', Message::newest($projectid));
 	}
 
@@ -75,43 +74,6 @@ class ProjectController extends Controller {
 	{
 		Project::where(['id' => $projectid, 'owner' => \Auth::user()->id])->delete();
 		echo $this->projectsWithOwnerFlag();
-	}
-
-	# Private functions
-	private function getFileStructure($projectid)
-	{
-		$filepaths = Files::where(['project' => $projectid])->get(array('id', 'filepath'));
-		$fp = array();
-
-		foreach ($filepaths as $key => $value) {
-
-			$fp[$value['id']] = $value['filepath'];
-		}
-
-		return $this->createFileStructure($fp);
-	}
-
-	private function createFileStructure($paths)
-	{
-		$filepath = array();
-
-		foreach ($paths as $id => $path) {
-
-			$parts = explode('/', $path);
-			$current = &$filepath;
-
-			for($i = 1, $max = count($parts); $i < $max; $i++)
-			{
-				if(!isset($current[$parts[$i-1]]))
-				{
-					$current[$parts[$i-1]] = array();
-				}
-				$current = &$current[$parts[$i-1]];
-			}
-			$current[$parts[$i -1]] = $id;
-		}
-
-		return $filepath;
 	}
 
 	private function checkProjectAccess($projectid)

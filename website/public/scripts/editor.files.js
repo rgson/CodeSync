@@ -1,8 +1,11 @@
 $(document).ready(function(){
 
+	var projectid = window.location.href.split("/")[3];
 	var file = '';
 	var id = '';
 	var create = false;
+
+	reBuildFileStructure();
 
 	$(document).on('click', function(event) {
 		if(event.which === 1) {
@@ -97,19 +100,18 @@ $(document).ready(function(){
 		setCursorToTheEnd($('#filepath'));	
 	}
 
-	
-
-	
-
 	SyncClient.on('move', function(args) {
+		reBuildFileStructure()
 		console.log('move: ' + args);
 	});
 
 	SyncClient.on('delete', function(args) {
+		reBuildFileStructure()
 		console.log('delete: ' + args);
 	});
 
 	SyncClient.on('create', function(args) {
+		reBuildFileStructure()
 		console.log('create: ' + args);
 	});
 
@@ -122,6 +124,35 @@ $(document).ready(function(){
 		var strLength = text.val().length * 2;
 		text.focus();
 		text[0].setSelectionRange(strLength, strLength);
+	}
+
+	function reBuildFileStructure() {
+		$.ajax({
+			type: 'GET',
+			url: '/project/' + projectid  + '/files',
+			cache: false,
+			data: {'projectid' : projectid},
+			success: function(response) {
+				if (response != null) {
+					var parserdResponse = JSON.parse(response);
+					$('#filestructure').html(buildFileStructure(parserdResponse));
+				}
+			}
+		});
+	}
+
+	function buildFileStructure(fs) {
+		var val, str;
+		str = '<ul>';
+		for (var name in fs) {
+			val = fs[name];
+			if (typeof val === 'object')
+				str += '<li><span>' + name + '</span>' + buildFileStructure(fs[name]) + '</li>';
+			else
+				str += '<li data-id=\'' + val + '\'><span>' + name + '</span></li>';
+		}
+		str += '</ul>';
+		return str;
 	}
 
 });
