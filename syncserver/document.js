@@ -147,7 +147,7 @@ function patchMain(document, patches, callback) {
 
 		read(document, function(err, data) {
 			if (err) {
-				log.e(e.message);
+				log.e(err.message);
 				unlock(document);
 				callback();
 			}
@@ -157,7 +157,7 @@ function patchMain(document, patches, callback) {
 					document.state.text = dmp.patch_apply(patches[i], document.state.text)[0];
 				write(document, function(err) {
 					if (err) {
-						log.e(e.message);
+						log.e(err.message);
 						text = data;	// Abort patching.
 					}
 					unlock(document);
