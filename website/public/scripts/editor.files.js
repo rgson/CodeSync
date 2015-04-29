@@ -29,14 +29,14 @@ $(document).ready(function(){
 				$('#filemenu li#deleteFile').show();
 				$('#filemenu li#renameFile').show();
 				file = this;
-				$filemenu = $('#filemenu');				
+				$filemenu = $('#filemenu');
 				id = $(file).parent().data('id');
-				
+
 				if(!id){
 					$filemenu.addClass('closed');
 					return;
 				}
-				
+
 				$filemenu.removeClass('closed');
 				$filemenu.css({
 					'left': event.pageX,
@@ -64,9 +64,9 @@ $(document).ready(function(){
 				$('#filemenu li#deleteFile').hide();
 				$('#filemenu li#renameFile').hide();
 				$('#filemenu li#createFile').show();
-							
-				$filemenu = $('#filemenu');								
-				
+
+				$filemenu = $('#filemenu');
+
 				$filemenu.removeClass('closed');
 				$filemenu.css({
 					'left': event.pageX,
@@ -79,14 +79,14 @@ $(document).ready(function(){
 	});
 
 	$(document).on('click', '#filestructure li[data-id] span', function(event) {
-		var $this = $(this);		
+		var $this = $(this);
 		Tabs.open($this.parent().data('id'), $this.text());
 		event.preventDefault();
 	});
 
 	// "Right click menu" chosen option event
-	$('#filemenu ul li').click(function() {	
-		
+	$('#filemenu ul li').click(function() {
+
 		switch($(this).attr('id')) {
 			case 'createFile':
 				create = true;
@@ -98,18 +98,18 @@ $(document).ready(function(){
 				break;
 			case 'renameFile':
 				create = false;
-				$('#filepathInput').css('visibility', 'visible');				
-				buildPath($(file), true);				
+				$('#filepathInput').css('visibility', 'visible');
+				buildPath($(file), true);
 				break;
-		}		
+		}
 	});
 
 	$('#filepath').keypress(function(e){
-		
+
 		if(e.which == 13){
 			if(create)
 				SyncClient.do('create', {path: $('#filepath').val()});
-			else	
+			else
 				SyncClient.do('move', {doc: id, path: $('#filepath').val()});
 
 			$('#filepathInput').css('visibility', 'hidden');
@@ -121,38 +121,35 @@ $(document).ready(function(){
 		var text = '';
 
 		if(includeFilename)
-			text = file.text();			
-		
+			text = file.text();
+
 		do{
 			var sibling = file.closest('ul').siblings('span');
 			if(sibling.length){
 				text = sibling.text() + '/' + text;
 			}
 			file = sibling;
-		}		
+		}
 		while(sibling.length);
 
 		if(create){
 			text = text + '/';
 		}
-		$('#filepath').val(text);	
-		setCursorToTheEnd($('#filepath'));	
+		$('#filepath').val(text);
+		setCursorToTheEnd($('#filepath'));
 
 	}
 
 	SyncClient.on('move', function(args) {
-		reBuildFileStructure()
-		console.log('move: ' + args);
+		reBuildFileStructure();
 	});
 
 	SyncClient.on('delete', function(args) {
-		reBuildFileStructure()
-		console.log('delete: ' + args);
+		reBuildFileStructure();
 	});
 
 	SyncClient.on('create', function(args) {
-		reBuildFileStructure()
-		console.log('create: ' + args);
+		reBuildFileStructure();
 	});
 
 	// Disable browser right click within file structure

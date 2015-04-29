@@ -24,12 +24,11 @@ function SyncClient(session) {
 	var EDITS_INTERVAL = 2000;
 	var session, connection, client, listeners, editsInterval;
 
-	session = cookie('sync_session');		// TODO: set this cookie from server
+	session = cookie('sync_session');
 	if (!session) throw new Error('Session missing!');
 
 	connection = new WebSocket(HOST);
 	connection.onopen = function() {
-		console.log('open');
 		client = new Client(session, connection);
 		editsInterval = setInterval(client.sync, EDITS_INTERVAL);
 		client.listen(function(action, args) {
@@ -40,7 +39,6 @@ function SyncClient(session) {
 		window.onbeforeunload = client.drop;
 	};
 	connection.onclose = function() {
-		console.log('close');
 		clearInterval(editsInterval);
 		console.log('WebSocket connection closed');
 	};
