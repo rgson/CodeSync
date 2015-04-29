@@ -9,8 +9,8 @@ class FileStructureController extends Controller {
 	public function get()
 	{
 		$projectid = Input::get('projectid');
-		$filepaths = Files::where(['project' => $projectid])->get(array('id', 'filepath'));
-		$fp = array();
+		$filepaths = Files::where(['project' => $projectid])->orderBy('filepath')->get(['id', 'filepath']);
+		$fp = [];
 
 		foreach ($filepaths as $key => $value) {
 
@@ -22,7 +22,7 @@ class FileStructureController extends Controller {
 
 	private function create($paths)
 	{
-		$fileTree = array();
+		$fileTree = [];
 
 		foreach ($paths as $id => $path) {
 
@@ -33,7 +33,7 @@ class FileStructureController extends Controller {
 			{
 				if(!isset($current[$parts[$i-1]]))
 				{
-					$current[$parts[$i-1]] = array();
+					$current[$parts[$i-1]] = [];
 				}
 				$current = &$current[$parts[$i-1]];
 			}
