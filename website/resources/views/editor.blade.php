@@ -6,7 +6,7 @@
 
 		<div id='col-1' class='column'>
 			<div id='filepathInput'>
-				{!! Form::text('filepath', '', array('placeholder' => '', 'id' => 'filepath')) !!}
+				<input type='text' id='filepath'>
 			</div>
 			<div id='filestructure'></div>
 		</div>
