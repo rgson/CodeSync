@@ -2,10 +2,11 @@
 
 @section('content')
 <main id='home'>
-	<h1>Projects</h1>
+	
 	<div class="container">
 		<div class="row">
 			<div id='projects' class="col-sm-9">
+				<h1>Projects</h1>
 				<div class="controls-add">
 					<button id='create-project' class='btn btn-primary' type="button">
 						<span class='glyphicon glyphicon-plus'></span>
