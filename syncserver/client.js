@@ -8,6 +8,7 @@ module.exports = Client;
 
 var projectSubscriptions = {};
 var broadcastQueue = {};
+var sessionClientCounter = 0;
 
 /**
  * Constructs a new Client object.
@@ -15,6 +16,7 @@ var broadcastQueue = {};
  */
 function Client(connection) {
 	var that = this;
+	this.sessionid = ++sessionClientCounter;
 	this.userid = undefined;
 	this.projectid = undefined;
 	this.documents = {};
@@ -26,10 +28,10 @@ function Client(connection) {
 	this.drop = function() {
 		var i, keys, count;
 		connection.close();
-		if (this.userid) {
-			unsubscribe(this);
+		if (that.userid) {
+			unsubscribe(that);
 			for (i = 0, keys = Object.keys(this.documents), count = keys.length; i < count; i++)
-				broadcast(this.projectid, new messageFactory.FileCloseBroadcast(keys[i], this.userid));
+				broadcast(that.projectid, new messageFactory.FileCloseBroadcast(keys[i], that.userid));
 		}
 	}
 
@@ -178,7 +180,7 @@ function subscribe(user) {
 function unsubscribe(user) {
 	var subscribers = projectSubscriptions[user.projectid];
 	for (var i = subscribers.length - 1; i >= 0; i--) {
-		if (subscribers[i].userid === user.userid)
+		if (subscribers[i].sessionid === user.sessionid)
 			subscribers.splice(i, 1);
 	}
 }
