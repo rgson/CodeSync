@@ -21,9 +21,6 @@ function Client(connection) {
 	this.projectid = undefined;
 	this.documents = {};
 
-	if (sessionClientCounter == 2)
-		throw new Error('testing');
-
 	/**
 	 * Drops the client, stopping all activity.
 	 * @return  {Void}
