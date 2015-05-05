@@ -42,6 +42,18 @@ $(function() {
 		event.preventDefault();
 	});
 
+	SyncClient.on('move', function(args) {
+		var title = args.path.split('/');
+		title = title[title.length - 1];
+		if (tabsLocation[args.doc])
+			workspaces[tabsLocation[args.doc]].rename(args.doc, title);
+	});
+
+	SyncClient.on('delete', function(args) {
+		if (tabsLocation[args.doc])
+			workspaces[tabsLocation[args.doc]].remove(args.doc);
+	});
+
 	function Workspace(element) {
 		var that = this;
 		var element = $(element);
@@ -94,6 +106,12 @@ $(function() {
 				delete tabs[id];
 			}
 		}
+
+		this.rename = function(id, title) {
+			var tab = tabs[id];
+			if (tab)
+				tab.rename(title);
+		}
 	}
 
 	function Tab(id, title) {
@@ -103,8 +121,10 @@ $(function() {
 		var content = '';
 
 		this.id = id;
+		this.title = title;
 		this.element =
-			$('<div>', {'class': 'tab', 'data-id': id, 'text': title})
+			$('<div>', {'class': 'tab', 'data-id': id})
+				.append($('<span>', {'class': 'title', 'text': that.title}))
 				.append($('<i>', {'class': 'fa fa-close close'}));
 
 		this.activate = function() {
@@ -131,6 +151,11 @@ $(function() {
 
 		this.close = function() {
 			SyncClient.do('close', {doc: that.id});
+		}
+
+		this.rename = function(name) {
+			that.title = name;
+			that.element.children('.title').text(name);
 		}
 
 		SyncClient.do('open', {
