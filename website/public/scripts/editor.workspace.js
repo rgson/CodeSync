@@ -126,7 +126,7 @@ $(function() {
 		this.element =
 			$('<div>', {'class': 'tab', 'data-id': id})
 				.append($('<span>', {'class': 'title', 'text': that.title}))
-				.append($('<i>', {'class': 'fa fa-close close'}));
+				.append($('<i>', {'class': 'glyphicon glyphicon-remove close'}));
 
 		this.activate = function() {
 			if (!active) {
