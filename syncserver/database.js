@@ -37,8 +37,8 @@ function getSession(session, callback) {
 }
 
 function fileExists(documentid, projectid, callback) {
-	var sql = 'SELECT * FROM files WHERE files.id = ? AND files.project = ?';
-	var params = [documentid, projectid];
+	var sql = 'SELECT * FROM files WHERE project = ? AND id = ?';
+	var params = [projectid, documentid];
 	pool.query(sql, params, function(err, rows) {
 		if (err)
 			log.e(err.message);
@@ -47,8 +47,8 @@ function fileExists(documentid, projectid, callback) {
 }
 
 function pathExists(path, projectid, callback) {
-	var sql = 'SELECT * FROM files WHERE files.filepath = ? AND files.project = ?';
-	var params = [path, projectid];
+	var sql = 'SELECT * FROM files WHERE project = ? AND (filepath = ? OR filepath LIKE ?)';
+	var params = [projectid, path, path+'/%'];
 	pool.query(sql, params, function(err, rows) {
 		if (err)
 			log.e(err.message);
