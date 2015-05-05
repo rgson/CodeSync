@@ -12,8 +12,8 @@ cat >/etc/apache2/sites-available/000-default.conf <<EOL
 <VirtualHost *:80>
 	ServerAdmin webmaster@localhost
 	DocumentRoot /var/www/html
-	ErrorLog /error.log
-	CustomLog /access.log combined
+	ErrorLog ${APACHE_LOG_DIR}/error.log
+	CustomLog ${APACHE_LOG_DIR}/access.log combined
 	<Directory /var/www/html >
 		AllowOverride All
 	</Directory>
