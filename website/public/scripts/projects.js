@@ -88,7 +88,7 @@ $(document).on('dblclick', '.projdata', function(){
 });
 
 function AddProject(){
-	clearOnClick();
+	
 	var projectname = $('#projectname').val();	
 	if(projectname == '') // No point in processing if no input
 		return false;	
@@ -105,7 +105,8 @@ function AddProject(){
 				$('#projectname').attr('placeholder', 'You already own a project with the name: ' +projectname).val('').focus().blur();
 				$('#projectname').addClass('invalid');	
 			}
-			else{			
+			else{	
+				clearOnClick();		
 				buildProjectTable(response);
 				$('#projectname').val('');				
 			}								
@@ -119,8 +120,7 @@ function buildProjectTable(response){
 
 	var projects = $.parseJSON(response);
 
-	$.each(projects, function(i, project) {
-				
+	$.each(projects, function(i, project) {				
 		$('#showprojects').append("<tr class='projdata' data-value='" + project.id + "'><td class='projectname'>" + project.name + "</td><td>" + project.username + "</td><td>" + project.created_at + "</td></tr>");		 
 				
 	});

@@ -25,11 +25,9 @@ $(document).on('click', '.projdata', function(){
 		request.abort();
 		request = null;
 	}
-	var selected = $(this).hasClass('selected');
-	$('.projdata').removeClass('selected');
-	if(!selected){
-		$(this).addClass('selected');		
-	}
+
+	$('.projdata').removeClass('selected');	
+	$(this).addClass('selected');			
 
 	// Get and add projectid and project name to the 'open project' element
 	var projectid = $(this).data('value');
@@ -58,33 +56,38 @@ $(document).on('click', '.projdata', function(){
 });
 
 // Give an existing user member access
-$('#username').keypress(function(e){	
-	if(e.which != 13)
-		return;
+$('#username').keydown(function(e){	
+	if(e.which == 13){		
 
-	var projectid = $('.selected').data('value'); // Get the value from the selected row	
-	var username = $('#username').val();
+		var projectid = $('.selected').data('value'); // Get the value from the selected row	
+		var username = $('#username').val();
 
-	if(projectid == null || username == '') // No project chosen or no username input
-		return false;	
+		if(projectid == null || username == '') // No project chosen or no username input
+			return false;	
 
-	$.ajax({
-		url: 'project/' + projectid + '/members',
-		data: {
-			'username' : username
-		},
-		cache: false,
-		type: 'POST',
-		success: function(response){
-			if(response == 'invalid'){
-				// add invalid class				
+		$.ajax({
+			url: 'project/' + projectid + '/members',
+			data: {
+				'username' : username
+			},
+			cache: false,
+			type: 'POST',
+			success: function(response){
+				if(response == 'invalid'){
+					// add invalid class				
+				}
+				else {		
+					buildMemberTable(response, projectid);	
+				}										
 			}
-			else {		
-				buildMemberTable(response, projectid);	
-			}										
-		}
-	});
-	$('#username').val('');
+		});
+		$('#username').val('');
+	}
+	//else if(e.which == 40){
+	//	$('#userlist li').first().addClass('selecteduser');
+	//	$('#userlist li').first().focus();
+
+	//}
 });
 
 // Get existing users dynamically from input in textbox
@@ -93,6 +96,9 @@ $('#username').bind('input propertychange', function(){
 	var username = $('#username').val();
 	var shortusername = username.substring(0, 3); //use the short for query, full for filter
 
+	if(username.length < 1){
+		$('#userlist li').remove();	
+	}
 	if(username.length >= 3 && (old_value != shortusername)) {
 		if(typeof this.xhr !== 'undefined')	
 		this.xhr.abort();
