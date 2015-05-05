@@ -21,7 +21,11 @@ $(document).ready(function(){
 
 			case 1:
 				// Left
-				$(this).siblings('ul').toggle();
+				var $this = $(this);
+				$this.siblings('ul').toggle();
+				var $icon = $this.hasClass('glyphicon') ? $this : $this.siblings('.glyphicon');
+				console.log($icon);
+				$icon.toggleClass('glyphicon-menu-down glyphicon-menu-right');
 				break;
 			case 3:
 				// Right
@@ -54,11 +58,6 @@ $(document).ready(function(){
 	$(document).on('mousedown', '#filestructure', function(event) {
 
 		switch(event.which) {
-
-			case 1:
-				// Left
-				$(this).siblings('ul').toggle();
-				break;
 			case 3:
 				// Right
 				$('#filemenu li#deleteFile').hide();
@@ -184,7 +183,7 @@ $(document).ready(function(){
 		for (var name in fs) {
 			val = fs[name];
 			if (typeof val === 'object')
-				str += '<li><span>' + name + '</span>' + buildFileStructure(fs[name]) + '</li>';
+				str += '<li><i class=\'glyphicon glyphicon-menu-down\'></i><span>' + name + '</span>' + buildFileStructure(fs[name]) + '</li>';
 			else
 				str += '<li data-id=\'' + val + '\'><span>' + name + '</span></li>';
 		}

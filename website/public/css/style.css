@@ -99,12 +99,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #editor #filestructure span {
-	display: block;
 	cursor: pointer;
 }
 
 #editor #filestructure span:hover {
 	color: #E2CC66;
+}
+
+#editor #filestructure .glyphicon {
+	font-size: 10px;
+	margin-right: 2px;
+	margin-left: -12px;
 }
 
 #editor .workspace {
