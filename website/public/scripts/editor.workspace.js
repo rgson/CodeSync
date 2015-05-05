@@ -66,6 +66,7 @@ $(function() {
 			mode: 'javascript',
 			theme: 'codesync',
 			lineNumbers: true,
+			lineWrapping: true,
 			indentWithTabs: true,
 			tabSize: 2
 		});
