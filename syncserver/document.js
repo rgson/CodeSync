@@ -274,13 +274,16 @@ function copy(source, target) {
  * @param  {Integer}   documentid  The document's ID.
  * @param  {Integer}   projectid   The project's ID.
  * @param  {Function}  onSuccess   Callback for successful validation.
+ * @param  {Function}  onError     Callback for unsuccessful validation.
  * @return {Void}
  */
-function validateFile(documentid, projectid, onSuccess) {
+function validateFile(documentid, projectid, onSuccess, onError) {
 	database.fileExists(documentid, projectid, function(exists) {
 		log.d('Validate file ' + documentid + ': ' + exists);
 		if (exists)
 			onSuccess();
+		else
+			onError('FILE_NOT_FOUND');
 	});
 }
 
@@ -289,16 +292,21 @@ function validateFile(documentid, projectid, onSuccess) {
  * @param   {Integer}   projectid  The project's ID.
  * @param   {String}    path       The new document's path.
  * @param   {Function}  onSuccess  Callback for successful operations.
+ * @param   {Function}  onError     Callback for unsuccessful validation.
  * @return  {Void}
  */
-function createFile(projectid, path, onSuccess) {
+function createFile(projectid, path, onSuccess, onError) {
 	if (validFilePath(path)) {
 		database.pathExists(path, projectid, function(exists) {
 			if (exists) {
 				log.d('Duplicate file path for ' + projectid + ' (' + path + ')');
+				onError('FILE_DUPLICATE_PATH');
 			}
 			else {
 				database.insertFile(projectid, path, onSuccess,
+					function errorCallback() {
+						onError('FILE_UNKNOWN_FAILURE');
+					},
 					function transactionCallback(documentid, callback) {
 						var dir = FILE_PATH_PREFIX + projectid;
 						var file = dir + '/' + documentid;
@@ -319,6 +327,9 @@ function createFile(projectid, path, onSuccess) {
 			}
 		});
 	}
+	else {
+		onError('FILE_INVALID_PATH');
+	}
 }
 
 /**
@@ -326,29 +337,55 @@ function createFile(projectid, path, onSuccess) {
  * @param   {Integer}   documentid  The document's ID.
  * @param   {Integer}   projectid   The project's ID.
  * @param   {Function}  onSuccess   Callback for successful operations.
+ * @param   {Function}  onError     Callback for unsuccessful validation.
  * @return  {Void}
  */
-function deleteFile(documentid, projectid, onSuccess) {
-	database.deleteFile(documentid, function() {
-		var file = FILE_PATH_PREFIX + projectid + '/' + documentid;
-		fs.unlink(file, function(err) {
-			if (err)
-				log.e(err.message);
-		});
-		onSuccess();
-	});
+function deleteFile(documentid, projectid, onSuccess, onError) {
+	validateFile(documentid, projectid, function successCallback() {
+		database.deleteFile(documentid,
+			function successCallback() {
+				var file = FILE_PATH_PREFIX + projectid + '/' + documentid;
+				fs.unlink(file, function(err) {
+					if (err)
+						log.e(err.message);
+				});
+				onSuccess();
+			},
+			function errorCallback() {
+				onError('FILE_UNKNOWN_FAILURE');
+			}
+		);
+	}, onError);
 }
 
 /**
  * Sets a new path for an existing document.
  * @param   {Integer}   documentid  The document's ID.
+ * @param   {Integer}   projectid   The project's ID.
  * @param   {String}    path        The new path.
  * @param   {Function}  onSuccess   Callback for successful operations.
+ * @param   {Function}  onError     Callback for unsuccessful validation.
  * @return  {Void}
  */
-function moveFile(documentid, path, onSuccess) {
-	if (validFilePath(path))
-		database.updateFile(documentid, path, onSuccess);
+function moveFile(documentid, projectid, path, onSuccess, onError) {
+	validateFile(documentid, projectid, function successCallback() {
+		if (validFilePath(path)) {
+			database.pathExists(path, projectid, function(exists) {
+				if (exists) {
+					log.d('Duplicate file path for ' + projectid + ' (' + path + ')');
+					onError('FILE_DUPLICATE_PATH');
+				}
+				else {
+					database.updateFile(documentid, path, onSuccess, function errorCallback() {
+						onError('FILE_UNKNOWN_FAILURE');
+					});
+				}
+			});
+		}
+		else {
+			onError('FILE_INVALID_PATH');
+		}
+	}, onError);
 }
 
 function validFilePath(path) {

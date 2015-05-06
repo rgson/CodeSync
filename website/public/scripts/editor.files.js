@@ -24,7 +24,6 @@ $(document).ready(function(){
 				var $this = $(this);
 				$this.siblings('ul').toggle();
 				var $icon = $this.hasClass('glyphicon') ? $this : $this.siblings('.glyphicon');
-				console.log($icon);
 				$icon.toggleClass('glyphicon-menu-down glyphicon-menu-right');
 				break;
 			case 3:
@@ -93,7 +92,7 @@ $(document).ready(function(){
 				buildPath($(file), true);
 				break;
 			case 'deleteFile':
-				SyncClient.do('delete', {doc: id});
+				SyncClient.do('delete', {doc: id}, undefined, showErrorMessage);
 				break;
 			case 'renameFile':
 				create = false;
@@ -107,9 +106,9 @@ $(document).ready(function(){
 
 		if(e.which == 13){
 			if(create)
-				SyncClient.do('create', {path: $('#filepath').val()});
+				SyncClient.do('create', {path: $('#filepath').val()}, undefined, showErrorMessage);
 			else
-				SyncClient.do('move', {doc: id, path: $('#filepath').val()});
+				SyncClient.do('move', {doc: id, path: $('#filepath').val()}, undefined, showErrorMessage);
 
 			$('#filepathInput').css('visibility', 'hidden');
 		}
@@ -189,6 +188,29 @@ $(document).ready(function(){
 		}
 		str += '</ul>';
 		return str;
+	}
+
+	function showErrorMessage(err) {
+		switch (err) {
+			case 'FILE_ALREADY_OPEN':
+				alert('The file to be opened was already open.');
+				break;
+			case 'FILE_DUPLICATE_PATH':
+				alert('The provided path is already in use and cannot be used.');
+				break;
+			case 'FILE_INVALID_PATH':
+				alert('The provided path is considered invalid and cannot be used.');
+				break;
+			case 'FILE_NOT_FOUND':
+				alert('The requested file does not exist.');
+				break;
+			case 'FILE_NOT_OPEN':
+				alert('The file to be closed was already closed.');
+				break;
+			case 'FILE_UNKNOWN_FAILURE':
+				alert('An unknown error occurred.');
+				break;
+		}
 	}
 
 });

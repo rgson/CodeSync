@@ -31,8 +31,9 @@ module.exports = {
 		this.edits = edits;
 	},
 
-	FileCreateRequest: function(path) {
+	FileCreateRequest: function(id, path) {
 		this.type = 'file.create';
+		this.id = id;
 		this.path = path;
 	},
 
@@ -42,8 +43,9 @@ module.exports = {
 		this.path = path;
 	},
 
-	FileDeleteRequest: function(doc) {
+	FileDeleteRequest: function(id, doc) {
 		this.type = 'file.delete';
+		this.id = id;
 		this.doc = doc;
 	},
 
@@ -52,8 +54,9 @@ module.exports = {
 		this.doc = doc;
 	},
 
-	FileMoveRequest: function(doc, path) {
+	FileMoveRequest: function(id, doc, path) {
 		this.type = 'file.move';
+		this.id = id;
 		this.doc = doc;
 		this.path = path;
 	},
@@ -64,8 +67,9 @@ module.exports = {
 		this.path = path;
 	},
 
-	FileOpenRequest: function(doc) {
+	FileOpenRequest: function(id, doc) {
 		this.type = 'file.open';
+		this.id = id;
 		this.doc = doc;
 	},
 
@@ -75,8 +79,9 @@ module.exports = {
 		this.user = user;
 	},
 
-	FileCloseRequest: function(doc) {
+	FileCloseRequest: function(id, doc) {
 		this.type = 'file.close';
+		this.id = id;
 		this.doc = doc;
 	},
 
@@ -84,6 +89,13 @@ module.exports = {
 		this.type = 'file.close';
 		this.doc = doc;
 		this.user = user;
+	},
+
+	FileResponse: function(id, success, error) {
+		this.type = 'file.response';
+		this.id = id;
+		this.success = !!success;
+		this.error = error;
 	},
 
 	recreateRequest: function(msg) {
@@ -103,24 +115,24 @@ module.exports = {
 				return new this.DocSyncMessage(msg.doc, msg.remotev, msg.edits);
 
 			case 'file.create':
-				if (!msg.path) return undefined;
-				return new this.FileCreateRequest(msg.path);
+				if (!msg.id || !msg.path) return undefined;
+				return new this.FileCreateRequest(msg.id, msg.path);
 
 			case 'file.delete':
-				if (!msg.doc) return undefined;
-				return new this.FileDeleteRequest(msg.doc);
+				if (!msg.id || !msg.doc) return undefined;
+				return new this.FileDeleteRequest(msg.id, msg.doc);
 
 			case 'file.move':
-				if (!msg.doc || !msg.path) return undefined;
-				return new this.FileMoveRequest(msg.doc, msg.path);
+				if (!msg.id || !msg.doc || !msg.path) return undefined;
+				return new this.FileMoveRequest(msg.id, msg.doc, msg.path);
 
 			case 'file.open':
-				if (!msg.doc) return undefined;
-				return new this.FileOpenRequest(msg.doc);
+				if (!msg.id || !msg.doc) return undefined;
+				return new this.FileOpenRequest(msg.id, msg.doc);
 
 			case 'file.close':
-				if (!msg.doc) return undefined;
-				return new this.FileCloseRequest(msg.doc);
+				if (!msg.id || !msg.doc) return undefined;
+				return new this.FileCloseRequest(msg.id, msg.doc);
 
 			default:
 				return undefined;

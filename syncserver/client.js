@@ -118,37 +118,60 @@ function handleDocSync(message, user) {
 
 /** Handles file.create messages. */
 function handleFileCreate(message, user) {
-	documentUtils.create(user.projectid, message.path, function(documentid) {
-		broadcast(user.projectid, new messageFactory.FileCreateBroadcast(documentid, message.path));
-	});
+	documentUtils.create(user.projectid, message.path,
+		function onSuccess(documentid) {
+			user.send(new messageFactory.FileResponse(message.id, true));
+			broadcast(user.projectid, new messageFactory.FileCreateBroadcast(documentid, message.path));
+		},
+		function onError(error) {
+			user.send(new messageFactory.FileResponse(message.id, false, error));
+		}
+	);
 }
 
 /** Handles file.delete messages. */
 function handleFileDelete(message, user) {
-	documentUtils.validate(message.doc, user.projectid, function() {
-		documentUtils.delete(message.doc, user.projectid, function() {
+	documentUtils.delete(message.doc, user.projectid,
+		function onSuccess() {
+			user.send(new messageFactory.FileResponse(message.id, true));
 			broadcast(user.projectid, new messageFactory.FileDeleteBroadcast(message.doc));
-		});
-	});
+		},
+		function onError(error) {
+			user.send(new messageFactory.FileResponse(message.id, false, error));
+		}
+	);
 }
 
 /** Handles file.move messages. */
 function handleFileMove(message, user) {
-	documentUtils.validate(message.doc, user.projectid, function() {
-		documentUtils.move(message.doc, message.path, function() {
+	documentUtils.move(message.doc, user.projectid, message.path,
+		function onSuccess() {
+			user.send(new messageFactory.FileResponse(message.id, true));
 			broadcast(user.projectid, new messageFactory.FileMoveBroadcast(message.doc, message.path));
-		});
-	});
+		},
+		function onError(error) {
+			user.send(new messageFactory.FileResponse(message.id, false, error));
+		}
+	);
 }
 
 /** Handles file.open messages. */
 function handleFileOpen(message, user) {
 	if (!user.documents[message.doc]) {
-		documentUtils.validate(message.doc, user.projectid, function() {
-			user.documents[message.doc] = new Document(message.doc, user);
-			user.documents[message.doc].init();
-			broadcast(user.projectid, new messageFactory.FileOpenBroadcast(message.doc, user.userid));
-		});
+		documentUtils.validate(message.doc, user.projectid,
+			function onSuccess() {
+				user.documents[message.doc] = new Document(message.doc, user);
+				user.documents[message.doc].init();
+				user.send(new messageFactory.FileResponse(message.id, true));
+				broadcast(user.projectid, new messageFactory.FileOpenBroadcast(message.doc, user.userid));
+			},
+			function onError(error) {
+				user.send(new messageFactory.FileResponse(message.id, false, error));
+			}
+		);
+	}
+	else {
+		user.send(new messageFactory.FileResponse(message.id, false, 'FILE_ALREADY_OPEN'));
 	}
 }
 
@@ -156,7 +179,11 @@ function handleFileOpen(message, user) {
 function handleFileClose(message, user) {
 	if (user.documents[message.doc]) {
 		delete user.documents[message.doc];
+		user.send(new messageFactory.FileResponse(message.id, true));
 		broadcast(user.projectid, new messageFactory.FileCloseBroadcast(message.doc, user.userid));
+	}
+	else {
+		user.send(new messageFactory.FileResponse(message.id, false, 'FILE_NOT_OPEN'));
 	}
 }
 

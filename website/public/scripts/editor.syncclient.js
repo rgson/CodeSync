@@ -22,26 +22,10 @@ var dmp = new diff_match_patch();
 function SyncClient(session) {
 	var HOST = "ws://localhost:32358/";		// TODO: don't hardcode this
 	var EDITS_INTERVAL = 2000;
-	var session, connection, client, listeners, editsInterval;
+	var session, connection, client, listeners, editsInterval, pendingActions, actionCounter;
 
 	session = cookie('sync_session');
 	if (!session) throw new Error('Session missing!');
-
-	connection = new WebSocket(HOST);
-	connection.onopen = function() {
-		client = new Client(session, connection);
-		editsInterval = setInterval(client.sync, EDITS_INTERVAL);
-		client.listen(function(action, args) {
-			for (var i = listeners[action].length - 1; i >= 0; i--) {
-				listeners[action][i](args);
-			}
-		});
-		window.onbeforeunload = client.drop;
-	};
-	connection.onclose = function() {
-		clearInterval(editsInterval);
-		console.log('WebSocket connection closed');
-	};
 
 	listeners = {
 		'create': [],
@@ -49,6 +33,32 @@ function SyncClient(session) {
 		'move': [],
 		'open': [],
 		'close': []
+	};
+	actionCounter = 0;
+	pendingActions = {};
+
+	connection = new WebSocket(HOST);
+	connection.onopen = function() {
+		client = new Client(session, connection);
+		editsInterval = setInterval(client.sync, EDITS_INTERVAL);
+		client.listen(function(action, args) {
+			if (action === 'response' && pendingActions[args.id]) {
+				if (args.success && pendingActions[args.id].success)
+					pendingActions[args.id].success();
+				else if (!args.success && pendingActions[args.id].error)
+					pendingActions[args.id].error(args.error);
+			}
+			else if (Object.keys(listeners).indexOf(action) !== -1) {
+				for (var i = listeners[action].length - 1; i >= 0; i--) {
+					listeners[action][i](args);
+				}
+			}
+		});
+		window.onbeforeunload = client.drop;
+	};
+	connection.onclose = function() {
+		clearInterval(editsInterval);
+		console.log('WebSocket connection closed');
 	};
 
 	/**
@@ -70,7 +80,7 @@ function SyncClient(session) {
 
 	/**
 	 * Removes an event listener.
-	 * @param  {String}   action     The type of event.
+	 * @param  {String}    action     The type of event.
 	 * @param  {Function}  callback  The callback for this event to remove.
 	 * @return {Void}
 	 */
@@ -84,25 +94,29 @@ function SyncClient(session) {
 
 	/**
 	 * Performs an action.
-	 * @param   {String}  action  The type of action.
-	 * @param   {Object}  args    The arguments for the action.
-	 *                            Expected to contain the following:
-	 *                            'create' : {path}
-	 *                            'delete' : {doc}
-	 *                            'move'   : {doc, path}
-	 *                            'open'   : {doc, get, set}
-	 *                            'close'  : {doc}
+	 * @param   {String}    action   The type of action.
+	 * @param   {Object}    args     The arguments for the action.
+	 *                               Expected to contain the following:
+	 *                               'create' : {path}
+	 *                               'delete' : {doc}
+	 *                               'move'   : {doc, path}
+	 *                               'open'   : {doc, get, set}
+	 *                               'close'  : {doc}
+	 * @param   {Function}  success  Callback for successful operations.
+	 * @param   {Function}  error    Callback for unsuccessful operations.
 	 * @return  {Void}
 	 */
-	this.do = function(action, args) {
+	this.do = function(action, args, success, error) {
 		if (!client) return console.log('Client undefined');
 		if (!args) return console.log('Args missing');
+		var msgId = ++actionCounter;
+		pendingActions[msgId] = {'success': success, 'error': error};
 		switch (action) {
-			case 'create': return client.create(args.path);
-			case 'delete': return client.delete(args.doc);
-			case 'move': return client.move(args.doc, args.path);
-			case 'open': return client.open(args.doc, args.get, args.set);
-			case 'close': return client.close(args.doc);
+			case 'create': return client.create(msgId, args.path);
+			case 'delete': return client.delete(msgId, args.doc);
+			case 'move': return client.move(msgId, args.doc, args.path);
+			case 'open': return client.open(msgId, args.doc, args.get, args.set);
+			case 'close': return client.close(msgId, args.doc);
 		}
 	};
 }
@@ -147,31 +161,31 @@ function Client(session, connection) {
 		listener = eventlistener;
 	}
 
-	this.create = function(path) {
-		if (that.userid && path)
-			that.send(new messageFactory.FileCreateRequest(path));
+	this.create = function(id, path) {
+		if (that.userid && id && path)
+			that.send(new messageFactory.FileCreateRequest(id, path));
 	}
 
-	this.delete = function(doc) {
-		if (that.userid && doc)
-			that.send(new messageFactory.FileDeleteRequest(doc));
+	this.delete = function(id, doc) {
+		if (that.userid && id && doc)
+			that.send(new messageFactory.FileDeleteRequest(id, doc));
 	}
 
-	this.move = function(doc, path) {
-		if (that.userid && doc && path)
-			that.send(new messageFactory.FileMoveRequest(doc, path));
+	this.move = function(id, doc, path) {
+		if (that.userid && id && doc && path)
+			that.send(new messageFactory.FileMoveRequest(id, doc, path));
 	}
 
-	this.open = function(doc, getText, setText) {
-		if (that.userid && doc && getText && setText) {
+	this.open = function(id, doc, getText, setText) {
+		if (that.userid && id && doc && getText && setText) {
 			that.documents[doc] = new Document(doc, that, getText, setText);
-			that.send(new messageFactory.FileOpenRequest(doc));
+			that.send(new messageFactory.FileOpenRequest(id, doc));
 		}
 	}
 
-	this.close = function(doc) {
-		if (that.userid && doc)
-			that.send(new messageFactory.FileCloseRequest(doc));
+	this.close = function(id, doc) {
+		if (that.userid && id && doc)
+			that.send(new messageFactory.FileCloseRequest(id, doc));
 	}
 
 	connection.onmessage = function onMessage(msg) {
@@ -189,6 +203,7 @@ function Client(session, connection) {
 				case 'file.move': return handleFileMove(message);
 				case 'file.open': return handleFileOpen(message);
 				case 'file.close': return handleFileClose(message);
+				case 'file.response': return handleFileResponse(message);
 				default: throw new Error('Unknown message type');
 			}
 		}
@@ -226,6 +241,10 @@ function Client(session, connection) {
 		function handleFileClose(message) {
 			if (listener)
 				listener('close', {doc: message.doc, user: message.user});
+		}
+		function handleFileResponse(message) {
+			if (listener)
+				listener('response', {id: message.id, success: message.success, error: message.error});
 		}
 	}
 
@@ -446,25 +465,30 @@ function MessageFactory() {
 		this.remotev = remotev;
 		this.edits = edits;
 	}
-	this.FileCreateRequest = function(path) {
+	this.FileCreateRequest = function(id, path) {
 		this.type = 'file.create';
+		this.id = id;
 		this.path = path;
 	}
-	this.FileDeleteRequest = function(doc) {
+	this.FileDeleteRequest = function(id, doc) {
 		this.type = 'file.delete';
+		this.id = id;
 		this.doc = doc;
 	}
-	this.FileMoveRequest = function(doc, path) {
+	this.FileMoveRequest = function(id, doc, path) {
 		this.type = 'file.move';
+		this.id = id;
 		this.doc = doc;
 		this.path = path;
 	}
-	this.FileOpenRequest = function(doc) {
+	this.FileOpenRequest = function(id, doc) {
 		this.type = 'file.open';
+		this.id = id;
 		this.doc = doc;
 	}
-	this.FileCloseRequest = function(doc) {
+	this.FileCloseRequest = function(id, doc) {
 		this.type = 'file.close';
+		this.id = id;
 		this.doc = doc;
 	}
 }

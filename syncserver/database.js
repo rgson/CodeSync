@@ -56,7 +56,7 @@ function pathExists(path, projectid, callback) {
 	});
 }
 
-function insertFile(projectid, path, onSuccess, transactionCallback) {
+function insertFile(projectid, path, onSuccess, onError, transactionCallback) {
 	pool.getConnection(function(err, connection) {
 		if (!err) {
 			connection.beginTransaction(function(err) {
@@ -72,44 +72,53 @@ function insertFile(projectid, path, onSuccess, transactionCallback) {
 											connection.release();
 											onSuccess(result.insertId);
 										}
-										else rollbackAndRelease(connection, err);
+										else error(err, connection);
 									});
-								} else rollbackAndRelease(connection, err);
+								} else error(err, connection);
 							});
-						} else rollbackAndRelease(connection, err);
+						} else error(err, connection);
 					});
-				} else log.e(err.message);
+				} else error(err);
 			});
-		} else log.e(err.message);
+		} else error(err);
 	});
 
-	function rollbackAndRelease(connection, err) {
-		if (err) log.e(err.message);
-		connection.rollback(function (err) {
-			if (err) log.e(err.message);
-			connection.release();
-		});
+	function error(err, connection) {
+		log.e(err.message);
+		if (connection) {
+			connection.rollback(function (err) {
+				if (err) log.e(err.message);
+				connection.release();
+			});
+		}
+		onError(err);
 	}
 }
 
-function updateFile(documentid, filepath, callback) {
+function updateFile(documentid, filepath, onSuccess, onError) {
 	var sql = 'UPDATE files SET filepath = ? WHERE id = ?';
 	var params = [filepath, documentid];
 	pool.query(sql, params, function(err, result) {
-		if (err)
+		if (err) {
 			log.e(err.message);
-		else
-			callback()
+			onError(err);
+		}
+		else {
+			onSuccess();
+		}
 	});
 }
 
-function deleteFile(documentid, callback) {
+function deleteFile(documentid, onSuccess, onError) {
 	var sql = 'DELETE FROM files WHERE id = ?';
 	var params = [documentid];
 	pool.query(sql, params, function(err, result) {
-		if (err)
+		if (err) {
 			log.e(err.message);
-		else
-			callback();
+			onError(err);
+		}
+		else {
+			onSuccess();
+		}
 	});
 }
