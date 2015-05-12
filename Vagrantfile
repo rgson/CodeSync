@@ -35,7 +35,8 @@ php artisan db:seed
 cd /vagrant/syncserver
 bash install_dependencies.sh
 mkdir /mnt/codesync
-chown vagrant /mnt/codesync
+mkdir /mnt/codesync/pending_downloads
+chown -R vagrant /mnt/codesync
 mkdir /var/log/syncserver
 chown vagrant /var/log/syncserver
 SETUP
@@ -51,6 +52,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $startup, run: "always", privileged: false
   config.vm.network :forwarded_port, host: 8080, guest: 80
   config.vm.network :forwarded_port, host: 32358, guest: 32358
+  config.vm.network :forwarded_port, host: 32359, guest: 32359
   config.vm.synced_folder ".", "/vagrant", :mount_options => ["dmode=777","fmode=666"]
   config.vm.hostname = "vagrant"
 end

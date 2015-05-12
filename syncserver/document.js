@@ -1,9 +1,10 @@
-var fs = require('fs');
-var DiffMatchPatch = require('diff_match_patch').diff_match_patch;
-var XXHash = require('xxhash');
-var log = require('./log');
-var messageFactory = require('./message_factory');
-var database = require('./database');
+var fs = require('fs'),
+	DiffMatchPatch = require('diff_match_patch').diff_match_patch,
+	XXHash = require('xxhash'),
+	log = require('./log'),
+	messageFactory = require('./message_factory'),
+	database = require('./database'),
+	file_storage = require('./config').file_storage;
 
 module.exports = {
 	Document: Document,
@@ -11,11 +12,11 @@ module.exports = {
 		'validate': validateFile,
 		'create': createFile,
 		'delete': deleteFile,
-		'move': moveFile
+		'move': moveFile,
+		'realpath': realFilePath
 	}
 };
 
-var FILE_PATH_PREFIX = '/mnt/codesync/';
 var dmp = new DiffMatchPatch();
 
 // TODO: move locking to some cross-server/cross-process solution
@@ -31,7 +32,7 @@ function Document(documentid, client) {
 	var that = this;
 	this.documentid = documentid;
 	this.projectid = client.projectid;
-	this.filepath = FILE_PATH_PREFIX + this.projectid + '/' + this.documentid;
+	this.filepath = realFilePath(this.projectid, this.documentid);
 	this.client = client;
 	this.state = undefined;
 
@@ -308,8 +309,8 @@ function createFile(projectid, path, onSuccess, onError) {
 						onError('FILE_UNKNOWN_FAILURE');
 					},
 					function transactionCallback(documentid, callback) {
-						var dir = FILE_PATH_PREFIX + projectid;
-						var file = dir + '/' + documentid;
+						var file = realFilePath(projectid, documentid);
+						var dir = file.substr(0, file.lastIndexOf('/'));
 						fs.mkdir(dir, function(err) {
 							if (!err || err.code === 'EEXIST') {
 								fs.open(file, 'w', function(err, fd) {
@@ -344,7 +345,7 @@ function deleteFile(documentid, projectid, onSuccess, onError) {
 	validateFile(documentid, projectid, function successCallback() {
 		database.deleteFile(documentid,
 			function successCallback() {
-				var file = FILE_PATH_PREFIX + projectid + '/' + documentid;
+				var file = realFilePath(projectid, documentid);
 				fs.unlink(file, function(err) {
 					if (err)
 						log.e(err.message);
@@ -410,4 +411,8 @@ function validFilePath(path) {
 	}
 
 	return true;
+}
+
+function realFilePath(projectid, documentid) {
+	return file_storage + projectid + '/' + documentid;
 }

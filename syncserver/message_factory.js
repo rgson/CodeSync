@@ -98,6 +98,15 @@ module.exports = {
 		this.error = error;
 	},
 
+	ProjectZipRequest: function() {
+		this.type = 'project.zip';
+	},
+
+	ProjectZipResponse: function(filename) {
+		this.type = 'project.zip';
+		this.filename = filename;
+	},
+
 	recreateRequest: function(msg) {
 		switch (msg.type) {
 
@@ -133,6 +142,9 @@ module.exports = {
 			case 'file.close':
 				if (!msg.id || !msg.doc) return undefined;
 				return new this.FileCloseRequest(msg.id, msg.doc);
+
+			case 'project.zip':
+				return new this.ProjectZipRequest();
 
 			default:
 				return undefined;

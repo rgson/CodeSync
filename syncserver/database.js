@@ -10,7 +10,8 @@ module.exports = {
 	pathExists: pathExists,
 	insertFile: insertFile,
 	updateFile: updateFile,
-	deleteFile: deleteFile
+	deleteFile: deleteFile,
+	getAllFiles: getAllFiles
 }
 
 function getSession(session, callback) {
@@ -119,6 +120,28 @@ function deleteFile(documentid, onSuccess, onError) {
 		}
 		else {
 			onSuccess();
+		}
+	});
+}
+
+function getAllFiles(projectid, onSuccess, onError) {
+	var sql = 'SELECT * FROM files WHERE project = ?';
+	var params = [projectid];
+	pool.query(sql, params, function(err, rows) {
+		if (err) {
+			log.e(err.message);
+			if (onError)
+				onError(err);
+		}
+		else {
+			var files = [];
+			for (var i = rows.length - 1; i >= 0; i--) {
+				files.push({
+					id: rows[i].id,
+					filepath: rows[i].filepath
+				});
+			}
+			onSuccess(files);
 		}
 	});
 }

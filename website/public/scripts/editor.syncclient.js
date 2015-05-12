@@ -1,5 +1,12 @@
 (function() {
 
+var config = {
+	host: 'localhost',
+	websocket_port: 32358,
+	http_port: 32359,
+	edits_interval: 500
+};
+
 if (!window.WebSocket)
 	return alert("You browser does not support WebSocket, which is needed to perform document synchronization. Please update your browser.");
 
@@ -20,8 +27,7 @@ var dmp = new diff_match_patch();
  * @param  {Integer}  session  The session ID to use for authentication.
  */
 function SyncClient(session) {
-	var HOST = "ws://localhost:32358/";		// TODO: don't hardcode this
-	var EDITS_INTERVAL = 2000;
+
 	var session, connection, client, listeners, editsInterval, pendingActions, actionCounter;
 
 	session = cookie('sync_session');
@@ -37,10 +43,10 @@ function SyncClient(session) {
 	actionCounter = 0;
 	pendingActions = {};
 
-	connection = new WebSocket(HOST);
+	connection = new WebSocket('ws://'+config.host+':'+config.websocket_port+'/');
 	connection.onopen = function() {
 		client = new Client(session, connection);
-		editsInterval = setInterval(client.sync, EDITS_INTERVAL);
+		editsInterval = setInterval(client.sync, config.edits_interval);
 		client.listen(function(action, args) {
 			if (action === 'response' && pendingActions[args.id]) {
 				if (args.success && pendingActions[args.id].success)
@@ -108,7 +114,7 @@ function SyncClient(session) {
 	 */
 	this.do = function(action, args, success, error) {
 		if (!client) return console.log('Client undefined');
-		if (!args) return console.log('Args missing');
+		if (!args && action !== 'download') return console.log('Args missing');
 		var msgId = ++actionCounter;
 		pendingActions[msgId] = {'success': success, 'error': error};
 		switch (action) {
@@ -117,6 +123,7 @@ function SyncClient(session) {
 			case 'move': return client.move(msgId, args.doc, args.path);
 			case 'open': return client.open(msgId, args.doc, args.get, args.set);
 			case 'close': return client.close(msgId, args.doc);
+			case 'download': return client.download();
 		}
 	};
 }
@@ -188,6 +195,11 @@ function Client(session, connection) {
 			that.send(new messageFactory.FileCloseRequest(id, doc));
 	}
 
+	this.download = function() {
+		if (that.userid)
+			that.send(new messageFactory.ProjectZipRequest());
+	}
+
 	connection.onmessage = function onMessage(msg) {
 		try {
 			message = JSON.parse(msg.data);
@@ -204,6 +216,7 @@ function Client(session, connection) {
 				case 'file.open': return handleFileOpen(message);
 				case 'file.close': return handleFileClose(message);
 				case 'file.response': return handleFileResponse(message);
+				case 'project.zip': return handleProjectZip(message);
 				default: throw new Error('Unknown message type');
 			}
 		}
@@ -245,6 +258,15 @@ function Client(session, connection) {
 		function handleFileResponse(message) {
 			if (listener)
 				listener('response', {id: message.id, success: message.success, error: message.error});
+		}
+		function handleProjectZip(message) {
+			if (message.filename) {
+				$('body').append(
+					$('<iframe>', {
+						src: 'http://'+config.host+':'+config.http_port+'/'+message.filename,
+						style: 'display: none;'
+					}));
+			}
 		}
 	}
 
@@ -490,6 +512,10 @@ function MessageFactory() {
 		this.type = 'file.close';
 		this.id = id;
 		this.doc = doc;
+	}
+
+	this.ProjectZipRequest = function() {
+		this.type = 'project.zip';
 	}
 }
 

@@ -1,14 +1,16 @@
-var log = require('./log');
-var Document = require('./document').Document;
-var documentUtils = require('./document').utils;
-var messageFactory = require('./message_factory');
-var database = require('./database');
+var archiver = require('archiver'),
+	log = require('./log'),
+	Document = require('./document').Document,
+	documentUtils = require('./document').utils,
+	messageFactory = require('./message_factory'),
+	database = require('./database'),
+	zipper = require('./zipper');
 
 module.exports = Client;
 
-var projectSubscriptions = {};
-var broadcastQueue = {};
-var sessionClientCounter = 0;
+var projectSubscriptions = {},
+	broadcastQueue = {},
+	sessionClientCounter = 0;
 
 /**
  * Constructs a new Client object.
@@ -76,6 +78,7 @@ function Client(connection) {
 				case 'file.move':		return handleFileMove(message, that);
 				case 'file.open':		return handleFileOpen(message, that);
 				case 'file.close':	return handleFileClose(message, that);
+				case 'project.zip':	return handleProjectZip(message, that);
 			}
 
 		}
@@ -185,6 +188,19 @@ function handleFileClose(message, user) {
 	else {
 		user.send(new messageFactory.FileResponse(message.id, false, 'FILE_NOT_OPEN'));
 	}
+}
+
+/** Handles project.zip messages. */
+function handleProjectZip(message, user) {
+	database.getAllFiles(user.projectid, function(files) {
+		for (var i = files.length - 1; i >= 0; i--) {
+			files[i].realpath = documentUtils.realpath(user.projectid, files[i].id);
+		}
+		zipper.zip(files, function(filename) {
+			log.d('Zipped file: ' + filename);
+			user.send(new messageFactory.ProjectZipResponse(filename));
+		});
+	});
 }
 
 
