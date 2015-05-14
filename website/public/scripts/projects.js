@@ -44,9 +44,9 @@ $(document).on('click', '#remove-project', function(){
 // Rename the project
 $(document).on('click', '#rename-project', function(){
 
-	// Get values from the delete button
-	var projectid = $('#remove-project').attr('data-id');
-	var projectname = $('#remove-project').attr('data-name');
+	// Get values from the open button
+	var projectid = $('#open-project').attr('data-id');
+	var projectname = $('#open-project').attr('data-name');
 
 	var pname = prompt('Please enter the new project name for ' + projectname);
 	
@@ -70,8 +70,8 @@ $(document).on('click', '#rename-project', function(){
 				$('#showprojects > tbody > tr').each(function(){
 					if($(this).attr('data-value') === projectid){
 						$(this).addClass('selected');	
-						$('#remove-project').attr('data-id', projectid);	
-						$('#remove-project').attr('data-name', pname);
+						$('#open-project').attr('data-id', projectid);	
+						$('#open-project').attr('data-name', pname);
 					}
 				});
 			}
@@ -84,6 +84,16 @@ $(document).on('click', '#rename-project', function(){
 $(document).on('dblclick', '.projdata', function(){
 	var projectid = $(this).data('value');
 	var projectname = $(this).find('td:first').text();	
+	window.location.href = '/' + projectid + '/' + projectname;
+});
+
+// Open selected project with open button
+$(document).on('click', '#open-project', function(){
+
+	// Get values from the open button
+	var projectid = $('#open-project').attr('data-id');
+	var projectname = $('#open-project').attr('data-name');
+	clearOnClick();
 	window.location.href = '/' + projectid + '/' + projectname;
 });
 

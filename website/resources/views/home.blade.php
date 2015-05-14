@@ -18,7 +18,7 @@
 					<tr>
 						<th id='table-projectname'>Project name</th>
 						<th id='table-projectowner'>Owner</th>
-						<th id='table-projectcreated'>Created</th>
+						<th id='table-projectcreated'>Created (GMT)</th>
 					</tr>
 
 					@foreach ($projects as $project)
@@ -42,13 +42,17 @@
 					</div>
 					<ul id='showmembers'></ul>
 				</div>
-				<div id='settings' class='owneronly'>
-					<h3>Settings</h3>
-					<button id='remove-project' class='btn btn-danger'>
+				<div id='settings'>
+					<h3>Actions</h3>
+					<button id='open-project' class='btn btn-info'>
+						<span class='glyphicon glyphicon-folder-open'></span>
+						Open
+					</button>
+					<button id='remove-project' class='btn btn-danger owneronly'>
 						<span class='glyphicon glyphicon-trash'></span>
 						Remove
 					</button>
-					<button id='rename-project' class='btn btn-primary'>
+					<button id='rename-project' class='btn btn-primary owneronly'>
 						<span class='glyphicon glyphicon-pencil'></span>
 						Rename
 					</button>

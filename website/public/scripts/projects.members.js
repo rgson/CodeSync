@@ -33,8 +33,8 @@ $(document).on('click', '.projdata', function(){
 	var projectid = $(this).data('value');
 	var projectname = $(this).find('td:first').text();	
 
-	$('#remove-project').attr('data-id', projectid);	
-	$('#remove-project').attr('data-name', projectname);
+	$('#open-project').attr('data-id', projectid);	
+	$('#open-project').attr('data-name', projectname);
 	
 
 	request = $.ajax({
