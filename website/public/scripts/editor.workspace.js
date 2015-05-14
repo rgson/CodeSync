@@ -105,6 +105,12 @@ $(function() {
 				tab.element.detach();
 				tab.close();
 				delete tabs[id];
+				if (activeTab === undefined) {
+					var keys = Object.keys(tabs);
+					if (keys.length) {
+						that.activate(keys[0]);
+					}
+				}
 			}
 		}
 
