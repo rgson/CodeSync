@@ -38,7 +38,8 @@ function SyncClient(session) {
 		'delete': [],
 		'move': [],
 		'open': [],
-		'close': []
+		'close': [],
+		'disconnect': []
 	};
 	actionCounter = 0;
 	pendingActions = {};
@@ -65,6 +66,9 @@ function SyncClient(session) {
 	connection.onclose = function() {
 		clearInterval(editsInterval);
 		console.log('WebSocket connection closed');
+		for (var i = listeners['disconnect'].length - 1; i >= 0; i--) {
+			listeners['disconnect'][i]();
+		}
 	};
 
 	/**
