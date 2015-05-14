@@ -173,6 +173,7 @@ h1, h2, h3, h4, h5, h6 {
 
 #editor #chat .message .content {
 	white-space: pre;
+	word-wrap: break-word;
 }
 
 #editor #chat .footer textarea {
