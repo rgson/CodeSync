@@ -43,6 +43,7 @@
 		@foreach ($messages as $message)
 			<p class='message' data-id='{{ $message->id }}'>
 				<span class='sender'>{{ $message->sendername }}</span>
+				<span class='timestamp'>{{ $message->created_at }}</span>
 				<span class='content'>{{ $message->content }}</span>
 			</p>
 		@endforeach
