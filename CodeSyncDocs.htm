@@ -1,0 +1,359 @@
+<!doctype html>
+<html>
+<head>
+	<title>CodeSync documentation</title>
+	<meta charset="utf-8"/>
+</head>
+<body>
+
+<h1>The CodeSync protocol</h1>
+<p>This document describes the CodeSync protocol.</p>
+<p>Each message type shows examples for both requests and responses. When only one example is given, requests and responses are identical.</p>
+
+<h2>File synchronization</h2>
+<p>Messages in this section are mostly request/response-based and each message sent by the client warrants a response from the server.</p>
+
+<h3>User authentication</h3>
+<pre>
+{
+	"type": "user.auth",
+	"session": "feaf7esa6fs67fes87f"
+}
+</pre>
+<pre>
+{
+	"type": "user.auth",
+	"user": "1"
+}
+</pre>
+
+<h3>Document initialization</h3>
+<pre>
+{
+	"type": "doc.init",
+	"doc": "1"
+}
+</pre>
+<pre>
+{
+	"type": "doc.init",
+	"doc": "1",
+	"body": "Hello World!"
+}
+</pre>
+
+<h3>Document synchronization</h3>
+<p>Versions are named from the sender's perspective.</p>
+<pre>
+{
+	"type": "doc.sync",
+	"doc": "1",
+	"remotev": "4",
+	"edits":[
+		{
+			"localv": "1",
+			"patch": "@@ -1,7 +1,6 @@
+			-Goo
+			+Ba
+			d do",
+			"hash": "fdsaf7s8f7d8sfs6fd90s98af"
+		},
+		{
+			"localv": "2",
+			"patch": "@@ -1,7 +1,6 @@
+			-Goo
+			+Ba
+			d do",
+			"hash": "fdsaf7s8f7d8sfs6fd90s98af"
+		}
+	]
+}
+</pre>
+
+<h2>Project subscriptions</h2>
+<p>Messages under this section triggers a broadcast. Once the requested action has been carried out, each client subscribing to the project will be sent a broadcast detailing the action. The sender of the original action will also receive this, as well as a personal response confirming the action's successfulness and the potentially occurred error.</p>
+
+<h3>File creation</h3>
+<pre>
+{
+	"type": "file.create",
+	"id": "123",
+	"path": "path/to/file"
+}
+</pre>
+<pre>
+{
+	"type": "file.create",
+	"doc": "2",
+	"path": "path/to/file"
+}
+</pre>
+
+<h3>File deletion</h3>
+<pre>
+{
+	"type": "file.delete",
+	"id": "123",
+	"doc": "1"
+}
+</pre>
+
+<h3>File moving/renaming</h3>
+<pre>
+{
+	"type": "file.move",
+	"id": "123",
+	"doc": "1",
+	"path": "new/path/to/file"
+{
+</pre>
+
+<h3>File subscription</h3>
+<p>A <span class="mono">file.open</span> message request implies a <span class="mono">doc.init</span> request on the same document.</p>
+<pre>
+{
+	"type": "file.open",
+	"id": "123",
+	"doc": "1"
+}
+</pre>
+<pre>
+{
+	"type": "file.open",
+	"doc": "1",
+	"user": "1"
+}
+</pre>
+
+<h3>File unsubscription</h3>
+<pre>
+{
+	"type": "file.close",
+	"id": "123",
+	"doc": "1"
+}
+</pre>
+<pre>
+{
+	"type": "file.close",
+	"doc": "1",
+	"user": "1"
+}
+</pre>
+
+<h3>File action response</h3>
+<pre>
+{
+	"type": "file.response",
+	"id": "123",
+	"success": "false",
+	"error": "DUPLICATE_PATH"
+}
+</pre>
+
+<table id='error-codes'>
+	<tbody>
+		<tr>
+			<th colspan='2'>Possible error codes</th>
+		</tr>
+		<tr>
+			<td class='mono'>FILE_ALREADY_OPEN</td>
+			<td>The file to be opened was already open.</td>
+		</tr>
+		<tr>
+			<td class='mono'>FILE_DUPLICATE_PATH</td>
+			<td>The provided path is already in use and cannot be used.</td>
+		</tr>
+		<tr>
+			<td class='mono'>FILE_INVALID_PATH</td>
+			<td>The provided path is considered invalid and cannot be used.</td>
+		</tr>
+		<tr>
+			<td class='mono'>FILE_NOT_FOUND</td>
+			<td>The requested file does not exist.</td>
+		</tr>
+		<tr>
+			<td class='mono'>FILE_NOT_OPEN</td>
+			<td>The file to be closed was already closed.</td>
+		</tr>
+		<tr>
+			<td class='mono'>FILE_UNKNOWN_FAILURE</td>
+			<td>An unknown error occurred.</td>
+		</tr>
+	</tbody>
+</table>
+
+<h1>The SyncClient API</h1>
+<p>This section describes the SyncClient API implementation.</p>
+<p>The SyncClient API is a JavaScript API intended for use on the front end of the CodeSync website. It facilitates the functionality present in the CodeSync protocol through an event-driven plugin through the global SyncClient object. The SyncClient object provides three functions: <span class='mono'>do</span>, <span class='mono'>on</span> and <span class='mono'>off</span>.</p>
+
+<h2>Action</h2>
+<p>The <span class='mono'>do</span> function exposes functionality that can be triggered by user interaction.</p>
+
+<pre>
+	/**
+	 * Performs an action.
+	 * @param   {String}    action   The type of action.
+	 * @param   {Object}    args     The arguments for the action.
+	 * @param   {Function}  success  Callback for successful operations.
+	 * @param   {Function}  error    Callback for unsuccessful operations.
+	 * @return  {Void}
+	 */
+	this.do = function(action, args)
+</pre>
+
+The parameter <span class='mono'>args</span> varies based on action and is expected to contain the following:
+<table>
+	<tbody>
+		<tr>
+			<td class='mono'>create</td>
+			<td class='mono'>path</td>
+			<td>The path where the file is to be created.</td>
+		</tr>
+		<tr>
+			<td class='mono'>delete</td>
+			<td class='mono'>doc</td>
+			<td>The ID of the document to be deleted.</td>
+		</tr>
+		<tr>
+			<td rowspan='2' class='mono'>move</td>
+			<td class='mono'>doc</td>
+			<td>The ID of the document to be moved.</td>
+		</tr>
+		<tr>
+			<td class='mono'>path</td>
+			<td>The path to where the file is to be moved.</td>
+		</tr>
+		<tr>
+			<td rowspan='3' class='mono'>open</td>
+			<td class='mono'>doc</td>
+			<td>The ID of the document to be opened.</td>
+		</tr>
+		<tr>
+			<td class='mono'>get</td>
+			<td>A function to get the user's current verison of the document's content.</td>
+		</tr>
+		<tr>
+			<td class='mono'>set</td>
+			<td>A function to set the user's current version of the document's content.</td>
+		</tr>
+		<tr>
+			<td class='mono'>close</td>
+			<td class='mono'>doc</td>
+			<td>The ID of the document to be closed.</td>
+		</tr>
+	</tbody>
+</table>
+
+<p>The error callback will receive an error code detailing the error that occurred. This code can in turn be used to present the user with a more readable error message. For a list of error codes, see the <a href='#error-codes'>table of possible error codes</a>.</p>
+
+<h2>Subscribe</h2>
+<p>The <span class='mono'>on</span> function registers a listener for a particular event. The event is triggered whenever a user within the project performs the action.</p>
+
+<pre>
+	/**
+	 * Listens for an event.
+	 * @param   {String}    action    The type of event.
+	 * @param   {Function}  callback  The callback for this event.
+	 * @return  {Void}
+	 */
+	this.on = function(action, callback)
+</pre>
+
+The argument provided to the listener is an object containing varying properties based on action. The properties are the following:
+<table>
+	<tbody>
+		<tr>
+			<td rowspan='2' class='mono'>create</td>
+			<td class='mono'>doc</td>
+			<td>The ID of the document that was created.</td>
+		</tr>
+		<tr>
+			<td class='mono'>path</td>
+			<td>The path where the file was created.</td>
+		</tr>
+		<tr>
+			<td class='mono'>delete</td>
+			<td class='mono'>doc</td>
+			<td>The ID of the document that was deleted.</td>
+		</tr>
+		<tr>
+			<td rowspan='2' class='mono'>move</td>
+			<td class='mono'>doc</td>
+			<td>The ID of the document that was moved.</td>
+		</tr>
+		<tr>
+			<td class='mono'>path</td>
+			<td>The path to where the file was moved.</td>
+		</tr>
+		<tr>
+			<td rowspan='2' class='mono'>open</td>
+			<td class='mono'>doc</td>
+			<td>The ID of the document that was opened.</td>
+		</tr>
+		<tr>
+			<td class='mono'>user</td>
+			<td>The user who opened the file.</td>
+		</tr>
+		<tr>
+			<td rowspan='2' class='mono'>close</td>
+			<td class='mono'>doc</td>
+			<td>The ID of the document that was closed.</td>
+		</tr>
+		<tr>
+			<td class='mono'>user</td>
+			<td>The user who closed the file.</td>
+		</tr>
+	</tbody>
+</table>
+
+<h2>Unsubscribe</h2>
+<p>The <span class='mono'>off</span> function unregisters a listener for a particular event.</p>
+
+<pre>
+	/**
+	 * Removes an event listener.
+	 * @param  {String}    action    The type of event.
+	 * @param  {Function}  callback  The callback for this event to remove.
+	 * @return {Void}
+	 */
+	this.off = function(action, callback)
+</pre>
+
+<footer>
+Written by Robin Gustafsson on behalf of the CodeSync team.
+</footer>
+
+<style type="text/css" scoped>
+body {
+	margin-left: 10vw;
+	margin-right: 10vw;
+	background-color: #f5f5f5;
+	color: #3e3e3e;
+	font-family: sans-serif;
+}
+h1, h2, h3 {
+	margin-bottom: 0;
+}
+pre {
+	background-color: #3e3e3e;
+	color: #f5f5f5;
+	tab-size: 2;
+	padding: 1em;
+}
+pre, .mono {
+	font-family: 'Source Code Pro', monospace;
+}
+th, td {
+	text-align: left;
+	vertical-align: top;
+	padding-right: 1em;
+}
+footer {
+	margin-top: 3em;
+	text-align: right;
+}
+</style>
+
+</body>
+</html>

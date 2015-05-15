@@ -2,156 +2,70 @@
 
 @section('content')
 <main id='home'>
-<div class="container">
-	<div class="row">
-		<div class="col-md-10 col-md-offset-1">
-			<div class="panel panel-default">
-				<div class="panel-heading">Your active projects</div>
+
+	<div class="container">
+		<div class="row">
+			<div id='projects' class="col-sm-9">
+				<h1>Projects</h1>
+				<div class="controls-add">
+					<button id='create-project' class='btn btn-primary' type="button">
+						<span class='glyphicon glyphicon-plus'></span>
+						Create
+					</button>
+					<input type='text' id='projectname' class='form-control' placeholder='Project name'>
+				</div>
+				<table id='showprojects'>
+					<tr>
+						<th id='table-projectname'>Project name</th>
+						<th id='table-projectowner'>Owner</th>
+						<th id='table-projectcreated'>Created (GMT)</th>
+					</tr>
+
+					@foreach ($projects as $project)
+
+					<tr class='projdata' data-value={{ $project->id }}>
+						<td>{{ $project->name }}</td>
+						<td>{{ $project->username }}</td>
+						<td>{{ substr($project->created_at, 0, 16) }}</td>
+					</tr>
+					@endforeach
+
+				</table>
 			</div>
 
-			<style>
-			#projects {
-				float: left;
-				width: 77%;
-			}
-
-			#showprojects table, th, tr, td{
-				 padding: 5px;
-			}
-			#showprojects tr {
-
-				border: solid 1px;
-			}
-			.projdata {
-				cursor: pointer;
-			}
-
-			#members {
-				width: 20%;
-				height: 300px;
-				float: left;
-				margin-left: 20px;
-
-			}
-
-
-			#showmembers table, th, tr, td{
-				width: 100%;
-				padding: 5px;
-
-			}
-
-			#showmembers tr {
-
-
-			}
-			.removeuser{
-				cursor: pointer;
-			}
-
-			.selected{
-				background-color: lightblue;
-			}
-
-
-			#addmemberbtn {
-				float: left;
-				width: 26px;
-				text-indent: -999px;
-				background-image: url("images/add_user-icon.png");
-				background-size: 100% 100%;
-			}
-
-			#userlist {
-				list-style-type: none;
-				border: solid 1px;
-			}
-
-			#userlist li:hover {
-				background-color: #D8D8D8;
-			}
-
-			#projectname {
-
-				width: 200px;
-			}
-
-			#username{
-				float: left;
-				width: 80%;
-			}
-
-			#addprojectbtn {
-
-				width: 26px;
-				text-indent: -999px;
-				background-image: url("images/add_folder-icon.png");
-				background-size: 100% 100%;
-			}
-
-			.owneronly{
-				display: none;
-			}
-
-			#openproject{
-				cursor: pointer;
-				margin-left: 20px;				
-			}
-
-			#removeproject{
-				cursor: pointer;
-			}
-
-
-			</style>
-				<div id='projects'>
-					{!! Form::text('projectname', '', array('placeholder' => 'Project name ..', 'id' => 'projectname')) !!}
-					{!! Form::submit('addproject', array('id' => 'addprojectbtn')) !!}
-					<a id='openproject'>Open project</a>
-					<img src='images/Remove-icon.png' id='removeproject' class='owneronly'>
-					<table id='showprojects'>
-						<tr>
-							<th>Project name</th><th>Owner</th>
-						</tr>
-
-						@foreach ($projects as $project)
-
-						<tr class='projdata' data-value={{ $project->id }}>
-							<td>{{ $project->name }}</td>
-							<td>{{ $project->username }}</td>
-						</tr>
-						@endforeach
-
-					</table>
-				</div>
+			<div id='projectdetails' class='col-sm-3'>
 				<div id='members'>
+					<h3>Members</h3>
 					<div id='addmember' class='owneronly'>
-
-						{!! Form::text('username', '', array('placeholder' => 'Username ..', 'id' => 'username')) !!}
-						{!! Form::submit('addmember', array('id' => 'addmemberbtn')) !!}
-						<br>
-						<br>
-
-						<ul id='userlist'></ul>
-
-
+						<input type='text' id='username' class='form-control' placeholder='Add member'>
+						<ul id='userlist' class='dropdown-menu'></ul>
 					</div>
-						<table id='showmembers'>
-							<tr>
-								<th>Members</th>
-							</tr>
-						</table>
+					<ul id='showmembers'></ul>
 				</div>
-
+				<div id='settings'>
+					<h3>Actions</h3>
+					<button id='open-project' class='btn btn-info'>
+						<span class='glyphicon glyphicon-folder-open'></span>
+						Open
+					</button>
+					<button id='remove-project' class='btn btn-danger owneronly'>
+						<span class='glyphicon glyphicon-trash'></span>
+						Remove
+					</button>
+					<button id='rename-project' class='btn btn-primary owneronly'>
+						<span class='glyphicon glyphicon-pencil'></span>
+						Rename
+					</button>
+				</div>
+			</div>
 		</div>
 	</div>
-</div>
 </main>
 
 @endsection
 
 @section('scripts')
-	<script src="/scripts/projectmembers.js"></script>
-	<script src="/scripts/project.js"></script>
+	<script src="/scripts/projects.js"></script>
+	<script src="/scripts/projects.members.js"></script>
 @endsection
 

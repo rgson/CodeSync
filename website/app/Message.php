@@ -1,36 +1,35 @@
 <?php namespace App;
+
 use Illuminate\Database\Eloquent\Model;
+
 class Message extends Model {
 
-	public function findAllMessagesForProject($project, $lastMsg) {
-		$messages = Message::where('project', '=', $project)
-			->where('created_at', '>', $lastMsg)
-			->orderBy('created_at', 'asc')
-			->take(100)
+	public function __get($property) {
+		if ($property === 'sendername')
+			return User::find($this->sender)->username;
+		return parent::__get($property);
+	}
+
+	public static function newest($project, $count = 100) {
+		return Message::where('project', '=', $project)
+			->orderBy('id', 'desc')
+			->take($count)
+			->get()
+			->reverse();
+	}
+
+	public static function after($project, $id) {
+		return Message::where('project', '=', $project)
+			->where('id', '>', $id)
+			->orderBy('id', 'asc')
 			->get();
-
-		return $messages;
 	}
 
-	public function addUserName($messages) {
-		$numberOfMessages = $messages->count();
-
-		if ($numberOfMessages > 0) {
-			$extended = [];
-			$users = User::all();
-
-			$k = 0;
-			do {
-				foreach ($users as $user) {
-					if ($user->id == $messages[$k]->sender) {
-						$extended[] = [$user->username, $messages[$k]];
-					}
-				}
-
-				$k++;
-			} while ($k != $numberOfMessages);
-
-			return $extended;
-		}
+	public static function before($project, $id) {
+		return Message::where('project', '=', $project)
+			->where('id', '<', $id)
+			->orderBy('id', 'asc')
+			->get();
 	}
+
 }

@@ -1,14 +1,13 @@
 $(document).ready(function(){
 var request;
 var old_value = '';
-$('#openproject').hide();
 
-// Delete the member on click
+// Remove the member on click
 $(document).on('click', '.removeuser', function(){
 
-	var projectid = $(this).data('proj');
-	var userid = $(this).data('user');
-
+	var projectid = $(this).children('span').data('proj');
+	var userid = $(this).children('span').data('user');
+	
 	$.ajax({
 		url: 'project/' + projectid + '/member/' + userid,
 		cache: false,
@@ -26,18 +25,16 @@ $(document).on('click', '.projdata', function(){
 		request.abort();
 		request = null;
 	}
-	var selected = $(this).hasClass('selected');
-	$('.projdata').removeClass('selected');
-	if(!selected){
-		$(this).addClass('selected');
-	}
+
+	$('.projdata').removeClass('selected');	
+	$(this).addClass('selected');			
 
 	// Get and add projectid and project name to the 'open project' element
 	var projectid = $(this).data('value');
 	var projectname = $(this).find('td:first').text();	
 
-	$('#openproject').attr('data-projname', projectname);	
-	$('#openproject').attr('href', projectid + "/" + projectname);	
+	$('#open-project').attr('data-id', projectid);	
+	$('#open-project').attr('data-name', projectname);
 	
 
 	request = $.ajax({
@@ -52,38 +49,45 @@ $(document).on('click', '.projdata', function(){
 			else
 				$('.owneronly').hide();			
 
-			$('#openproject').show();
+			$('#projectdetails').show();
 			buildMemberTable(response, projectid);					
 		}		
 	});
 });
 
 // Give an existing user member access
-$('#addmemberbtn').click(function(){	
-	
-	var projectid = $('.selected').data('value'); // Get the value from the selected row	
-	var username = $('#username').val();
+$('#username').keydown(function(e){	
+	if(e.which == 13){		
 
-	if(projectid == null || username == '') // No project chosen or no username input
-		return false;	
+		var projectid = $('.selected').data('value'); // Get the value from the selected row	
+		var username = $('#username').val();
 
-	$.ajax({
-		url: 'project/' + projectid + '/members',
-		data: {
-			'username' : username
-		},
-		cache: false,
-		type: 'POST',
-		success: function(response){
-			if(response == 'invalid'){
-				// add invalid class				
+		if(projectid == null || username == '') // No project chosen or no username input
+			return false;	
+
+		$.ajax({
+			url: 'project/' + projectid + '/members',
+			data: {
+				'username' : username
+			},
+			cache: false,
+			type: 'POST',
+			success: function(response){
+				if(response == 'invalid'){
+					// add invalid class				
+				}
+				else {		
+					buildMemberTable(response, projectid);	
+				}										
 			}
-			else {		
-				buildMemberTable(response, projectid);	
-			}										
-		}
-	});
-	$('#username').val('');
+		});
+		$('#username').val('');
+	}
+	//else if(e.which == 40){
+	//	$('#userlist li').first().addClass('selecteduser');
+	//	$('#userlist li').first().focus();
+
+	//}
 });
 
 // Get existing users dynamically from input in textbox
@@ -92,6 +96,9 @@ $('#username').bind('input propertychange', function(){
 	var username = $('#username').val();
 	var shortusername = username.substring(0, 3); //use the short for query, full for filter
 
+	if(username.length < 1){
+		$('#userlist li').remove();	
+	}
 	if(username.length >= 3 && (old_value != shortusername)) {
 		if(typeof this.xhr !== 'undefined')	
 		this.xhr.abort();
@@ -106,14 +113,14 @@ $('#username').bind('input propertychange', function(){
 			$.each(users, function(i, user) {
 
 				$('#userlist').append("<li>" + user.username + "</li>");
-			});					
-				filterResponse(username);						
+			});	
+
+				filterResponse(username.toLowerCase());						
 			}
-		});
-		
+		});		
 	}
 	else {
-		filterResponse(username);	
+		filterResponse(username.toLowerCase());	
 	}	
 	old_value = shortusername;			
 });
@@ -129,7 +136,7 @@ $(document).on('click', '#userlist li', function(){
 
 function filterResponse(username){
 	$('#userlist li').each(function(){
-		var text = $(this).text();
+		var text = $(this).text().toLowerCase();
 		if (text.indexOf(username) == 0)
 			$(this).show()
 		else
@@ -138,15 +145,15 @@ function filterResponse(username){
 }
 
 function clearOnClick(){
-	$('#openproject').hide();
-	$('.owneronly').hide();	
+	$('#projectdetails').hide();
+	$('.owneronly').hide();		
 	$('#username').val('');
 	$('#userlist li').remove();
-	$('#showmembers tr').slice(1).remove();
+	$('#showmembers li').remove();
 }
 
 function buildMemberTable(response, projectid){
-	$('#showmembers tr').slice(1).remove();
+	$('#showmembers li').remove();
 
 	var members = $.parseJSON(response);
 	var auth = members.authuser;	
@@ -155,9 +162,9 @@ function buildMemberTable(response, projectid){
 
 		if(member != auth){					
 			if(auth === member.owner && member.id !== auth)
-				$('#showmembers').append("<tr><td>" + member.username + "</td><td><img  class='removeuser' src='images/Remove-icon.png' alt='remove user' data-user='" + member.id + "' data-proj='" + projectid + "'></td></tr>");			 
-			else 				
-				$('#showmembers').append("<tr><td>" + member.username + "</td></tr>");			
+				$('#showmembers').append("<li>" + member.username + "<button class='removeuser btn btn-danger btn-xs'><span class='glyphicon glyphicon-remove' data-user='" + member.id + "' data-proj='" + projectid + "'></span></button></li>");				 
+			else 	
+				$('#showmembers').append("<li>" + member.username + "</li>");									
 		}
 	});
 }

@@ -3,7 +3,7 @@
 ## Setup
 
 1. `vagrant up`
-2. `sudo chmod -R 777 app/storage`
+2. `sudo chmod -R 777 storage`
 
 ## Usage
 

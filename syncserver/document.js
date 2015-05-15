@@ -1,9 +1,10 @@
-var fs = require('fs');
-var DiffMatchPatch = require('diff_match_patch').diff_match_patch;
-var XXHash = require('xxhash');
-var log = require('./log');
-var messageFactory = require('./message_factory');
-var database = require('./database');
+var fs = require('fs'),
+	DiffMatchPatch = require('diff_match_patch').diff_match_patch,
+	XXHash = require('xxhash'),
+	log = require('./log'),
+	messageFactory = require('./message_factory'),
+	database = require('./database'),
+	file_storage = require('./config').file_storage;
 
 module.exports = {
 	Document: Document,
@@ -11,11 +12,11 @@ module.exports = {
 		'validate': validateFile,
 		'create': createFile,
 		'delete': deleteFile,
-		'move': moveFile
+		'move': moveFile,
+		'realpath': realFilePath
 	}
 };
 
-var FILE_PATH_PREFIX = '/mnt/codesync/';
 var dmp = new DiffMatchPatch();
 
 // TODO: move locking to some cross-server/cross-process solution
@@ -31,7 +32,7 @@ function Document(documentid, client) {
 	var that = this;
 	this.documentid = documentid;
 	this.projectid = client.projectid;
-	this.filepath = FILE_PATH_PREFIX + this.projectid + '/' + this.documentid;
+	this.filepath = realFilePath(this.projectid, this.documentid);
 	this.client = client;
 	this.state = undefined;
 
@@ -147,7 +148,7 @@ function patchMain(document, patches, callback) {
 
 		read(document, function(err, data) {
 			if (err) {
-				log.e(e.message);
+				log.e(err.message);
 				unlock(document);
 				callback();
 			}
@@ -157,7 +158,7 @@ function patchMain(document, patches, callback) {
 					document.state.text = dmp.patch_apply(patches[i], document.state.text)[0];
 				write(document, function(err) {
 					if (err) {
-						log.e(e.message);
+						log.e(err.message);
 						text = data;	// Abort patching.
 					}
 					unlock(document);
@@ -274,13 +275,16 @@ function copy(source, target) {
  * @param  {Integer}   documentid  The document's ID.
  * @param  {Integer}   projectid   The project's ID.
  * @param  {Function}  onSuccess   Callback for successful validation.
+ * @param  {Function}  onError     Callback for unsuccessful validation.
  * @return {Void}
  */
-function validateFile(documentid, projectid, onSuccess) {
+function validateFile(documentid, projectid, onSuccess, onError) {
 	database.fileExists(documentid, projectid, function(exists) {
 		log.d('Validate file ' + documentid + ': ' + exists);
 		if (exists)
 			onSuccess();
+		else
+			onError('FILE_NOT_FOUND');
 	});
 }
 
@@ -289,28 +293,43 @@ function validateFile(documentid, projectid, onSuccess) {
  * @param   {Integer}   projectid  The project's ID.
  * @param   {String}    path       The new document's path.
  * @param   {Function}  onSuccess  Callback for successful operations.
+ * @param   {Function}  onError     Callback for unsuccessful validation.
  * @return  {Void}
  */
-function createFile(projectid, path, onSuccess) {
+function createFile(projectid, path, onSuccess, onError) {
 	if (validFilePath(path)) {
-		database.insertFile(projectid, path, onSuccess,
-			function transactionCallback(documentid, callback) {
-				var dir = FILE_PATH_PREFIX + projectid;
-				var file = dir + '/' + documentid;
-				fs.mkdir(dir, function(err) {
-					if (!err || err.code === 'EEXIST') {
-						fs.open(file, 'w', function(err, fd) {
-							if (!err) {
-								fs.close(fd, function(err) {
-									if (!err) callback();
-									else callback(err);
+		database.pathExists(path, projectid, function(exists) {
+			if (exists) {
+				log.d('Duplicate file path for ' + projectid + ' (' + path + ')');
+				onError('FILE_DUPLICATE_PATH');
+			}
+			else {
+				database.insertFile(projectid, path, onSuccess,
+					function errorCallback() {
+						onError('FILE_UNKNOWN_FAILURE');
+					},
+					function transactionCallback(documentid, callback) {
+						var file = realFilePath(projectid, documentid);
+						var dir = file.substr(0, file.lastIndexOf('/'));
+						fs.mkdir(dir, function(err) {
+							if (!err || err.code === 'EEXIST') {
+								fs.open(file, 'w', function(err, fd) {
+									if (!err) {
+										fs.close(fd, function(err) {
+											if (!err) callback();
+											else callback(err);
+										});
+									} else callback(err);
 								});
 							} else callback(err);
 						});
-					} else callback(err);
-				});
+					}
+				);
 			}
-		);
+		});
+	}
+	else {
+		onError('FILE_INVALID_PATH');
 	}
 }
 
@@ -319,29 +338,55 @@ function createFile(projectid, path, onSuccess) {
  * @param   {Integer}   documentid  The document's ID.
  * @param   {Integer}   projectid   The project's ID.
  * @param   {Function}  onSuccess   Callback for successful operations.
+ * @param   {Function}  onError     Callback for unsuccessful validation.
  * @return  {Void}
  */
-function deleteFile(documentid, projectid, onSuccess) {
-	database.deleteFile(documentid, function() {
-		var file = FILE_PATH_PREFIX + projectid + '/' + documentid;
-		fs.unlink(file, function(err) {
-			if (err)
-				log.e(err.message);
-		});
-		onSuccess();
-	});
+function deleteFile(documentid, projectid, onSuccess, onError) {
+	validateFile(documentid, projectid, function successCallback() {
+		database.deleteFile(documentid,
+			function successCallback() {
+				var file = realFilePath(projectid, documentid);
+				fs.unlink(file, function(err) {
+					if (err)
+						log.e(err.message);
+				});
+				onSuccess();
+			},
+			function errorCallback() {
+				onError('FILE_UNKNOWN_FAILURE');
+			}
+		);
+	}, onError);
 }
 
 /**
  * Sets a new path for an existing document.
  * @param   {Integer}   documentid  The document's ID.
+ * @param   {Integer}   projectid   The project's ID.
  * @param   {String}    path        The new path.
  * @param   {Function}  onSuccess   Callback for successful operations.
+ * @param   {Function}  onError     Callback for unsuccessful validation.
  * @return  {Void}
  */
-function moveFile(documentid, path, onSuccess) {
-	if (validFilePath(path))
-		database.updateFile(documentid, path, onSuccess);
+function moveFile(documentid, projectid, path, onSuccess, onError) {
+	validateFile(documentid, projectid, function successCallback() {
+		if (validFilePath(path)) {
+			database.pathExists(path, projectid, function(exists) {
+				if (exists) {
+					log.d('Duplicate file path for ' + projectid + ' (' + path + ')');
+					onError('FILE_DUPLICATE_PATH');
+				}
+				else {
+					database.updateFile(documentid, path, onSuccess, function errorCallback() {
+						onError('FILE_UNKNOWN_FAILURE');
+					});
+				}
+			});
+		}
+		else {
+			onError('FILE_INVALID_PATH');
+		}
+	}, onError);
 }
 
 function validFilePath(path) {
@@ -366,4 +411,8 @@ function validFilePath(path) {
 	}
 
 	return true;
+}
+
+function realFilePath(projectid, documentid) {
+	return file_storage + projectid + '/' + documentid;
 }

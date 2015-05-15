@@ -1,13 +1,16 @@
-var log = require('./log');
-var Document = require('./document').Document;
-var documentUtils = require('./document').utils;
-var messageFactory = require('./message_factory');
-var database = require('./database');
+var archiver = require('archiver'),
+	log = require('./log'),
+	Document = require('./document').Document,
+	documentUtils = require('./document').utils,
+	messageFactory = require('./message_factory'),
+	database = require('./database'),
+	zipper = require('./zipper');
 
 module.exports = Client;
 
-var projectSubscriptions = {};
-var broadcastQueue = {};
+var projectSubscriptions = {},
+	broadcastQueue = {},
+	sessionClientCounter = 0;
 
 /**
  * Constructs a new Client object.
@@ -15,6 +18,7 @@ var broadcastQueue = {};
  */
 function Client(connection) {
 	var that = this;
+	this.sessionid = ++sessionClientCounter;
 	this.userid = undefined;
 	this.projectid = undefined;
 	this.documents = {};
@@ -26,10 +30,10 @@ function Client(connection) {
 	this.drop = function() {
 		var i, keys, count;
 		connection.close();
-		if (this.userid) {
-			unsubscribe(this);
+		if (that.userid) {
+			unsubscribe(that);
 			for (i = 0, keys = Object.keys(this.documents), count = keys.length; i < count; i++)
-				broadcast(this.projectid, new messageFactory.FileCloseBroadcast(keys[i], this.userid));
+				broadcast(that.projectid, new messageFactory.FileCloseBroadcast(keys[i], that.userid));
 		}
 	}
 
@@ -74,6 +78,7 @@ function Client(connection) {
 				case 'file.move':		return handleFileMove(message, that);
 				case 'file.open':		return handleFileOpen(message, that);
 				case 'file.close':	return handleFileClose(message, that);
+				case 'project.zip':	return handleProjectZip(message, that);
 			}
 
 		}
@@ -116,37 +121,60 @@ function handleDocSync(message, user) {
 
 /** Handles file.create messages. */
 function handleFileCreate(message, user) {
-	documentUtils.create(user.projectid, message.path, function(documentid) {
-		broadcast(user.projectid, new messageFactory.FileCreateBroadcast(documentid, message.path));
-	});
+	documentUtils.create(user.projectid, message.path,
+		function onSuccess(documentid) {
+			user.send(new messageFactory.FileResponse(message.id, true));
+			broadcast(user.projectid, new messageFactory.FileCreateBroadcast(documentid, message.path));
+		},
+		function onError(error) {
+			user.send(new messageFactory.FileResponse(message.id, false, error));
+		}
+	);
 }
 
 /** Handles file.delete messages. */
 function handleFileDelete(message, user) {
-	documentUtils.validate(message.doc, user.projectid, function() {
-		documentUtils.delete(message.doc, user.projectid, function() {
+	documentUtils.delete(message.doc, user.projectid,
+		function onSuccess() {
+			user.send(new messageFactory.FileResponse(message.id, true));
 			broadcast(user.projectid, new messageFactory.FileDeleteBroadcast(message.doc));
-		});
-	});
+		},
+		function onError(error) {
+			user.send(new messageFactory.FileResponse(message.id, false, error));
+		}
+	);
 }
 
 /** Handles file.move messages. */
 function handleFileMove(message, user) {
-	documentUtils.validate(message.doc, user.projectid, function() {
-		documentUtils.move(message.doc, message.path, function() {
+	documentUtils.move(message.doc, user.projectid, message.path,
+		function onSuccess() {
+			user.send(new messageFactory.FileResponse(message.id, true));
 			broadcast(user.projectid, new messageFactory.FileMoveBroadcast(message.doc, message.path));
-		});
-	});
+		},
+		function onError(error) {
+			user.send(new messageFactory.FileResponse(message.id, false, error));
+		}
+	);
 }
 
 /** Handles file.open messages. */
 function handleFileOpen(message, user) {
 	if (!user.documents[message.doc]) {
-		documentUtils.validate(message.doc, user.projectid, function() {
-			user.documents[message.doc] = new Document(message.doc, user);
-			user.documents[message.doc].init();
-			broadcast(user.projectid, new messageFactory.FileOpenBroadcast(message.doc, user.userid));
-		});
+		documentUtils.validate(message.doc, user.projectid,
+			function onSuccess() {
+				user.documents[message.doc] = new Document(message.doc, user);
+				user.documents[message.doc].init();
+				user.send(new messageFactory.FileResponse(message.id, true));
+				broadcast(user.projectid, new messageFactory.FileOpenBroadcast(message.doc, user.userid));
+			},
+			function onError(error) {
+				user.send(new messageFactory.FileResponse(message.id, false, error));
+			}
+		);
+	}
+	else {
+		user.send(new messageFactory.FileResponse(message.id, false, 'FILE_ALREADY_OPEN'));
 	}
 }
 
@@ -154,8 +182,25 @@ function handleFileOpen(message, user) {
 function handleFileClose(message, user) {
 	if (user.documents[message.doc]) {
 		delete user.documents[message.doc];
+		user.send(new messageFactory.FileResponse(message.id, true));
 		broadcast(user.projectid, new messageFactory.FileCloseBroadcast(message.doc, user.userid));
 	}
+	else {
+		user.send(new messageFactory.FileResponse(message.id, false, 'FILE_NOT_OPEN'));
+	}
+}
+
+/** Handles project.zip messages. */
+function handleProjectZip(message, user) {
+	database.getAllFiles(user.projectid, function(files) {
+		for (var i = files.length - 1; i >= 0; i--) {
+			files[i].realpath = documentUtils.realpath(user.projectid, files[i].id);
+		}
+		zipper.zip(files, function(filename) {
+			log.d('Zipped file: ' + filename);
+			user.send(new messageFactory.ProjectZipResponse(filename));
+		});
+	});
 }
 
 
@@ -178,7 +223,7 @@ function subscribe(user) {
 function unsubscribe(user) {
 	var subscribers = projectSubscriptions[user.projectid];
 	for (var i = subscribers.length - 1; i >= 0; i--) {
-		if (subscribers[i].userid === user.userid)
+		if (subscribers[i].sessionid === user.sessionid)
 			subscribers.splice(i, 1);
 	}
 }

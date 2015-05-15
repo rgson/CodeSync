@@ -7,9 +7,11 @@ var pool = mysql.createPool(config.database);
 module.exports = {
 	getSession: getSession,
 	fileExists: fileExists,
+	pathExists: pathExists,
 	insertFile: insertFile,
 	updateFile: updateFile,
-	deleteFile: deleteFile
+	deleteFile: deleteFile,
+	getAllFiles: getAllFiles
 }
 
 function getSession(session, callback) {
@@ -36,18 +38,26 @@ function getSession(session, callback) {
 }
 
 function fileExists(documentid, projectid, callback) {
-	var sql = 'SELECT * FROM files'
-		+ ' INNER JOIN projects ON files.project = projects.id'
-		+ ' WHERE files.id = ? AND projects.id = ?';
-	var params = [documentid, projectid];
+	var sql = 'SELECT * FROM files WHERE project = ? AND id = ?';
+	var params = [projectid, documentid];
 	pool.query(sql, params, function(err, rows) {
 		if (err)
 			log.e(err.message);
-		callback(!!rows);
+		callback(rows.length > 0);
 	});
 }
 
-function insertFile(projectid, path, onSuccess, transactionCallback) {
+function pathExists(path, projectid, callback) {
+	var sql = 'SELECT * FROM files WHERE project = ? AND (filepath = ? OR filepath LIKE ?)';
+	var params = [projectid, path, path+'/%'];
+	pool.query(sql, params, function(err, rows) {
+		if (err)
+			log.e(err.message);
+		callback(rows.length > 0);
+	});
+}
+
+function insertFile(projectid, path, onSuccess, onError, transactionCallback) {
 	pool.getConnection(function(err, connection) {
 		if (!err) {
 			connection.beginTransaction(function(err) {
@@ -63,44 +73,75 @@ function insertFile(projectid, path, onSuccess, transactionCallback) {
 											connection.release();
 											onSuccess(result.insertId);
 										}
-										else rollbackAndRelease(connection, err);
+										else error(err, connection);
 									});
-								} else rollbackAndRelease(connection, err);
+								} else error(err, connection);
 							});
-						} else rollbackAndRelease(connection, err);
+						} else error(err, connection);
 					});
-				} else log.e(err.message);
+				} else error(err);
 			});
-		} else log.e(err.message);
+		} else error(err);
 	});
 
-	function rollbackAndRelease(connection, err) {
-		if (err) log.e(err.message);
-		connection.rollback(function (err) {
-			if (err) log.e(err.message);
-			connection.release();
-		});
+	function error(err, connection) {
+		log.e(err.message);
+		if (connection) {
+			connection.rollback(function (err) {
+				if (err) log.e(err.message);
+				connection.release();
+			});
+		}
+		onError(err);
 	}
 }
 
-function updateFile(documentid, filepath, callback) {
+function updateFile(documentid, filepath, onSuccess, onError) {
 	var sql = 'UPDATE files SET filepath = ? WHERE id = ?';
 	var params = [filepath, documentid];
 	pool.query(sql, params, function(err, result) {
-		if (err)
+		if (err) {
 			log.e(err.message);
-		else
-			callback()
+			onError(err);
+		}
+		else {
+			onSuccess();
+		}
 	});
 }
 
-function deleteFile(documentid, callback) {
+function deleteFile(documentid, onSuccess, onError) {
 	var sql = 'DELETE FROM files WHERE id = ?';
 	var params = [documentid];
 	pool.query(sql, params, function(err, result) {
-		if (err)
+		if (err) {
 			log.e(err.message);
-		else
-			callback();
+			onError(err);
+		}
+		else {
+			onSuccess();
+		}
+	});
+}
+
+function getAllFiles(projectid, onSuccess, onError) {
+	var sql = 'SELECT * FROM files WHERE project = ?';
+	var params = [projectid];
+	pool.query(sql, params, function(err, rows) {
+		if (err) {
+			log.e(err.message);
+			if (onError)
+				onError(err);
+		}
+		else {
+			var files = [];
+			for (var i = rows.length - 1; i >= 0; i--) {
+				files.push({
+					id: rows[i].id,
+					filepath: rows[i].filepath
+				});
+			}
+			onSuccess(files);
+		}
 	});
 }

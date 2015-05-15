@@ -12,14 +12,19 @@ cat >/etc/apache2/sites-available/000-default.conf <<EOL
 <VirtualHost *:80>
 	ServerAdmin webmaster@localhost
 	DocumentRoot /var/www/html
-	ErrorLog /error.log
-	CustomLog /access.log combined
+	ErrorLog ${APACHE_LOG_DIR}/error.log
+	CustomLog ${APACHE_LOG_DIR}/access.log combined
 	<Directory /var/www/html >
 		AllowOverride All
 	</Directory>
 </VirtualHost>
 EOL
 service apache2 restart
+cat >/home/vagrant/.my.cnf <<EOL
+[mysql]
+user=root
+password=root
+EOL
 echo "CREATE DATABASE codesync" | mysql -u root -proot
 curl -sS https://getcomposer.org/installer | php
 mv composer.phar /usr/local/bin/composer
@@ -30,7 +35,8 @@ php artisan db:seed
 cd /vagrant/syncserver
 bash install_dependencies.sh
 mkdir /mnt/codesync
-chown vagrant /mnt/codesync
+mkdir /mnt/codesync/pending_downloads
+chown -R vagrant /mnt/codesync
 mkdir /var/log/syncserver
 chown vagrant /var/log/syncserver
 SETUP
@@ -46,6 +52,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: $startup, run: "always", privileged: false
   config.vm.network :forwarded_port, host: 8080, guest: 80
   config.vm.network :forwarded_port, host: 32358, guest: 32358
+  config.vm.network :forwarded_port, host: 32359, guest: 32359
   config.vm.synced_folder ".", "/vagrant", :mount_options => ["dmode=777","fmode=666"]
   config.vm.hostname = "vagrant"
 end
