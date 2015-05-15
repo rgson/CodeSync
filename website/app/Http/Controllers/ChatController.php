@@ -19,6 +19,7 @@ class ChatController extends Controller {
 		foreach ($messages as $message) {
 			$messages_array[] = [
 				'id' => $message->id,
+				'timestamp' => $message->created_at,
 				'sender' => $message->sendername,
 				'content' => $message->content
 			];

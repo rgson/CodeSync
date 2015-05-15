@@ -69,6 +69,7 @@ $(function() {
 			messageElems.push(
 				$('<p>', {'class': 'message', 'data-id': message.id})
 					.append($('<span>', {'class': 'sender', text: message.sender}))
+					.append($('<span>', {'class': 'timestamp', text: message.created_at}))
 					.append($('<span>', {'class': 'content', text: message.content}))
 			);
 		});
