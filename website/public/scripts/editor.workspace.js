@@ -237,11 +237,12 @@ $(function() {
 						return content;
 					},
 					set: function(value) {
-						var cursor;
+						var anchor, head;
 						if (workspace && active) {
-							cursor = workspace.editor.getCursor('head');
+							anchor = workspace.editor.getCursor('anchor');
+							head = workspace.editor.getCursor('head');
 							workspace.editor.setValue(value);
-							workspace.editor.setCursor(cursor)
+							workspace.editor.setSelection(anchor, head);
 						}
 						else {
 							content = value;
