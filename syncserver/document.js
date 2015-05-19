@@ -4,6 +4,7 @@ var fs = require('fs'),
 	log = require('./log'),
 	messageFactory = require('./message_factory'),
 	database = require('./database'),
+	redisHelper = require('./redis_helper'),
 	file_storage = require('./config').file_storage;
 
 module.exports = {
@@ -18,10 +19,6 @@ module.exports = {
 };
 
 var dmp = new DiffMatchPatch();
-
-// TODO: move locking to some cross-server/cross-process solution
-var locked = {};
-var lockqueue = {};
 
 /**
  * Constructs a new Document object.
@@ -68,7 +65,7 @@ function Document(documentid, client) {
 		// Beware: State-altering if:s!
 		if (assertVersion(document, message)) {
 			if (patches = patchShadow(document, message)) {
-				patchMain(document, patches, function callback() {
+				patchMain(document, patches, function () {
 					sendDiffs(document);
 				});
 			}
@@ -144,30 +141,32 @@ function patchShadow(document, message) {
 function patchMain(document, patches, callback) {
 	var count, i;
 	// Apply the successful patches to the main text as one atomic operation.
-	lock(document, function() {
-
-		read(document, function(err, data) {
-			if (err) {
-				log.e(err.message);
-				unlock(document);
-				callback();
-			}
-			else {
-				document.state.text = data;
-				for (i = 0, count = patches.length; i < count; i++)
-					document.state.text = dmp.patch_apply(patches[i], document.state.text)[0];
-				write(document, function(err) {
-					if (err) {
-						log.e(err.message);
-						text = data;	// Abort patching.
-					}
-					unlock(document);
+	redisHelper.lockDocument(document.id, function (lock) {
+		if (lock) {
+			read(document, function(err, data) {
+				if (err) {
+					log.e(err.message);
+					redisHelper.unlockDocument(lock);
 					callback();
-				});
-			}
-
-		});
-
+				}
+				else {
+					document.state.text = data;
+					for (i = 0, count = patches.length; i < count; i++)
+						document.state.text = dmp.patch_apply(patches[i], document.state.text)[0];
+					write(document, function(err) {
+						if (err) {
+							log.e(err.message);
+							text = data;	// Abort patching.
+						}
+						redisHelper.unlockDocument(lock);
+						callback();
+					});
+				}
+			});
+		}
+		else {
+			callback();
+		}
 	});
 }
 
@@ -204,38 +203,6 @@ function hash(str) {
 	var xxhash = new XXHash(0xC0DED1FF); // :)
 	xxhash.update(new Buffer(str));
 	return xxhash.digest();
-}
-
-/**
- * Locks the document file, allowing atomic read and write operations.
- * @param  {Object}   documentid  The document to be locked.
- * @param  {Function} onSuccess   Called when the lock has been granted.
- * @return {Void}
- */
-function lock(document, onSuccess) {
-	var documentid = document.documentid;
-	if (locked[documentid] === false || locked[documentid] === undefined) {
-		locked[documentid] = true;
-		onSuccess();
-	}
-	else {
-		if (lockqueue[documentid] === undefined)
-			lockqueue[documentid] = [];
-		lockqueue[documentid].push(callback);
-	}
-}
-
-/**
- * Unlocks the document file, passing the lock to the next in queue.
- * @param  {Integer}  documentid  The document's id.
- * @return {Void}
- */
-function unlock(document) {
-	var documentid = document.documentid;
-	if (lockqueue[documentid] === undefined || lockqueue[documentid].length === 0)
-		locked[documentid] = false;
-	else
-		(lockqueue[documentid].shift())();
 }
 
 /**
