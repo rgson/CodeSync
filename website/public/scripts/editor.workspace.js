@@ -231,23 +231,8 @@ $(function() {
 			if (!open) {
 				SyncClient.do('open', {
 					doc: id,
-					get: function() {
-						if (workspace && active)
-							return workspace.editor.getValue();
-						return content;
-					},
-					set: function(value) {
-						var anchor, head;
-						if (workspace && active) {
-							anchor = workspace.editor.getCursor('anchor');
-							head = workspace.editor.getCursor('head');
-							workspace.editor.setValue(value);
-							workspace.editor.setSelection(anchor, head);
-						}
-						else {
-							content = value;
-						}
-					}
+					get: getText,
+					set: setText
 				});
 				open = true;
 			}
@@ -265,6 +250,44 @@ $(function() {
 			that.element.children('.title').text(name);
 		}
 
+		function getText() {
+			if (workspace && active)
+				return workspace.editor.getValue();
+			return content;
+		}
+
+		function setText(value) {
+			var anchor, head, text, cm;
+			if (workspace && active) {
+				cm = workspace.editor;
+
+				anchor = cm.indexFromPos(cm.getCursor('anchor'));
+				head = cm.indexFromPos(cm.getCursor('head'));
+				text = getText();
+
+				cm.setValue(value);
+
+				anchor = cm.posFromIndex(findNewIndex(anchor, text, value));
+				head = cm.posFromIndex(findNewIndex(head, text, value));
+				cm.setSelection(anchor, head);
+			}
+			else {
+				content = value;
+			}
+		}
+
+	}
+
+	function findNewIndex(oldIndex, oldText, newText) {
+		var dmp, pos, pattern, delta, distance = 16;
+		if (oldIndex && oldText && newText) {
+			dmp = new diff_match_patch();
+			pos = oldIndex-(distance/2) < 0 ? 0 : oldIndex-(distance/2);
+			delta = oldIndex - pos;
+			pattern = oldText.substr(pos, distance);
+			return dmp.match_main(newText, pattern, pos) + delta;
+		}
+		return 0;
 	}
 
 });
