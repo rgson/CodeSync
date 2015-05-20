@@ -16,7 +16,16 @@ class UserController extends Controller {
 	}
 
 	/**
-	 * Get the users.
+	 * Gets the user with the specified ID.
+	 * @param  int $userid The user's ID.
+	 * @return Response
+	 */
+	public function get($userid) {
+		echo User::find($userid);
+	}
+
+	/**
+	 * Search for users with a name starting with the provided string..
 	 *
 	 * @return Response
 	 */

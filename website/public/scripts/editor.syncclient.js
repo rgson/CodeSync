@@ -205,27 +205,22 @@ function Client(session, connection) {
 	}
 
 	connection.onmessage = function onMessage(msg) {
-		try {
-			message = JSON.parse(msg.data);
-			if (!message)
-				throw new Error('Invalid message');
+		message = JSON.parse(msg.data);
+		if (!message)
+			throw new Error('Invalid message');
 
-			switch(message.type) {
-				case 'user.auth': return handleUserAuth(message);
-				case 'doc.init': return handleDocInit(message);
-				case 'doc.sync': return handleDocSync(message);
-				case 'file.create': return handleFileCreate(message);
-				case 'file.delete': return handleFileDelete(message);
-				case 'file.move': return handleFileMove(message);
-				case 'file.open': return handleFileOpen(message);
-				case 'file.close': return handleFileClose(message);
-				case 'file.response': return handleFileResponse(message);
-				case 'project.zip': return handleProjectZip(message);
-				default: throw new Error('Unknown message type');
-			}
-		}
-		catch (e) {
-			console.log(e.message);
+		switch(message.type) {
+			case 'user.auth': return handleUserAuth(message);
+			case 'doc.init': return handleDocInit(message);
+			case 'doc.sync': return handleDocSync(message);
+			case 'file.create': return handleFileCreate(message);
+			case 'file.delete': return handleFileDelete(message);
+			case 'file.move': return handleFileMove(message);
+			case 'file.open': return handleFileOpen(message);
+			case 'file.close': return handleFileClose(message);
+			case 'file.response': return handleFileResponse(message);
+			case 'project.zip': return handleProjectZip(message);
+			default: throw new Error('Unknown message type');
 		}
 
 		function handleUserAuth(message) {

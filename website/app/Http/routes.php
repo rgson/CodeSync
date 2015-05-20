@@ -35,10 +35,12 @@ Route::get('project/{projectid}/members', 'ProjectAccessController@get')->where(
 Route::post('project/{projectid}/members', 'ProjectAccessController@create')->where('projectid', '[0-9]+'); # post: username
 Route::delete('project/{projectid}/member/{userid}', 'ProjectAccessController@delete')->where('projectid', '[0-9]+')->where('userid', '[0-9]+');
 
+Route::get('user/{userid}', 'UserController@get')->where('userid', '[0-9]+');
 Route::get('user/search/{username}', 'UserController@getSearch');
 
 Route::get('project/{projectid}/chat', 'ChatController@get')->where('projectid', '[0-9]+');
 Route::post('project/{projectid}/chat', 'ChatController@create')->where('projectid', '[0-9]+');
 
 Route::get('project/{projectid}/files', 'FileStructureController@get')->where('projectid', '[0-9]+');
+Route::get('project/{projectid}/file/{fileid}', 'FileStructureController@getSingle')->where('projectid', '[0-9]+')->where('fileid', '[0-9]+');;
 

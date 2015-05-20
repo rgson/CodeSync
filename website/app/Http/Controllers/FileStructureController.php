@@ -42,4 +42,9 @@ class FileStructureController extends Controller {
 
 		return $fileTree;
 	}
+
+	public function getSingle($projectid, $fileid) {
+		// TODO: validate user's access to project
+		echo Files::find($fileid);
+	}
 }

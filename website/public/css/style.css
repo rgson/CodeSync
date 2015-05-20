@@ -145,6 +145,86 @@ h1, h2, h3, h4, h5, h6 {
 	height: 100%;
 }
 
+#editor #users {
+	position: fixed;
+	z-index: 99;
+	top: 50px;
+	bottom: 60px;
+	right: 0;
+	display: flex;
+	flex-direction: column-reverse;
+	align-items: center;
+	overflow: visible;
+	padding: -2px 0;
+}
+
+#editor #users .user-tile {
+	position: relative;
+	overflow: visible;
+	height: 40px;
+	width: 40px;
+	margin: 2px 0;
+	text-align: center;
+}
+
+#editor #users .user-tile .initial {
+	color: #333333;
+	font-size: 30px;
+	text-align: center;
+}
+
+#editor .user-tile .details {
+	position: absolute;
+	bottom: 0;
+	right: 45px;
+	background-color: #333333;
+	padding: 10px;
+	display: none;
+	text-align: left;
+}
+
+#editor .user-tile:hover .details {
+	display: block;
+}
+
+#editor .user-tile .details > * {
+	margin: 0;
+}
+
+#editor .user-tile .details .name {
+	font-weight: bold;
+}
+
+#editor .user-tile .details .files {
+	list-style: none;
+	padding-left: 0;
+}
+
+#editor .user-tile .details .files li {
+	white-space: nowrap;
+}
+
+#editor #users .user-tile:nth-child(n+1)  { background-color: #d9b0e6; }
+#editor #users .user-tile:nth-child(n+2)  { background-color: #b7d0e9; }
+#editor #users .user-tile:nth-child(n+3)  { background-color: #ecddbe; }
+#editor #users .user-tile:nth-child(n+4)  { background-color: #d5f8eb; }
+#editor #users .user-tile:nth-child(n+5)  { background-color: #f2efb9; }
+#editor #users .user-tile:nth-child(n+6)  { background-color: #bdc5d6; }
+#editor #users .user-tile:nth-child(n+7)  { background-color: #c3b9d7; }
+#editor #users .user-tile:nth-child(n+8)  { background-color: #e1b0d5; }
+#editor #users .user-tile:nth-child(n+9)  { background-color: #b2ceea; }
+#editor #users .user-tile:nth-child(n+10) { background-color: #dcf5f6; }
+#editor #users .user-tile:nth-child(n+11) { background-color: #aeeec2; }
+#editor #users .user-tile:nth-child(n+12) { background-color: #bbe5d3; }
+#editor #users .user-tile:nth-child(n+13) { background-color: #d6e3fa; }
+#editor #users .user-tile:nth-child(n+14) { background-color: #fbc3e5; }
+#editor #users .user-tile:nth-child(n+15) { background-color: #f4e5db; }
+#editor #users .user-tile:nth-child(n+16) { background-color: #c4e6d6; }
+#editor #users .user-tile:nth-child(n+17) { background-color: #ced3ef; }
+#editor #users .user-tile:nth-child(n+18) { background-color: #f3eec2; }
+#editor #users .user-tile:nth-child(n+19) { background-color: #e8b8d9; }
+#editor #users .user-tile:nth-child(n+20) { background-color: #e0f8ca; }
+
 #editor #chat {
 	position: fixed;
 	z-index: 100;
@@ -157,6 +237,10 @@ h1, h2, h3, h4, h5, h6 {
 
 #editor #chat > * {
 	padding: 10px;
+}
+
+#editor #chat.closed {
+	width: 40px
 }
 
 #editor #chat .head {
@@ -200,10 +284,6 @@ h1, h2, h3, h4, h5, h6 {
 #editor #chat .body,
 #editor #chat .footer {
 	transition: all 0.25s ease-in-out;
-}
-
-#editor #chat.closed {
-	width: 40px
 }
 
 #editor #chat.closed .body,
