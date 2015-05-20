@@ -38,13 +38,10 @@ $(document).ready(function(){
 				$filemenu = $('#filemenu');
 				
 				id = $(file).parent().data('id');
-				if(!id){	
-					includeFilename = true;				
+				if(!id){									
 					$filemenu.addClass('closed');
 					return;
-				} else{
-					includeFilename = false;
-				}
+				} 
 
 
 				$filemenu.removeClass('closed');
@@ -111,29 +108,30 @@ $(document).ready(function(){
 
 	// "Right click menu" chosen option event
 	$('#filemenu ul li').click(function() {
-
-		switch($(this).attr('id')) {
+		var confirm = '';
+		var defaultvalue ='';
+		switch($(this).attr('id')) {			
 			case 'createFile':
 				create = true;
-				PromptForInput();
+				includeFilename = false;
+				var defaultvalue = buildPath($(file));
+				var confirm = prompt("Filepath:", defaultvalue);
+				if(!confirm)
+					return false;						
 				SyncClient.do('create', {path: confirm}, undefined, showErrorMessage);
 			case 'deleteFile':
 				SyncClient.do('delete', {doc: id}, undefined, showErrorMessage);
 				break;
-			case 'renameFile':
-				create = false;				
-				PromptForInput();
+			case 'renameFile':			
+				includeFilename = true;
+				var defaultvalue = buildPath($(file));
+				var confirm = prompt("Filepath:", defaultvalue);
+				if(!confirm)
+					return false;
 				SyncClient.do('move', {doc: id, path: confirm}, undefined, showErrorMessage);
 				break;
-		}
+		}		
 	});
-
-	function PromptForInput(){
-		var defaultvalue = buildPath($(file));
-		var confirm = prompt("Filepath:", defaultvalue);
-			if(!confirm)
-				return false;
-	}
 
 	function buildPath(file){
 		var text = '';

@@ -249,6 +249,31 @@ h1, h2, h3, h4, h5, h6 {
 	color: #FF8822;
 }
 
+#editor #file-dropdown li {
+	cursor: pointer;
+	color: #1E1E1E;
+}
+#editor #file-dropdown li:hover {
+	background-color: lightgrey;
+}
+
+#editor #file-dropdown i {	
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+#editor #filemenu i {	
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+#editor #file-dropdown-button{
+	border: none;
+	background-color: #333333;
+	color: #FFFFFF;
+	font-size: 14px;
+}
+
 .context-menu {
 	position: fixed;
 	z-index: 100;
