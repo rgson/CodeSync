@@ -14,6 +14,8 @@ $(document).ready(function(){
 		}
 	});
 
+
+
 	// Right and left mouse click events for the file structure
 	$(document).on('mousedown', '#filestructure span', function(event) {
 
@@ -28,7 +30,6 @@ $(document).ready(function(){
 				break;
 			case 3:
 				// Right
-				$('#filemenu li#createFile').hide();
 				$('#filemenu li#deleteFile').show();
 				$('#filemenu li#renameFile').show();
 				file = this;
@@ -61,7 +62,6 @@ $(document).ready(function(){
 				// Right
 				$('#filemenu li#deleteFile').hide();
 				$('#filemenu li#renameFile').hide();
-				$('#filemenu li#createFile').show();
 
 				$filemenu = $('#filemenu');
 
@@ -76,6 +76,10 @@ $(document).ready(function(){
 		event.preventDefault();
 	});
 
+	$(document).on('mousedown', '#file-dropdown li a', function(event) {
+		
+	});
+
 	$(document).on('click', '#filestructure li[data-id] span', function(event) {
 		var $this = $(this);
 		Tabs.open($this.parent().data('id'), $this.text());
@@ -86,24 +90,20 @@ $(document).ready(function(){
 	$('#filemenu ul li').click(function() {
 
 		switch($(this).attr('id')) {
-			case 'createFile':
-				create = true;
-				$('#filepathInput').css('visibility', 'visible');
-				buildPath($(file), true);
-				break;
+			
 			case 'deleteFile':
 				SyncClient.do('delete', {doc: id}, undefined, showErrorMessage);
 				break;
 			case 'renameFile':
 				create = false;
-				$('#filepathInput').css('visibility', 'visible');
+				$('#filepathInput').css('visibility', 'visible'); //TODO ta bort och justera messagebox
 				buildPath($(file), true);
 				break;
 		}
 	});
-
+/*
 	$('#filepath').keypress(function(e){
-
+		//TODO ändra filepath till okej för messagebox
 		if(e.which == 13){
 			if(create)
 				SyncClient.do('create', {path: $('#filepath').val()}, undefined, showErrorMessage);
@@ -114,7 +114,7 @@ $(document).ready(function(){
 		}
 
 	});
-
+*/
 	function buildPath(file, includeFilename){
 		var text = '';
 
@@ -212,6 +212,8 @@ $(document).ready(function(){
 				break;
 		}
 	}
+
+
 
 });
 
