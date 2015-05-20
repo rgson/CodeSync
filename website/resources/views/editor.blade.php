@@ -10,9 +10,9 @@
 			File <span class='caret'></span>
 			</button>	
 					<ul id='file-dropdown' class='dropdown-menu' role='menu'>
-						<li id='createFile'><a href='#' class='glyphicon glyphicon-plus'>Create file</a></li>
-						<li id='downloadProject'><a href='#' class='glyphicon glyphicon-download'>Download project</a></li>	
-						<li id='help'><a href='#' class='glyphicon glyphicon-education'>Help</a></li>		
+						<li id='createFile' class='glyphicon glyphicon-plus'>Create file</li>
+						<li id='downloadProject' class='glyphicon glyphicon-download'>Download project</li>	
+						<li id='help' class='glyphicon glyphicon-education'>Help</li>		
 					</ul>
 			</div>
 			<div id='filestructure'></div>

@@ -76,8 +76,19 @@ $(document).ready(function(){
 		event.preventDefault();
 	});
 
-	$(document).on('mousedown', '#file-dropdown li a', function(event) {
+	$(document).on('click', '#file-dropdown li', function(event) {
 		
+		switch($(this).attr('id')) {
+			
+			case 'createFile':
+				
+				break;
+			case 'renameFile':
+				create = false;
+				$('#filepathInput').css('visibility', 'visible'); //TODO ta bort och justera messagebox
+				buildPath($(file), true);
+				break;
+		}
 	});
 
 	$(document).on('click', '#filestructure li[data-id] span', function(event) {
