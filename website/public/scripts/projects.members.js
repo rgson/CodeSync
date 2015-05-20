@@ -7,14 +7,14 @@ $(document).on('click', '.removeuser', function(){
 
 	var projectid = $(this).children('span').data('proj');
 	var userid = $(this).children('span').data('user');
-	
+
 	$.ajax({
 		url: 'project/' + projectid + '/member/' + userid,
 		cache: false,
 		type: 'DELETE',
-		success: function(response, projectid){			
-			buildMemberTable(response, projectid);		
-		}		
+		success: function(response, projectid){
+			buildMemberTable(response, projectid);
+		}
 	});
 });
 
@@ -26,16 +26,16 @@ $(document).on('click', '.projdata', function(){
 		request = null;
 	}
 
-	$('.projdata').removeClass('selected');	
-	$(this).addClass('selected');			
+	$('.projdata').removeClass('selected');
+	$(this).addClass('selected');
 
 	// Get and add projectid and project name to the 'open project' element
 	var projectid = $(this).data('value');
-	var projectname = $(this).find('td:first').text();	
+	var projectname = $(this).find('td:first').text();
 
-	$('#open-project').attr('data-id', projectid);	
+	$('#open-project').attr('data-id', projectid);
 	$('#open-project').attr('data-name', projectname);
-	
+
 
 	request = $.ajax({
 		url: 'project/' + projectid + '/members',
@@ -45,25 +45,25 @@ $(document).on('click', '.projdata', function(){
 			var members = $.parseJSON(response);
 			var auth = members.authuser;
 			if(members[0].owner == auth)
-				$('.owneronly').show();					
+				$('.owneronly').show();
 			else
-				$('.owneronly').hide();			
+				$('.owneronly').hide();
 
 			$('#projectdetails').show();
-			buildMemberTable(response, projectid);					
-		}		
+			buildMemberTable(response, projectid);
+		}
 	});
 });
 
 // Give an existing user member access
-$('#username').keydown(function(e){	
-	if(e.which == 13){		
+$('#username').keydown(function(e){
+	if(e.which == 13){
 
-		var projectid = $('.selected').data('value'); // Get the value from the selected row	
+		var projectid = $('.selected').data('value'); // Get the value from the selected row
 		var username = $('#username').val();
 
 		if(projectid == null || username == '') // No project chosen or no username input
-			return false;	
+			return false;
 
 		$.ajax({
 			url: 'project/' + projectid + '/members',
@@ -74,11 +74,11 @@ $('#username').keydown(function(e){
 			type: 'POST',
 			success: function(response){
 				if(response == 'invalid'){
-					// add invalid class				
+					// add invalid class
 				}
-				else {		
-					buildMemberTable(response, projectid);	
-				}										
+				else {
+					buildMemberTable(response, projectid);
+				}
 			}
 		});
 		$('#username').val('');
@@ -91,38 +91,38 @@ $('#username').keydown(function(e){
 });
 
 // Get existing users dynamically from input in textbox
-$('#username').bind('input propertychange', function(){	
-	
+$('#username').bind('input propertychange', function(){
+
 	var username = $('#username').val();
 	var shortusername = username.substring(0, 3); //use the short for query, full for filter
 
 	if(username.length < 1){
-		$('#userlist li').remove();	
+		$('#userlist li').remove();
 	}
 	if(username.length >= 3 && (old_value != shortusername)) {
-		if(typeof this.xhr !== 'undefined')	
+		if(typeof this.xhr !== 'undefined')
 		this.xhr.abort();
 
 		this.xhr = $.ajax({
-		url: 'project/' + shortusername,
+		url: 'user/search/' + shortusername,
 		cache: false,
 		type: 'GET',
 		success: function(response){
-			var users = $.parseJSON(response);	
+			var users = $.parseJSON(response);
 			$('#userlist li').remove();
 			$.each(users, function(i, user) {
 
 				$('#userlist').append("<li>" + user.username + "</li>");
-			});	
+			});
 
-				filterResponse(username.toLowerCase());						
+				filterResponse(username.toLowerCase());
 			}
-		});		
+		});
 	}
 	else {
-		filterResponse(username.toLowerCase());	
-	}	
-	old_value = shortusername;			
+		filterResponse(username.toLowerCase());
+	}
+	old_value = shortusername;
 });
 
 // Set textbox from chosen search value
@@ -146,7 +146,7 @@ function filterResponse(username){
 
 function clearOnClick(){
 	$('#projectdetails').hide();
-	$('.owneronly').hide();		
+	$('.owneronly').hide();
 	$('#username').val('');
 	$('#userlist li').remove();
 	$('#showmembers li').remove();
@@ -156,15 +156,15 @@ function buildMemberTable(response, projectid){
 	$('#showmembers li').remove();
 
 	var members = $.parseJSON(response);
-	var auth = members.authuser;	
+	var auth = members.authuser;
 
 	$.each(members, function(i, member) {
 
-		if(member != auth){					
+		if(member != auth){
 			if(auth === member.owner && member.id !== auth)
-				$('#showmembers').append("<li>" + member.username + "<button class='removeuser btn btn-danger btn-xs'><span class='glyphicon glyphicon-remove' data-user='" + member.id + "' data-proj='" + projectid + "'></span></button></li>");				 
-			else 	
-				$('#showmembers').append("<li>" + member.username + "</li>");									
+				$('#showmembers').append("<li>" + member.username + "<button class='removeuser btn btn-danger btn-xs'><span class='glyphicon glyphicon-remove' data-user='" + member.id + "' data-proj='" + projectid + "'></span></button></li>");
+			else
+				$('#showmembers').append("<li>" + member.username + "</li>");
 		}
 	});
 }

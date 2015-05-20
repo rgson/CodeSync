@@ -11,7 +11,7 @@ class UserController extends Controller {
 	public function __construct()
 	{
 		$this->middleware('auth');
-			
+
 
 	}
 
@@ -20,7 +20,7 @@ class UserController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function get($username)
+	public function getSearch($username)
 	{
 		$users = User::where('username', 'like', $username . '%')->get();
 		echo $users;
