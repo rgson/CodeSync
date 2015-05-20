@@ -4,6 +4,7 @@ $(document).ready(function(){
 	var file = '';
 	var id = '';
 	var create = false;
+	var includeFilename = false;
 
 	reBuildFileStructure();
 
@@ -30,16 +31,21 @@ $(document).ready(function(){
 				break;
 			case 3:
 				// Right
+				$('#filemenu li#createFile').show();								
 				$('#filemenu li#deleteFile').show();
 				$('#filemenu li#renameFile').show();
 				file = this;
 				$filemenu = $('#filemenu');
+				
 				id = $(file).parent().data('id');
-
-				if(!id){
+				if(!id){	
+					includeFilename = true;				
 					$filemenu.addClass('closed');
 					return;
+				} else{
+					includeFilename = false;
 				}
+
 
 				$filemenu.removeClass('closed');
 				$filemenu.css({
@@ -60,6 +66,7 @@ $(document).ready(function(){
 		switch(event.which) {
 			case 3:
 				// Right
+			
 				$('#filemenu li#deleteFile').hide();
 				$('#filemenu li#renameFile').hide();
 
@@ -80,14 +87,19 @@ $(document).ready(function(){
 		
 		switch($(this).attr('id')) {
 			
-			case 'createFile':
-				
+			case 'drop-createFile':
+				var confirm = prompt("Filepath:");
+				if(!confirm)
+					return false;
+				SyncClient.do('create', {path: confirm}, undefined, showErrorMessage);
 				break;
-			case 'renameFile':
-				create = false;
-				$('#filepathInput').css('visibility', 'visible'); //TODO ta bort och justera messagebox
-				buildPath($(file), true);
+			case 'drop-downloadProject':
+				SyncClient.do('download');
 				break;
+			case 'drop-help':
+			//TODO
+				break;
+			
 		}
 	});
 
@@ -101,32 +113,29 @@ $(document).ready(function(){
 	$('#filemenu ul li').click(function() {
 
 		switch($(this).attr('id')) {
-			
+			case 'createFile':
+				create = true;
+				PromptForInput();
+				SyncClient.do('create', {path: confirm}, undefined, showErrorMessage);
 			case 'deleteFile':
 				SyncClient.do('delete', {doc: id}, undefined, showErrorMessage);
 				break;
 			case 'renameFile':
-				create = false;
-				$('#filepathInput').css('visibility', 'visible'); //TODO ta bort och justera messagebox
-				buildPath($(file), true);
+				create = false;				
+				PromptForInput();
+				SyncClient.do('move', {doc: id, path: confirm}, undefined, showErrorMessage);
 				break;
 		}
 	});
-/*
-	$('#filepath').keypress(function(e){
-		//TODO ändra filepath till okej för messagebox
-		if(e.which == 13){
-			if(create)
-				SyncClient.do('create', {path: $('#filepath').val()}, undefined, showErrorMessage);
-			else
-				SyncClient.do('move', {doc: id, path: $('#filepath').val()}, undefined, showErrorMessage);
 
-			$('#filepathInput').css('visibility', 'hidden');
-		}
+	function PromptForInput(){
+		var defaultvalue = buildPath($(file));
+		var confirm = prompt("Filepath:", defaultvalue);
+			if(!confirm)
+				return false;
+	}
 
-	});
-*/
-	function buildPath(file, includeFilename){
+	function buildPath(file){
 		var text = '';
 
 		if(includeFilename)
@@ -141,12 +150,11 @@ $(document).ready(function(){
 		}
 		while(sibling.length);
 
-		if (create && text.length) {
+		if (create && text.length && includeFilename) {
 			text += '/';
 		}
-		$('#filepath').val(text);
-		setCursorToTheEnd($('#filepath'));
-
+		
+		return text;		
 	}
 
 	SyncClient.on('move', function(args) {
@@ -165,12 +173,6 @@ $(document).ready(function(){
 	$('#filestructure, .context-menu').on('contextmenu', function(event) {
 		event.preventDefault();
 	});
-
-	function setCursorToTheEnd(text){
-		var strLength = text.val().length * 2;
-		text.focus();
-		text[0].setSelectionRange(strLength, strLength);
-	}
 
 	function reBuildFileStructure() {
 		$.ajax({
