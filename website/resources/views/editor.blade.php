@@ -78,7 +78,8 @@
 	<script src='/libs/xxhash.min.lmd.js'></script>
 	<script src='/libs/diff_match_patch.js'></script>
 	<script src='/libs/codemirror/codemirror.js'></script>
-	<script src='/libs/codemirror/mode/javascript.js'></script>
+	<script src='/libs/codemirror/addon/mode/loadmode.js'></script>
+	<script src='/libs/codemirror/mode/meta.js'></script>
 	<script src='/scripts/editor.js'></script>
 	<script src='/scripts/editor.syncclient.js'></script>
 	<script src="/scripts/editor.files.js"></script>

@@ -1,11 +1,13 @@
 $(function() {
 
+	CodeMirror.modeURL = '/libs/codemirror/mode/%N.js';
+
 	var lastFocusedWorkspace;
 	var workspaces = {};
 	var tabsLocation = {};
 	var draggingTab;
 	var pressedTab;
-	var pressedPosition;
+	var pressedPoint;
 
 	window.Tabs = {
 		open: function(id, title) {
@@ -25,15 +27,13 @@ $(function() {
 
 	$(document).on('click', '.tab', function(event) {
 		var id = $(this).data('id');
-		var workspace = workspaces[tabsLocation[id]];
-		workspace.activate(id);
+		activateTab(id);
 		event.preventDefault();
 	});
 
 	$(document).on('click', '.tab .close', function(event) {
 		var id = $(this).parent().data('id');
-		var workspace = workspaces[tabsLocation[id]];
-		workspace.remove(id);
+		closeTab(id);
 		event.preventDefault();
 		event.stopPropagation();
 	});
@@ -43,73 +43,84 @@ $(function() {
 		var workspace = workspaces[tabsLocation[id]];
 		switch (event.which) {
 			case 1:
-				pressedTab = id;
-				pressedPosition = {x: event.pageX, y: event.pageY};
+				pressTab(id, new Point(event.pageX, event.pageY));
 				event.preventDefault();
 				break;
 			case 2:
-				workspace.remove(id);
+				closeTab(id);
 				event.preventDefault();
 				break;
 		}
 	});
 
 	$(document).on('mouseup', '.tab', function(event) {
-		if (draggingTab) {
-			var pos = {x: event.pageX, y: event.pageY};
-			var keys = Object.keys(workspaces);
-			for (var i = keys.length - 1; i >= 0; i--) {
-				var workspace = workspaces[keys[i]];
-				if (workspace.at(pos)) {
-					workspace.add(draggingTab);
-					workspace.activate(draggingTab.id);
-					draggingTab.element.css({
-						position: '',
-						left: '',
-						top: ''
-					});
-					draggingTab = undefined;
-					break;
-				}
-			}
-		}
-		pressedTab = pressedPosition = undefined
+		releaseTab(new Point(event.pageX, event.pageY));
 	});
 
 	$(document).on('mousemove', '.workspace', function(event) {
-		if (pressedTab && !draggingTab) {
-			var currentPosition = {x: event.pageX, y: event.pageY};
-			if (distance(pressedPosition, currentPosition) > 50) {
-				draggingTab = workspaces[tabsLocation[pressedTab]].lift(pressedTab);
-			}
-		}
-		if (draggingTab) {
-			draggingTab.element.css({
-				position: 'fixed',
-				left: event.pageX - draggingTab.element.width() / 2,
-				top: event.pageY - draggingTab.element.height() / 2
-			});
-		}
+		if (pressedTab)
+			dragTab(new Point(event.pageX, event.pageY));
 	});
 
-	function distance(pos1, pos2) {
-		var dx = pos1.x - pos2.x;
-		var dy = pos1.y - pos2.y;
-		var dist = Math.sqrt(dx*dx + dy*dy);
-		return dist;
-	}
-
 	SyncClient.on('move', function(args) {
-		var title = args.path.split('/');
-		title = title[title.length - 1];
 		if (tabsLocation[args.doc])
-			workspaces[tabsLocation[args.doc]].rename(args.doc, title);
+			renameTab(args.doc, args.path);
 	});
 
 	SyncClient.on('delete', function(args) {
 		if (tabsLocation[args.doc])
-			workspaces[tabsLocation[args.doc]].remove(args.doc);
+			closeTab(args.doc);
 	});
+
+	function activateTab(id) {
+		workspaces[tabsLocation[id]].activate(id);
+	}
+
+	function closeTab(id) {
+		workspaces[tabsLocation[id]].remove(id);
+	}
+
+	function pressTab(id, point) {
+		pressedTab = id;
+		pressedPoint = point;
+	}
+
+	function dragTab(point) {
+		var minDragDistance = 50;
+		if (pressedTab && !draggingTab) {
+			if (point.distance(pressedPoint) > minDragDistance) {
+				draggingTab = workspaces[tabsLocation[pressedTab]].lift(pressedTab);
+			}
+		}
+		if (draggingTab) {
+			draggingTab.lift(point);
+		}
+	}
+
+	function releaseTab(point) {
+		var pos, keys, i, workspace;
+		if (draggingTab) {
+			pos = {x: event.pageX, y: event.pageY};
+			keys = Object.keys(workspaces);
+			for (i = keys.length - 1; i >= 0; i--) {
+				workspace = workspaces[keys[i]];
+				if (workspace.at(pos)) {
+					workspace.add(draggingTab);
+					workspace.activate(draggingTab.id);
+					break;
+				}
+			}
+			draggingTab.drop();
+			draggingTab = undefined;
+		}
+		pressedTab = pressedPosition = undefined
+	}
+
+	function renameTab(id, path) {
+		var title = path.split('/');
+		title = title[title.length - 1];
+		workspaces[tabsLocation[id]].rename(id, title);
+	}
 
 	function Workspace(element) {
 		var that = this;
@@ -117,21 +128,23 @@ $(function() {
 		var tabContainer = element.children('.tabs');
 		var tabs = {};
 		var activeTab = undefined;
-
-		this.id = element.attr('id');
-		this.element = element;
-		this.editor = CodeMirror.fromTextArea(element.children('.editor')[0], {
-			mode: 'javascript',
+		var blankDocument = new CodeMirror.Doc('No file opened.');
+		var editor = CodeMirror.fromTextArea(element.children('.editor')[0], {
 			theme: 'codesync',
 			lineNumbers: true,
 			lineWrapping: true,
 			indentWithTabs: true,
-			tabSize: 2
+			tabSize: 2,
+			readOnly: 'nocursor'
 		});
 
-		this.editor.on('focus', function() {
+		this.id = element.attr('id');
+
+		editor.on('focus', function() {
 			lastFocusedWorkspace = that.id;
 		});
+
+		editor.swapDoc(blankDocument);
 
 		this.activate = function(id) {
 			if (id !== activeTab) {
@@ -139,22 +152,33 @@ $(function() {
 					tabs[activeTab].deactivate();
 				tabs[id].activate();
 				activeTab = id;
+				editor.swapDoc(tabs[id].cmDocument);
+				editor.setOption('readOnly', false);
+			}
+		}
+
+		this.deactivate = function() {
+			if (activeTab) {
+				tabs[activeTab].deactivate();
+				activeTab = undefined;
+				editor.swapDoc(blankDocument);
+				editor.setOption('readOnly', 'nocursor');
 			}
 		}
 
 		this.add = function(tab) {
 			if (!tabs[tab.id]) {
 				tabs[tab.id] = tab;
-				tab.setWorkspace(that);
-				tabsLocation[tab.id] = that.id;
-				tab.element.appendTo(tabContainer);
+				tabsLocation[tab.id] = this.id;
+				tab.attach(tabContainer);
 				tab.open();
 			}
 		}
 
 		this.remove = function(id) {
-			var tab = that.lift(id);
-			tab.element.detach();
+			var tab = this.lift(id);
+			tab.detach();
+			tab.close();
 		}
 
 		this.rename = function(id, title) {
@@ -164,22 +188,21 @@ $(function() {
 		}
 
 		this.lift = function(id) {
-			var tab = tabs[id];
-			if (tab !== undefined) {
+			var tab = tabs[id], keys, i, key;
+			if (tab) {
 				if (id === activeTab) {
-					tab.deactivate();
-					activeTab = undefined;
-				}
-				tab.setWorkspace(undefined);
-				tabsLocation[id] = undefined;
-				tab.close();
-				delete tabs[id];
-				if (activeTab === undefined) {
-					var keys = Object.keys(tabs);
-					if (keys.length) {
-						that.activate(keys[0]);
+					this.deactivate();
+					keys = Object.keys(tabs);
+					for (i = keys.length - 1; i >= 0; i--) {
+						key = Number(keys[i]);
+						if (key !== id) {
+							this.activate(key);
+							break;
+						}
 					}
 				}
+				delete tabs[id];
+				tabsLocation[id] = undefined;
 			}
 			return tab;
 		};
@@ -194,37 +217,31 @@ $(function() {
 	function Tab(id, title) {
 		var that = this;
 		var active = false;
-		var workspace;
-		var content = '';
 		var open = false;
 
 		this.id = id;
 		this.title = title;
-		this.element =
+		this.cmDocument = new CodeMirror.Doc('Loading...');
+
+		var element =
 			$('<div>', {'class': 'tab', 'data-id': id})
-				.append($('<span>', {'class': 'title', 'text': that.title}))
+				.append($('<span>', {'class': 'title', 'text': this.title}))
 				.append($('<i>', {'class': 'glyphicon glyphicon-remove close'}));
+
+		setModeByExtension();
 
 		this.activate = function() {
 			if (!active) {
-				that.element.addClass('active');
+				element.addClass('active');
 				active = true;
-				workspace.editor.setValue(content);
 			}
 		}
 
 		this.deactivate = function() {
 			if (active) {
-				that.element.removeClass('active');
+				element.removeClass('active');
 				active = false;
-				content = workspace.editor.getValue();
-				workspace.editor.setValue('')
 			}
-		}
-
-		this.setWorkspace = function(value) {
-			that.deactivate();
-			workspace = value;
 		}
 
 		this.open = function() {
@@ -240,54 +257,105 @@ $(function() {
 
 		this.close = function() {
 			if (open) {
-				SyncClient.do('close', {doc: that.id});
+				SyncClient.do('close', {doc: this.id});
 				open = false;
 			}
 		}
 
 		this.rename = function(name) {
-			that.title = name;
-			that.element.children('.title').text(name);
+			this.title = name;
+			element.children('.title').text(name);
+			setModeByExtension();
+		}
+
+		this.attach = function(elem) {
+			element.appendTo(elem);
+		}
+
+		this.detach = function() {
+			return element.detach();
+		}
+
+		this.lift = function(point) {
+			element.css({
+				position: 'fixed',
+				left: point.x - element.width() / 2,
+				top: point.y - element.height() / 2
+			});
+		}
+
+		this.drop = function() {
+			element.css({
+				position: '',
+				left: '',
+				top: ''
+			});
 		}
 
 		function getText() {
-			if (workspace && active)
-				return workspace.editor.getValue();
-			return content;
+			return that.cmDocument.getValue();
 		}
 
 		function setText(value) {
-			var anchor, head, text, cm;
-			if (workspace && active) {
-				cm = workspace.editor;
-
-				anchor = cm.indexFromPos(cm.getCursor('anchor'));
-				head = cm.indexFromPos(cm.getCursor('head'));
-				text = getText();
-
-				cm.setValue(value);
-
-				anchor = cm.posFromIndex(findNewIndex(anchor, text, value));
-				head = cm.posFromIndex(findNewIndex(head, text, value));
-				cm.setSelection(anchor, head);
-			}
-			else {
-				content = value;
-			}
+			var anchor, head, text, cm = that.cmDocument;
+			anchor = cm.indexFromPos(cm.getCursor('anchor'));
+			head = cm.indexFromPos(cm.getCursor('head'));
+			text = cm.getValue();
+			cm.setValue(value);
+			anchor = cm.posFromIndex(findNewIndex(anchor, text, value));
+			head = cm.posFromIndex(findNewIndex(head, text, value));
+			cm.setSelection(anchor, head);
 		}
 
+		function findNewIndex(oldIndex, oldText, newText) {
+			var dmp, pos, pattern, delta, distance = 16;
+			if (oldIndex && oldText && newText) {
+				dmp = new diff_match_patch();
+				pos = oldIndex-(distance/2) < 0 ? 0 : oldIndex-(distance/2);
+				delta = oldIndex - pos;
+				pattern = oldText.substr(pos, distance);
+				return dmp.match_main(newText, pattern, pos) + delta;
+			}
+			return 0;
+		}
+
+		function setModeByExtension() {
+			var matches, info;
+			matches = /.+\.([^.]+)$/.exec(that.title);
+			if (matches) {
+				info = CodeMirror.findModeByExtension(matches[1]);
+				if (info) {
+					that.cmDocument = new CodeMirror.Doc(that.cmDocument.getValue(), info.mode);
+					// Hack to work around CodeMirror's forced need to refresh the editor's mode
+					// when our document might not actually have an editor at the time.
+					var hackedInstance = {
+						setOption: function() {
+							var editor = that.cmDocument.getEditor();
+							if (editor)
+								return editor.setOption.apply(editor, arguments);
+						},
+						getOption: function() {
+							var editor = that.cmDocument.getEditor();
+							if (editor)
+								return editor.getOption.apply(editor, arguments);
+						}
+					};
+					CodeMirror.autoLoadMode(hackedInstance, info.mode);
+				}
+			}
+		}
 	}
 
-	function findNewIndex(oldIndex, oldText, newText) {
-		var dmp, pos, pattern, delta, distance = 16;
-		if (oldIndex && oldText && newText) {
-			dmp = new diff_match_patch();
-			pos = oldIndex-(distance/2) < 0 ? 0 : oldIndex-(distance/2);
-			delta = oldIndex - pos;
-			pattern = oldText.substr(pos, distance);
-			return dmp.match_main(newText, pattern, pos) + delta;
+	function Point(x, y) {
+		this.x = x;
+		this.y = y;
+
+		this.distance = function(point) {
+			var dx = this.x - point.x;
+			var dy = this.y - point.y;
+			var dist = Math.sqrt(dx*dx + dy*dy);
+			return dist;
 		}
-		return 0;
 	}
 
 });
