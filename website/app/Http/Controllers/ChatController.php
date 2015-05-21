@@ -33,6 +33,8 @@ class ChatController extends Controller {
 		$newMessage->project = $project;
 		$newMessage->sender = \Auth::user()->id;
 		$newMessage->save();
+
+		return $newMessage;
 	}
 
 	private function getAfter($project, $after, $poll) {

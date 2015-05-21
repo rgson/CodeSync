@@ -39,6 +39,11 @@
 		<div class='head'>
 			<span class='glyphicon glyphicon-comment'></span>
 		</div>
+
+		<div class="message-notification">
+			<span class='glyphicon glyphicon-envelope'></span>
+		</div>
+
 		<div class='body'>
 		@foreach ($messages as $message)
 			<p class='message' data-id='{{ $message->id }}'>

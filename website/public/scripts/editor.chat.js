@@ -38,8 +38,28 @@ $(function() {
 
 			//Resetting the cursor in textarea.
 			$('#writeMessage').trigger(e);
+
+			//Update chat with newly created message
+			updateChat();
 		}
 	});
+
+	function updateChat() {
+		var message = 0;
+		
+		$.ajax({
+			type: 'GET',
+			url: '/project/' + projectid + '/chat' + '/up',
+			cache: false,
+			data: { 'message' : message },
+			success: function(response) {
+				console.log(message);
+				if (response.length) {
+					buildMessages(response);
+				}
+			}
+		});
+	};
 
 	//Long polling
 	(function getNewMessages() {
@@ -102,7 +122,7 @@ $(function() {
 				success: function(response) {
 					if (response.length) {
 						firstMessage = response[0].id;
-						buildMessages(response, true);
+						//buildMessages(response, true);
 					}
 					else {
 						// No older messages, no need to try again
