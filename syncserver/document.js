@@ -141,12 +141,12 @@ function patchShadow(document, message) {
 function patchMain(document, patches, callback) {
 	var count, i;
 	// Apply the successful patches to the main text as one atomic operation.
-	redisHelper.lockDocument(document.id, function (lock) {
+	redisHelper.lock('document-' + document.id, function (lock) {
 		if (lock) {
 			read(document, function(err, data) {
 				if (err) {
 					log.e(err.message);
-					redisHelper.unlockDocument(lock);
+					redisHelper.unlock(lock);
 					callback();
 				}
 				else {
@@ -158,7 +158,7 @@ function patchMain(document, patches, callback) {
 							log.e(err.message);
 							text = data;	// Abort patching.
 						}
-						redisHelper.unlockDocument(lock);
+						redisHelper.unlock(lock);
 						callback();
 					});
 				}
