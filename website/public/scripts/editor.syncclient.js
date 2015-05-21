@@ -195,8 +195,10 @@ function Client(session, connection) {
 	}
 
 	this.close = function(id, doc) {
-		if (that.userid && id && doc)
+		if (that.userid && id && doc) {
+			delete that.documents[doc];
 			that.send(new messageFactory.FileCloseRequest(id, doc));
+		}
 	}
 
 	this.download = function() {
