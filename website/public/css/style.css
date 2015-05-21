@@ -341,7 +341,12 @@ h1, h2, h3, h4, h5, h6 {
 	margin-left: 5px;
 	margin-right: 5px;
 }
-
+#editor #filemenu {
+	border-radius: 3px;
+}
+#editor #filemenu li:hover {
+	border-radius: 3px;
+}
 #editor #filemenu i {	
 	margin-left: 5px;
 	margin-right: 5px;
@@ -352,6 +357,9 @@ h1, h2, h3, h4, h5, h6 {
 	background-color: #333333;
 	color: #FFFFFF;
 	font-size: 14px;
+}
+#editor #editor-filemenu button:hover {
+	color: #fbdf93;
 }
 
 .context-menu {

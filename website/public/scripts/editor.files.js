@@ -4,7 +4,6 @@ $(document).ready(function(){
 	var file = '';
 	var id = '';
 	var create = false;
-	var includeFilename = false;
 
 	reBuildFileStructure();
 
@@ -31,7 +30,7 @@ $(document).ready(function(){
 				break;
 			case 3:
 				// Right
-				$('#filemenu li#createFile').show();								
+				$('#filemenu li#createFile').hide();								
 				$('#filemenu li#deleteFile').show();
 				$('#filemenu li#renameFile').show();
 				file = this;
@@ -42,7 +41,6 @@ $(document).ready(function(){
 					$filemenu.addClass('closed');
 					return;
 				} 
-
 
 				$filemenu.removeClass('closed');
 				$filemenu.css({
@@ -58,12 +56,12 @@ $(document).ready(function(){
 
 
 	// Right and left mouse click events for the file structure
-	$(document).on('mousedown', '#filestructure', function(event) {
+	$(document).on('mousedown', '#filestructure li', function(event) {
 
 		switch(event.which) {
 			case 3:
 				// Right
-			
+				$('#filemenu li#createFile').show();
 				$('#filemenu li#deleteFile').hide();
 				$('#filemenu li#renameFile').hide();
 
@@ -113,7 +111,6 @@ $(document).ready(function(){
 		switch($(this).attr('id')) {			
 			case 'createFile':
 				create = true;
-				includeFilename = false;
 				var defaultvalue = buildPath($(file));
 				var confirm = prompt("Filepath:", defaultvalue);
 				if(!confirm)
@@ -122,8 +119,8 @@ $(document).ready(function(){
 			case 'deleteFile':
 				SyncClient.do('delete', {doc: id}, undefined, showErrorMessage);
 				break;
-			case 'renameFile':			
-				includeFilename = true;
+			case 'renameFile':
+				create = false;
 				var defaultvalue = buildPath($(file));
 				var confirm = prompt("Filepath:", defaultvalue);
 				if(!confirm)
@@ -133,11 +130,9 @@ $(document).ready(function(){
 		}		
 	});
 
-	function buildPath(file){
-		var text = '';
-
-		if(includeFilename)
-			text = file.text();
+	function buildPath(file){		
+		
+		var text = file.text();
 
 		do{
 			var sibling = file.closest('ul').siblings('span');
@@ -148,7 +143,7 @@ $(document).ready(function(){
 		}
 		while(sibling.length);
 
-		if (create && text.length && includeFilename) {
+		if (create && text.length) {
 			text += '/';
 		}
 		
