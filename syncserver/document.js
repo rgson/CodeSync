@@ -265,9 +265,8 @@ function validateFile(documentid, projectid, onSuccess, onError) {
  */
 function createFile(projectid, path, onSuccess, onError) {
 	if (validFilePath(path)) {
-		database.pathExists(path, projectid, function(exists) {
+		existingFilePath(path, projectid, function(exists) {
 			if (exists) {
-				log.d('Duplicate file path for ' + projectid + ' (' + path + ')');
 				onError('FILE_DUPLICATE_PATH');
 			}
 			else {
@@ -338,9 +337,8 @@ function deleteFile(documentid, projectid, onSuccess, onError) {
 function moveFile(documentid, projectid, path, onSuccess, onError) {
 	validateFile(documentid, projectid, function successCallback() {
 		if (validFilePath(path)) {
-			database.pathExists(path, projectid, function(exists) {
+			existingFilePath(path, projectid, function(exists) {
 				if (exists) {
-					log.d('Duplicate file path for ' + projectid + ' (' + path + ')');
 					onError('FILE_DUPLICATE_PATH');
 				}
 				else {
@@ -378,6 +376,39 @@ function validFilePath(path) {
 	}
 
 	return true;
+}
+
+function existingFilePath(path, projectid, callback) {
+	log.d('existsingFilePath');
+	var subpaths = [path], subpath = path, pos, i, count = 0, found = false;
+	while ((pos = subpath.lastIndexOf('/')) !== -1) {
+		subpath = subpath.substr(0, pos);
+		subpaths.push(subpath);
+	}
+	log.d('existsingFilePath');
+	for (i = 0; i < subpaths.length; i++) {
+		database.pathExists(subpaths[i], projectid, function(exists) {
+			if (found)
+				return;
+			if (exists) {
+				log.d('Duplicate file path for ' + projectid + ' (' + path + ')');
+				found = true;
+				callback(true);
+			}
+			else if (++count === subpaths.length) {
+				database.pathExistsLike(path, projectid, function(exists) {
+					if (exists) {
+						log.d('Duplicate file path for ' + projectid + ' (' + path + ')');
+						callback(true);
+					}
+					else {
+						callback(false);
+					}
+				});
+			}
+		});
+	}
+	log.d('existsingFilePath');
 }
 
 function realFilePath(projectid, documentid) {

@@ -8,6 +8,7 @@ module.exports = {
 	getSession: getSession,
 	fileExists: fileExists,
 	pathExists: pathExists,
+	pathExistsLike: pathExistsLike,
 	insertFile: insertFile,
 	updateFile: updateFile,
 	deleteFile: deleteFile,
@@ -48,8 +49,18 @@ function fileExists(documentid, projectid, callback) {
 }
 
 function pathExists(path, projectid, callback) {
-	var sql = 'SELECT * FROM files WHERE project = ? AND (filepath = ? OR filepath LIKE ?)';
-	var params = [projectid, path, path+'/%'];
+	var sql = 'SELECT * FROM files WHERE project = ? AND filepath = ?';
+	var params = [projectid, path];
+	pool.query(sql, params, function(err, rows) {
+		if (err)
+			log.e(err.message);
+		callback(rows.length > 0);
+	});
+}
+
+function pathExistsLike(path, projectid, callback) {
+	var sql = 'SELECT * FROM files WHERE project = ? AND filepath LIKE ?';
+	var params = [projectid, path+'/%'];
 	pool.query(sql, params, function(err, rows) {
 		if (err)
 			log.e(err.message);
