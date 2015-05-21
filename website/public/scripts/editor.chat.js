@@ -1,10 +1,13 @@
 $(function() {
 
 	var projectid = window.location.href.split("/")[3];
+	var username = "Me"
 	var waitingForResponse = false;
 	var firstMessage = 0;
 	var lastMessage = 0;
 	var messages = $('#chat .body .message');
+	var doOnce = false;
+	var clockInterval = 1000;
 
 	if (messages.length) {
 		firstMessage = $(messages[0]).data('id') | 0;
@@ -18,6 +21,11 @@ $(function() {
 	$('#chat .body').prop({
 		scrollTop: $('#chat .body').prop('scrollHeight')
 	});
+
+	setInterval(function() { updateClockChat() }, clockInterval);
+
+	//Gets the name of the user, shall not be moved below $('#writeMessage').keypress(function(e).
+	getUsername();
 
 	$('#writeMessage').keypress(function(e) {
 		//Check if "ENTER" is pressed
@@ -39,27 +47,88 @@ $(function() {
 			//Resetting the cursor in textarea.
 			$('#writeMessage').trigger(e);
 
-			//Update chat with newly created message
-			updateChat();
+			appendThisUserMessage(content);
 		}
 	});
 
-	function updateChat() {
-		var message = 0;
-		
+	function appendThisUserMessage(content) {
+		if (username != "Me") {
+			//Update chat with newly created message
+			var chatbody = $('#chat .body');
+			chatbody.append(
+				$('<p>', {'class': 'message', 'data-id': 666})
+						.append($('<span>', {'class': 'sender', text: username }))
+						.append($('<span>', {'class': 'timestamp', text: createGMTTimestamp() }))
+						.append($('<span>', {'class': 'content', text: content })
+				)
+			);
+
+			//Scrolls to bottom of div, shows last message.
+			chatbody.scrollTop(chatbody[0].scrollHeight);
+
+		}
+	}
+
+	function getUsername() {
 		$.ajax({
 			type: 'GET',
-			url: '/project/' + projectid + '/chat' + '/up',
+			url: '/project/' + projectid + '/chat' + '/uName',
 			cache: false,
-			data: { 'message' : message },
+			data: {'username': username},
 			success: function(response) {
-				console.log(message);
 				if (response.length) {
-					buildMessages(response);
+					username = response;
 				}
 			}
+		})
+	}
+
+	function createGMTTimestamp() {
+		var date = new Date();
+
+		var month = date.getUTCMonth();
+		if (month < 10) {
+			month = "0" + (date.getUTCMonth() +1);
+		} else {
+			month = (date.getUTCMonth() +1);
+		}
+
+		var day = date.getUTCDate();
+		if(day < 10) {
+			day = "0" + date.getDate();
+		}
+
+		var hour = date.getUTCHours();
+		if(hour < 10) {
+			hour = "0" + date.getUTCHours();
+		}
+
+		var minute = date.getUTCMinutes();
+		if(minute < 10) {
+			minute = "0" + date.getUTCMinutes();
+		}
+		
+		var formatTimestamp = (" " + date.getUTCFullYear() + "-" + month + "-" + day + " " +
+		 	hour + ":" + minute);
+
+		return formatTimestamp;
+	}
+
+	function updateClockChat() {
+		$('.time').text(createGMTTimestamp());
+		clockInterval = 30000;
+	}
+
+	function preventDuplicatedMessages(messages) {
+		var msgElements = [];
+		$.each(messages, function(i, message) {
+			if (message.sender != username) {
+				msgElements.push(message);
+			}
 		});
-	};
+
+		return msgElements;
+	}
 
 	//Long polling
 	(function getNewMessages() {
@@ -81,11 +150,12 @@ $(function() {
 	})();
 
 	function buildMessages(messages, prepend) {
+		var msg = preventDuplicatedMessages(messages);
 		var i, len;
 		var chatbody = $('#chat .body');
 		var messageElems = [];
 
-		$.each(messages, function(i, message) {
+		$.each(msg, function(i, message) {
 			messageElems.push(
 				$('<p>', {'class': 'message', 'data-id': message.id})
 					.append($('<span>', {'class': 'sender', text: message.sender}))

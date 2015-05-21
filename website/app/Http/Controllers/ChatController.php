@@ -27,6 +27,10 @@ class ChatController extends Controller {
 		return $messages_array;
 	}
 
+	public function getUsername() {
+		return \Auth::user()->username;
+	}
+
 	public function create($project) {
 		$newMessage = new Message;
 		$newMessage->content = Input::get('content');
