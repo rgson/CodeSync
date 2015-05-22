@@ -2,6 +2,7 @@ $(function() {
 
 	var projectid = window.location.href.split("/")[3];
 	var username = "Me"
+	var userid = -1;
 	var waitingForResponse = false;
 	var firstMessage = 0;
 	var lastMessage = 0;
@@ -25,7 +26,7 @@ $(function() {
 	setInterval(function() { updateClockChat() }, clockInterval);
 
 	//Gets the name of the user, shall not be moved below $('#writeMessage').keypress(function(e).
-	getUsername();
+	getUserInfo();
 
 	$('#writeMessage').keypress(function(e) {
 		//Check if "ENTER" is pressed
@@ -69,15 +70,16 @@ $(function() {
 		}
 	}
 
-	function getUsername() {
+	function getUserInfo() {
 		$.ajax({
 			type: 'GET',
 			url: '/project/' + projectid + '/chat' + '/uName',
 			cache: false,
-			data: {'username': username},
+			data: {},
 			success: function(response) {
 				if (response.length) {
-					username = response;
+					username = response[0];
+					userid = response[1];
 				}
 			}
 		})
@@ -115,19 +117,8 @@ $(function() {
 	}
 
 	function updateClockChat() {
-		$('.time').text(createGMTTimestamp());
+		$('.time').text("(GMT) " +createGMTTimestamp());
 		clockInterval = 30000;
-	}
-
-	function preventDuplicatedMessages(messages) {
-		var msgElements = [];
-		$.each(messages, function(i, message) {
-			if (message.sender != username) {
-				msgElements.push(message);
-			}
-		});
-
-		return msgElements;
 	}
 
 	//Long polling
@@ -136,7 +127,10 @@ $(function() {
 			type: 'GET',
 			url: '/project/' + projectid + '/chat',
 			cache: false,
-			data: {'after': lastMessage},
+			data: {
+					'after': lastMessage,
+					'userid': userid
+				},
 			success: function(response) {
 				if (response.length) {
 					lastMessage = response[response.length - 1].id;
@@ -150,12 +144,11 @@ $(function() {
 	})();
 
 	function buildMessages(messages, prepend) {
-		var msg = preventDuplicatedMessages(messages);
 		var i, len;
 		var chatbody = $('#chat .body');
 		var messageElems = [];
 
-		$.each(msg, function(i, message) {
+		$.each(messages, function(i, message) {
 			messageElems.push(
 				$('<p>', {'class': 'message', 'data-id': message.id})
 					.append($('<span>', {'class': 'sender', text: message.sender}))

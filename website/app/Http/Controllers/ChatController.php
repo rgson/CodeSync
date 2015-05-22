@@ -9,7 +9,8 @@ class ChatController extends Controller {
 
 	public function get($project) {
 		if (Input::has('after'))
-			$messages = self::getAfter($project, Input::get('after'), Input::get('poll', true));
+			$messages = self::getAfter($project, Input::get('after'), 
+						Input::get('username'), Input::get('poll', true));
 		else if (Input::has('before'))
 			$messages = self::getBefore($project, Input::get('before'));
 		else
@@ -28,7 +29,10 @@ class ChatController extends Controller {
 	}
 
 	public function getUsername() {
-		return \Auth::user()->username;
+		$info[0] = \Auth::user()->username;
+		$info[1] = \Auth::user()->id;
+
+		return $info;
 	}
 
 	public function create($project) {
@@ -41,12 +45,12 @@ class ChatController extends Controller {
 		return $newMessage;
 	}
 
-	private function getAfter($project, $after, $poll) {
+	private function getAfter($project, $after, $username, $poll) {
 		if (!$poll)
-			return Message::after($project, $after);
+			return Message::after($project, $after, $username);
 
 		do {
-			$messages = Message::after($project, $after);
+			$messages = Message::after($project, $after, $username);
 			sleep(1);
 		} while ($messages->isEmpty());
 
