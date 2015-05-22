@@ -39,7 +39,7 @@ Route::get('project/{username}', 'UserController@get');
 
 Route::get('project/{projectid}/chat', 'ChatController@get')->where('projectid', '[0-9]+');
 Route::post('project/{projectid}/chat', 'ChatController@create')->where('projectid', '[0-9]+');
-Route::get('/project/{projectid}/chat/uName', 'ChatController@getusername')->where('projectid', '[0-9]+');
+Route::get('/project/{projectid}/chat/uName', 'ChatController@getUserInfo')->where('projectid', '[0-9]+');
 
 Route::get('project/{projectid}/files', 'FileStructureController@get')->where('projectid', '[0-9]+');
 

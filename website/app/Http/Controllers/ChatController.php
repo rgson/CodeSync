@@ -28,7 +28,7 @@ class ChatController extends Controller {
 		return $messages_array;
 	}
 
-	public function getUsername() {
+	public function getUserInfo() {
 		$info[0] = \Auth::user()->username;
 		$info[1] = \Auth::user()->id;
 

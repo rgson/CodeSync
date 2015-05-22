@@ -9,14 +9,24 @@ $(function() {
 	var messages = $('#chat .body .message');
 	var doOnce = false;
 	var clockInterval = 1000;
+	
+	$('.time').hide();
 
 	if (messages.length) {
 		firstMessage = $(messages[0]).data('id') | 0;
 		lastMessage = $(messages[messages.length - 1]).data('id') | 0;
 	}
 
+	$('#chat .message-notification').click(function() {
+		$(this).parent().toggleClass('closed');
+		$('.time').show();
+		messageNotification(false);
+	});
+
 	$('#chat .head').click(function() {
 		$(this).parent().toggleClass('closed');
+		$('.time').show();
+		messageNotification(false);
 	});
 
 	$('#chat .body').prop({
@@ -66,7 +76,7 @@ $(function() {
 
 			//Scrolls to bottom of div, shows last message.
 			chatbody.scrollTop(chatbody[0].scrollHeight);
-
+			messageNotification(false);
 		}
 	}
 
@@ -117,7 +127,7 @@ $(function() {
 	}
 
 	function updateClockChat() {
-		$('.time').text("(GMT) " +createGMTTimestamp());
+		$('.time').text("(GMT)  " +createGMTTimestamp());
 		clockInterval = 30000;
 	}
 
@@ -133,6 +143,8 @@ $(function() {
 				},
 			success: function(response) {
 				if (response.length) {
+					console.log(username);
+					console.log(userid);
 					lastMessage = response[response.length - 1].id;
 					buildMessages(response);
 				}
@@ -142,6 +154,38 @@ $(function() {
 			}
 		});
 	})();
+
+	function messageNotification(show) {
+		if (show) {
+			if( $('#chat .head .closed').length) 
+			{
+	         	// closed
+	         	$('.message-notification').show();
+	         	$('.time').hide();
+    		} 
+    		else 
+    		{
+	         	// open
+	         	$('.message-notification').hide();
+	         	$('.time').show();
+	        }
+		} 
+		else 
+		{
+			$('.message-notification').hide();	
+			if( $('#chat .head .closed').length) 
+			{
+	         	// closed
+	         	$('.time').hide();
+    		} 
+    		else 
+    		{
+	         	// open
+	         	$('.time').show();
+	        }
+		}
+		
+	}
 
 	function buildMessages(messages, prepend) {
 		var i, len;
@@ -170,6 +214,8 @@ $(function() {
 
 		//Scrolls to bottom of div, shows last message.
 		chatbody.scrollTop(chatbody[0].scrollHeight);
+
+		messageNotification(true);
 	}
 
 	$('#chat .body').on('scroll', function() {
