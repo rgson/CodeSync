@@ -18,10 +18,9 @@ class Message extends Model {
 			->reverse();
 	}
 
-	public static function after($project, $id, $userid) {
+	public static function after($project, $id) {
 		return Message::where('project', '=', $project)
 			->where('id', '>', $id)
-			->whereNotIn('sender', [$userid])
 			->orderBy('id', 'asc')
 			->get();
 	}

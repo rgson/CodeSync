@@ -2,7 +2,6 @@ $(function() {
 
 	var projectid = window.location.href.split("/")[3];
 	var username = "Me"
-	var userid = -1;
 	var waitingForResponse = false;
 	var firstMessage = 0;
 	var lastMessage = 0;
@@ -17,15 +16,9 @@ $(function() {
 		lastMessage = $(messages[messages.length - 1]).data('id') | 0;
 	}
 
-	$('#chat .message-notification').click(function() {
-		$(this).parent().toggleClass('closed');
-		$('.time').show();
-		messageNotification(false);
-	});
-
 	$('#chat .head').click(function() {
+
 		$(this).parent().toggleClass('closed');
-		$('.time').show();
 		messageNotification(false);
 	});
 
@@ -36,7 +29,7 @@ $(function() {
 	setInterval(function() { updateClockChat() }, clockInterval);
 
 	//Gets the name of the user, shall not be moved below $('#writeMessage').keypress(function(e).
-	getUserInfo();
+	getUsername();
 
 	$('#writeMessage').keypress(function(e) {
 		//Check if "ENTER" is pressed
@@ -62,6 +55,17 @@ $(function() {
 		}
 	});
 
+	function preventDuplicatedMessages(messages) {
+		var msgElements = [];
+		$.each(messages, function(i, message) {
+			if (message.sender != username) {
+				msgElements.push(message);
+			}
+		});
+
+		return msgElements;
+	}
+
 	function appendThisUserMessage(content) {
 		if (username != "Me") {
 			//Update chat with newly created message
@@ -80,7 +84,7 @@ $(function() {
 		}
 	}
 
-	function getUserInfo() {
+	function getUsername() {
 		$.ajax({
 			type: 'GET',
 			url: '/project/' + projectid + '/chat' + '/uName',
@@ -88,8 +92,7 @@ $(function() {
 			data: {},
 			success: function(response) {
 				if (response.length) {
-					username = response[0];
-					userid = response[1];
+					username = response;
 				}
 			}
 		})
@@ -127,7 +130,7 @@ $(function() {
 	}
 
 	function updateClockChat() {
-		$('.time').text("(GMT)  " +createGMTTimestamp());
+		$('.time').text("(GMT)  " + createGMTTimestamp());
 		clockInterval = 30000;
 	}
 
@@ -137,14 +140,9 @@ $(function() {
 			type: 'GET',
 			url: '/project/' + projectid + '/chat',
 			cache: false,
-			data: {
-					'after': lastMessage,
-					'userid': userid
-				},
+			data: {'after': lastMessage},
 			success: function(response) {
 				if (response.length) {
-					console.log(username);
-					console.log(userid);
 					lastMessage = response[response.length - 1].id;
 					buildMessages(response);
 				}
@@ -157,29 +155,31 @@ $(function() {
 
 	function messageNotification(show) {
 		if (show) {
-			if( $('#chat .head .closed').length) 
+			if( $('#chat .head').hasClass('closed'))
 			{
-	         	// closed
+				console.log("true, closed");
+				// closed
 	         	$('.message-notification').show();
-	         	$('.time').hide();
+	         	$('.time').hide();	       	
     		} 
     		else 
     		{
+    			console.log("true, open");
 	         	// open
 	         	$('.message-notification').hide();
-	         	$('.time').show();
-	        }
+	         	$('.time').show();	  
+    		} 	
 		} 
 		else 
 		{
 			$('.message-notification').hide();	
-			if( $('#chat .head .closed').length) 
-			{
-	         	// closed
+			if ( $('#chat .head').hasClass('closed'))
+			{	console.log("false, closed");
+				// closed
 	         	$('.time').hide();
     		} 
     		else 
-    		{
+    		{	console.log("false, open");
 	         	// open
 	         	$('.time').show();
 	        }
@@ -188,15 +188,16 @@ $(function() {
 	}
 
 	function buildMessages(messages, prepend) {
+		var msg = preventDuplicatedMessages(messages);
 		var i, len;
 		var chatbody = $('#chat .body');
 		var messageElems = [];
 
-		$.each(messages, function(i, message) {
+		$.each(msg, function(i, message) {
 			messageElems.push(
 				$('<p>', {'class': 'message', 'data-id': message.id})
 					.append($('<span>', {'class': 'sender', text: message.sender}))
-					.append($('<span>', {'class': 'timestamp', text: message.created_at}))
+					.append($('<span>', {'class': 'timestamp', text: message.timestamp.date}))
 					.append($('<span>', {'class': 'content', text: message.content}))
 			);
 		});
@@ -214,7 +215,7 @@ $(function() {
 
 		//Scrolls to bottom of div, shows last message.
 		chatbody.scrollTop(chatbody[0].scrollHeight);
-
+		console.log("called!!!");
 		messageNotification(true);
 	}
 
