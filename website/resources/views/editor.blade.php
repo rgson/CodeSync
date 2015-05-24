@@ -86,7 +86,7 @@
 	<script src='/scripts/editor.js'></script>
 	<script src='/scripts/editor.syncclient.js'></script>
 	<script src='/scripts/editor.files.js'></script>
-	<!--<script src='/scripts/editor.chat.js'></script>-->
+	<script src='/scripts/editor.chat.js'></script>
 	<script src='/scripts/editor.resizer.js'></script>
 	<script src='/scripts/editor.workspace.js'></script>
 	<script src='/scripts/editor.users.js'></script>
