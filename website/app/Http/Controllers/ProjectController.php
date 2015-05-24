@@ -92,12 +92,7 @@ class ProjectController extends Controller {
 		}
 	}
 
-	private function checkProjectAccess($projectid)
-	{
-		$project = $this->projects->getProject($projectid);
-
-		return !is_null($project);
-	}
+	
 
 	private function isDuplicate($projectname)
 	{

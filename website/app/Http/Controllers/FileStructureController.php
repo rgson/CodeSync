@@ -3,11 +3,10 @@
 use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Response;
 use App\UserSession;
-use App\Project;
 use App\Files;
 
 class FileStructureController extends Controller {
-	private $projects;
+	
 	public function get()
 	{		
 		$projectid = Input::get('projectid');
@@ -46,15 +45,7 @@ class FileStructureController extends Controller {
 		}
 
 		return $fileTree;
-	}
-
-	private function checkProjectAccess($projectid)
-	{
-		$this->projects = new Project;
-		$project = $this->projects->getProject($projectid);
-
-		return !is_null($project);
-	}
+	}	
 
 	public function getSingle($projectid, $fileid) {
 		if(!$this->checkProjectAccess($projectid))

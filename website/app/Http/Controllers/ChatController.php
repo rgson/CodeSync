@@ -2,12 +2,11 @@
 
 use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Response;
-use App\Project;
 use App\Message;
 use App\User;
 
 class ChatController extends Controller {
-	private $projects;
+
 	public function get($project) {
 
 		if(!$this->checkProjectAccess($project))
@@ -57,13 +56,4 @@ class ChatController extends Controller {
 	private function getBefore($project, $before) {
 		return Message::before($project, $before);
 	}
-
-	private function checkProjectAccess($projectid)
-	{
-		$this->projects = new Project;
-		$project = $this->projects->getProject($projectid);
-
-		return !is_null($project);
-	}
-
 }
