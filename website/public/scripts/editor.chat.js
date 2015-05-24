@@ -6,8 +6,9 @@ $(function() {
 	var firstMessage = 0;
 	var lastMessage = 0;
 	var messages = $('#chat .body .message');
-	var doOnce = false;
 	var clockInterval = 1000;
+	var unreadMessages = false;
+	var meSender = false;
 	
 	$('.time').hide();
 
@@ -17,9 +18,43 @@ $(function() {
 	}
 
 	$('#chat .head').click(function() {
-
 		$(this).parent().toggleClass('closed');
-		messageNotification(false);
+		messageNotification();
+	});
+
+	$('#chat .message-notification').click(function() {
+		$(this).parent().toggleClass('closed');
+		messageNotification();
+	});
+
+	function messageNotification() {
+		if (!meSender) {
+			if($(this).parent().hasClass('closed')) {
+				if (unreadMessages) {
+					unreadMessages = false;
+					$('.message-notification').show();
+				} else {
+					$('.message-notification').hide();
+				}
+			} else {
+				//Is closed
+				if (unreadMessages) {
+					$('.message-notification').show();
+		        	$('.time').hide();	
+		        	unreadMessages = false;
+				} else {
+					$('.message-notification').hide();
+		        	$('.time').hide();	
+		        	unreadMessages = false;
+				}
+			}
+		}
+
+		meSender = false;
+	}
+
+	$('#writeMessage').click(function(e) {
+		$('.message-notification').hide();
 	});
 
 	$('#chat .body').prop({
@@ -80,7 +115,7 @@ $(function() {
 
 			//Scrolls to bottom of div, shows last message.
 			chatbody.scrollTop(chatbody[0].scrollHeight);
-			messageNotification(false);
+			meSender = true;
 		}
 	}
 
@@ -153,40 +188,6 @@ $(function() {
 		});
 	})();
 
-	function messageNotification(show) {
-		if (show) {
-			if( $('#chat .head').hasClass('closed'))
-			{
-				console.log("true, closed");
-				// closed
-	         	$('.message-notification').show();
-	         	$('.time').hide();	       	
-    		} 
-    		else 
-    		{
-    			console.log("true, open");
-	         	// open
-	         	$('.message-notification').hide();
-	         	$('.time').show();	  
-    		} 	
-		} 
-		else 
-		{
-			$('.message-notification').hide();	
-			if ( $('#chat .head').hasClass('closed'))
-			{	console.log("false, closed");
-				// closed
-	         	$('.time').hide();
-    		} 
-    		else 
-    		{	console.log("false, open");
-	         	// open
-	         	$('.time').show();
-	        }
-		}
-		
-	}
-
 	function buildMessages(messages, prepend) {
 		var msg = preventDuplicatedMessages(messages);
 		var i, len;
@@ -215,8 +216,9 @@ $(function() {
 
 		//Scrolls to bottom of div, shows last message.
 		chatbody.scrollTop(chatbody[0].scrollHeight);
-		console.log("called!!!");
-		messageNotification(true);
+
+		unreadMessages = true;		
+		messageNotification();
 	}
 
 	$('#chat .body').on('scroll', function() {
