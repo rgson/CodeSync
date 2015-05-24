@@ -1,14 +1,19 @@
 <?php namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Input;
+use Illuminate\Http\Response;
 use App\UserSession;
+use App\Project;
 use App\Files;
 
 class FileStructureController extends Controller {
-
+	private $projects;
 	public function get()
-	{
+	{		
 		$projectid = Input::get('projectid');
+		if(!$this->checkProjectAccess($projectid))
+			return response()->view('errors/403', [], 403);
+		
 		$filepaths = Files::where(['project' => $projectid])->orderBy('filepath')->get(['id', 'filepath']);
 		$fp = [];
 
@@ -43,8 +48,18 @@ class FileStructureController extends Controller {
 		return $fileTree;
 	}
 
+	private function checkProjectAccess($projectid)
+	{
+		$this->projects = new Project;
+		$project = $this->projects->getProject($projectid);
+
+		return !is_null($project);
+	}
+
 	public function getSingle($projectid, $fileid) {
-		// TODO: validate user's access to project
+		if(!$this->checkProjectAccess($projectid))
+			return response()->view('errors/403', [], 403);
+
 		echo Files::find($fileid);
 	}
 }
