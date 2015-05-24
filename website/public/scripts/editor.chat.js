@@ -11,6 +11,7 @@ $(function() {
 	var meSender = false;
 	
 	$('.time').hide();
+	$('.message-notification').hide();
 
 	if (messages.length) {
 		firstMessage = $(messages[0]).data('id') | 0;
@@ -86,6 +87,8 @@ $(function() {
 			//Resetting the cursor in textarea.
 			$('#writeMessage').trigger(e);
 
+			$('.message-notification').hide();
+
 			appendThisUserMessage(content);
 		}
 	});
@@ -112,7 +115,6 @@ $(function() {
 						.append($('<span>', {'class': 'content', text: content })
 				)
 			);
-
 			//Scrolls to bottom of div, shows last message.
 			chatbody.scrollTop(chatbody[0].scrollHeight);
 			meSender = true;
@@ -198,7 +200,7 @@ $(function() {
 			messageElems.push(
 				$('<p>', {'class': 'message', 'data-id': message.id})
 					.append($('<span>', {'class': 'sender', text: message.sender}))
-					.append($('<span>', {'class': 'timestamp', text: message.timestamp.date}))
+					.append($('<span>', {'class': 'timestamp', text: message.created_at}))
 					.append($('<span>', {'class': 'content', text: message.content}))
 			);
 		});
@@ -247,5 +249,4 @@ $(function() {
 			});
 		}
 	});
-
 });
