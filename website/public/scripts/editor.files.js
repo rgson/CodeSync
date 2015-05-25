@@ -105,10 +105,6 @@ $(document).ready(function(){
 			case 'drop-downloadProject':
 				SyncClient.do('download');
 				break;
-			case 'drop-help':
-			//TODO
-				break;
-
 		}
 	});
 

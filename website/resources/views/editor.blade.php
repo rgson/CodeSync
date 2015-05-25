@@ -66,7 +66,6 @@
 		<ul>
 			<li id='drop-createFile'><i class='glyphicon glyphicon-plus'></i>Create file</li>
 			<li id='drop-downloadProject'><i class='glyphicon glyphicon-download'></i>Download project</li>
-			<li id='drop-help'><i class='glyphicon glyphicon-education'></i>Help</li>
 		</ul>
 	</div>
 
