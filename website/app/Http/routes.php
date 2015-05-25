@@ -40,6 +40,7 @@ Route::get('user/search/{username}', 'UserController@getSearch');
 
 Route::get('project/{projectid}/chat', 'ChatController@get')->where('projectid', '[0-9]+');
 Route::post('project/{projectid}/chat', 'ChatController@create')->where('projectid', '[0-9]+');
+Route::get('/project/{projectid}/chat/uName', 'ChatController@getUsername')->where('projectid', '[0-9]+');
 
 Route::get('project/{projectid}/files', 'FileStructureController@get')->where('projectid', '[0-9]+');
 Route::get('project/{projectid}/file/{fileid}', 'FileStructureController@getSingle')->where('projectid', '[0-9]+')->where('fileid', '[0-9]+');;

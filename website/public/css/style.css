@@ -256,23 +256,35 @@ h1, h2, h3, h4, h5, h6 {
 	overflow-y: scroll;
 }
 
-#editor #chat .body * {
-	-webkit-touch-callout: default;
-	-webkit-user-select: text;
-	-khtml-user-select: text;
-	-moz-user-select: text;
-	-ms-user-select: text;
-	user-select: text;
+#editor #chat .head .time {
+	background-color: #5D99CC;
+	color: #808080;
+	font-size: 11px;
 }
 
 #editor #chat .message .sender {
-	display: block;
+	display: inline-block;
 	font-weight: bold;
 }
 
 #editor #chat .message .content {
+	display: block;
 	white-space: pre;
 	word-wrap: break-word;
+}
+
+#editor #chat .message .timestamp {
+	margin-left: 125px;
+	color: #808080;
+	font-size: 11px;
+}
+
+#editor #chat .message-notification {
+	background-color: #333333;
+	color: #780000;
+	font-size: 20px;
+	height: 40px;
+	cursor: pointer;
 }
 
 #editor #chat .footer textarea {

@@ -24,6 +24,7 @@ class ChatController extends Controller {
 			$messages_array[] = [
 				'id' => $message->id,
 				'sender' => $message->sendername,
+				'timestamp' => $message->created_at,
 				'content' => $message->content
 			];
 		}
@@ -55,5 +56,9 @@ class ChatController extends Controller {
 
 	private function getBefore($project, $before) {
 		return Message::before($project, $before);
+	}
+
+	public function getUsername() {
+		return \Auth::user()->username;
 	}
 }

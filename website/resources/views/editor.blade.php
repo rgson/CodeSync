@@ -40,11 +40,17 @@
 	<div id='chat' class='closed'>
 		<div class='head'>
 			<span class='glyphicon glyphicon-comment'></span>
+			<span class="time"></span>
+		</div>
+
+		<div class='message-notification'>
+			<span class='glyphicon glyphicon-envelope'></span>
 		</div>
 		<div class='body'>
 		@foreach ($messages as $message)
 			<p class='message' data-id='{{ $message->id }}'>
 				<span class='sender'>{{ $message->sendername }}</span>
+				<span class='timestamp'>{{ $message->created_at->format('Y-m-d H:i') }}</span>
 				<span class='content'>{{ $message->content }}</span>
 			</p>
 		@endforeach
