@@ -23,11 +23,16 @@ class ChatController extends Controller {
 		foreach ($messages as $message) {
 			$messages_array[] = [
 				'id' => $message->id,
+				'timestamp' => $message->created_at,
 				'sender' => $message->sendername,
 				'content' => $message->content
 			];
 		}
 		return $messages_array;
+	}
+
+	public function getUsername() {
+		return \Auth::user()->username;
 	}
 
 	public function create($project) {
@@ -39,6 +44,8 @@ class ChatController extends Controller {
 		$newMessage->project = $project;
 		$newMessage->sender = \Auth::user()->id;
 		$newMessage->save();
+
+		return $newMessage;
 	}
 
 	private function getAfter($project, $after, $poll) {
