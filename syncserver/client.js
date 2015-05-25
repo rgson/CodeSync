@@ -1,13 +1,15 @@
-var log = require('./log');
-var Document = require('./document').Document;
-var documentUtils = require('./document').utils;
-var messageFactory = require('./message_factory');
-var database = require('./database');
+var archiver = require('archiver'),
+	log = require('./log'),
+	Document = require('./document').Document,
+	documentUtils = require('./document').utils,
+	messageFactory = require('./message_factory'),
+	database = require('./database'),
+	redisHelper = require('./redis_helper'),
+	zipper = require('./zipper');
 
 module.exports = Client;
 
-var projectSubscriptions = {};
-var broadcastQueue = {};
+var clients = {};
 
 /**
  * Constructs a new Client object.
@@ -20,17 +22,37 @@ function Client(connection) {
 	this.documents = {};
 
 	/**
+	 * Initializes the user after authentication.
+	 * @param  {Integer}  userid     The user's ID.
+	 * @param  {Integer}  projectid  The project's ID.
+	 * @return {Void}
+	 */
+	this.init = function(userid, projectid) {
+		this.userid = userid;
+		this.projectid = projectid;
+		if (clients[userid])
+			clients[userid].drop();
+		clients[userid] = this;
+		redisHelper.subscribe(userid, 'project-'+projectid, function(message) {
+			that.send(message);
+		});
+	}
+
+	/**
 	 * Drops the client, stopping all activity.
 	 * @return  {Void}
 	 */
 	this.drop = function() {
 		var i, keys, count;
-		connection.close();
 		if (this.userid) {
-			unsubscribe(this);
-			for (i = 0, keys = Object.keys(this.documents), count = keys.length; i < count; i++)
-				broadcast(this.projectid, new messageFactory.FileCloseBroadcast(keys[i], this.userid));
+			delete clients[this.userid];
+			redisHelper.unsubscribe(this.userid, 'project-'+this.projectid);
+			for (var key in this.documents) {
+				if (this.documents.hasOwnProperty(key))
+					this.broadcast(new messageFactory.FileCloseBroadcast(key, this.userid));
+			}
 		}
+		connection.close();
 	}
 
 	/**
@@ -39,14 +61,26 @@ function Client(connection) {
 	 * @return  {Void}
 	 */
 	this.send = function(message) {
-		var msg = JSON.stringify(message);
-		log.d('<- ' + msg);
-		connection.send(msg, function(err) {
+		if (typeof message !== 'string')
+			message = JSON.stringify(message);
+		log.d('<- ' + message);
+		connection.send(message, function(err) {
 			if (err) {
 				log.e(err.message);
 				that.drop();
 			}
 		});
+	}
+
+	/**
+	 * Broadcasts a message to all users subscribed to the user's active project.
+	 * @param   {Object}  message  The message to be broadcasted.
+	 * @return  {Void}
+	 */
+	this.broadcast = function(message) {
+		var msg = JSON.stringify(message);
+		var channel = 'project-' + this.projectid;
+		redisHelper.publish(channel, msg);
 	}
 
 	/**
@@ -74,6 +108,7 @@ function Client(connection) {
 				case 'file.move':		return handleFileMove(message, that);
 				case 'file.open':		return handleFileOpen(message, that);
 				case 'file.close':	return handleFileClose(message, that);
+				case 'project.zip':	return handleProjectZip(message, that);
 			}
 
 		}
@@ -90,9 +125,7 @@ function Client(connection) {
 function handleUserAuth(message, user) {
 	authenticate(message.session,
 		function onSuccess(userid, projectid) {
-			user.userid = userid;
-			user.projectid = projectid;
-			subscribe(user);
+			user.init(userid, projectid);
 			user.send(new messageFactory.UserAuthResponse(userid));
 		},
 		function onFailure() {
@@ -116,37 +149,60 @@ function handleDocSync(message, user) {
 
 /** Handles file.create messages. */
 function handleFileCreate(message, user) {
-	documentUtils.create(user.projectid, message.path, function(documentid) {
-		broadcast(user.projectid, new messageFactory.FileCreateBroadcast(documentid, message.path));
-	});
+	documentUtils.create(user.projectid, message.path,
+		function onSuccess(documentid) {
+			user.send(new messageFactory.FileResponse(message.id, true));
+			user.broadcast(new messageFactory.FileCreateBroadcast(documentid, message.path));
+		},
+		function onError(error) {
+			user.send(new messageFactory.FileResponse(message.id, false, error));
+		}
+	);
 }
 
 /** Handles file.delete messages. */
 function handleFileDelete(message, user) {
-	documentUtils.validate(message.doc, user.projectid, function() {
-		documentUtils.delete(message.doc, user.projectid, function() {
-			broadcast(user.projectid, new messageFactory.FileDeleteBroadcast(message.doc));
-		});
-	});
+	documentUtils.delete(message.doc, user.projectid,
+		function onSuccess() {
+			user.send(new messageFactory.FileResponse(message.id, true));
+			user.broadcast(new messageFactory.FileDeleteBroadcast(message.doc));
+		},
+		function onError(error) {
+			user.send(new messageFactory.FileResponse(message.id, false, error));
+		}
+	);
 }
 
 /** Handles file.move messages. */
 function handleFileMove(message, user) {
-	documentUtils.validate(message.doc, user.projectid, function() {
-		documentUtils.move(message.doc, message.path, function() {
-			broadcast(user.projectid, new messageFactory.FileMoveBroadcast(message.doc, message.path));
-		});
-	});
+	documentUtils.move(message.doc, user.projectid, message.path,
+		function onSuccess() {
+			user.send(new messageFactory.FileResponse(message.id, true));
+			user.broadcast(new messageFactory.FileMoveBroadcast(message.doc, message.path));
+		},
+		function onError(error) {
+			user.send(new messageFactory.FileResponse(message.id, false, error));
+		}
+	);
 }
 
 /** Handles file.open messages. */
 function handleFileOpen(message, user) {
 	if (!user.documents[message.doc]) {
-		documentUtils.validate(message.doc, user.projectid, function() {
-			user.documents[message.doc] = new Document(message.doc, user);
-			user.documents[message.doc].init();
-			broadcast(user.projectid, new messageFactory.FileOpenBroadcast(message.doc, user.userid));
-		});
+		documentUtils.validate(message.doc, user.projectid,
+			function onSuccess() {
+				user.documents[message.doc] = new Document(message.doc, user);
+				user.documents[message.doc].init();
+				user.send(new messageFactory.FileResponse(message.id, true));
+				user.broadcast(new messageFactory.FileOpenBroadcast(message.doc, user.userid));
+			},
+			function onError(error) {
+				user.send(new messageFactory.FileResponse(message.id, false, error));
+			}
+		);
+	}
+	else {
+		user.send(new messageFactory.FileResponse(message.id, false, 'FILE_ALREADY_OPEN'));
 	}
 }
 
@@ -154,46 +210,25 @@ function handleFileOpen(message, user) {
 function handleFileClose(message, user) {
 	if (user.documents[message.doc]) {
 		delete user.documents[message.doc];
-		broadcast(user.projectid, new messageFactory.FileCloseBroadcast(message.doc, user.userid));
+		user.send(new messageFactory.FileResponse(message.id, true));
+		user.broadcast(new messageFactory.FileCloseBroadcast(message.doc, user.userid));
+	}
+	else {
+		user.send(new messageFactory.FileResponse(message.id, false, 'FILE_NOT_OPEN'));
 	}
 }
 
-
-/**
- * Subscribes a user to updates about a project.
- * @param   {Object}  user  The user to subscribe.
- * @return  {Void}
- */
-function subscribe(user) {
-	if (projectSubscriptions[user.projectid] === undefined)
-		projectSubscriptions[user.projectid] = [];
-	projectSubscriptions[user.projectid].push(user);
-}
-
-/**
- * Unubscribes a user from a project.
- * @param   {Object}  user  The user to subscribe.
- * @return  {Void}
- */
-function unsubscribe(user) {
-	var subscribers = projectSubscriptions[user.projectid];
-	for (var i = subscribers.length - 1; i >= 0; i--) {
-		if (subscribers[i].userid === user.userid)
-			subscribers.splice(i, 1);
-	}
-}
-
-/**
- * Broadcasts a message to all users subscribed to a project.
- * @param   {Integer}  projectid  The project's ID.
- * @param   {Object}   message    The message to be broadcasted.
- * @return  {Void}
- */
-function broadcast(projectid, message) {
-	var subscribers = projectSubscriptions[projectid];
-	for (var i = subscribers.length - 1; i >= 0; i--)
-		if (subscribers[i])		// i may end up out of bounds due to recursive broadcasts for disconnected users.
-			subscribers[i].send(message);
+/** Handles project.zip messages. */
+function handleProjectZip(message, user) {
+	database.getAllFiles(user.projectid, function(files) {
+		for (var i = files.length - 1; i >= 0; i--) {
+			files[i].realpath = documentUtils.realpath(user.projectid, files[i].id);
+		}
+		zipper.zip(files, function(filename) {
+			log.d('Zipped file: ' + filename);
+			user.send(new messageFactory.ProjectZipResponse(filename));
+		});
+	});
 }
 
 /**

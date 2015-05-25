@@ -1,9 +1,11 @@
-var fs = require('fs');
-var DiffMatchPatch = require('diff_match_patch').diff_match_patch;
-var XXHash = require('xxhash');
-var log = require('./log');
-var messageFactory = require('./message_factory');
-var database = require('./database');
+var fs = require('fs'),
+	DiffMatchPatch = require('diff_match_patch').diff_match_patch,
+	XXHash = require('xxhash'),
+	log = require('./log'),
+	messageFactory = require('./message_factory'),
+	database = require('./database'),
+	redisHelper = require('./redis_helper'),
+	file_storage = require('./config').file_storage;
 
 module.exports = {
 	Document: Document,
@@ -11,16 +13,12 @@ module.exports = {
 		'validate': validateFile,
 		'create': createFile,
 		'delete': deleteFile,
-		'move': moveFile
+		'move': moveFile,
+		'realpath': realFilePath
 	}
 };
 
-var FILE_PATH_PREFIX = '/mnt/codesync/';
 var dmp = new DiffMatchPatch();
-
-// TODO: move locking to some cross-server/cross-process solution
-var locked = {};
-var lockqueue = {};
 
 /**
  * Constructs a new Document object.
@@ -31,7 +29,7 @@ function Document(documentid, client) {
 	var that = this;
 	this.documentid = documentid;
 	this.projectid = client.projectid;
-	this.filepath = FILE_PATH_PREFIX + this.projectid + '/' + this.documentid;
+	this.filepath = realFilePath(this.projectid, this.documentid);
 	this.client = client;
 	this.state = undefined;
 
@@ -67,7 +65,7 @@ function Document(documentid, client) {
 		// Beware: State-altering if:s!
 		if (assertVersion(document, message)) {
 			if (patches = patchShadow(document, message)) {
-				patchMain(document, patches, function callback() {
+				patchMain(document, patches, function () {
 					sendDiffs(document);
 				});
 			}
@@ -143,30 +141,32 @@ function patchShadow(document, message) {
 function patchMain(document, patches, callback) {
 	var count, i;
 	// Apply the successful patches to the main text as one atomic operation.
-	lock(document, function() {
-
-		read(document, function(err, data) {
-			if (err) {
-				log.e(e.message);
-				unlock(document);
-				callback();
-			}
-			else {
-				document.state.text = data;
-				for (i = 0, count = patches.length; i < count; i++)
-					document.state.text = dmp.patch_apply(patches[i], document.state.text)[0];
-				write(document, function(err) {
-					if (err) {
-						log.e(e.message);
-						text = data;	// Abort patching.
-					}
-					unlock(document);
+	redisHelper.lock('document-' + document.id, function (lock) {
+		if (lock) {
+			read(document, function(err, data) {
+				if (err) {
+					log.e(err.message);
+					redisHelper.unlock(lock);
 					callback();
-				});
-			}
-
-		});
-
+				}
+				else {
+					document.state.text = data;
+					for (i = 0, count = patches.length; i < count; i++)
+						document.state.text = dmp.patch_apply(patches[i], document.state.text)[0];
+					write(document, function(err) {
+						if (err) {
+							log.e(err.message);
+							text = data;	// Abort patching.
+						}
+						redisHelper.unlock(lock);
+						callback();
+					});
+				}
+			});
+		}
+		else {
+			callback();
+		}
 	});
 }
 
@@ -206,38 +206,6 @@ function hash(str) {
 }
 
 /**
- * Locks the document file, allowing atomic read and write operations.
- * @param  {Object}   documentid  The document to be locked.
- * @param  {Function} onSuccess   Called when the lock has been granted.
- * @return {Void}
- */
-function lock(document, onSuccess) {
-	var documentid = document.documentid;
-	if (locked[documentid] === false || locked[documentid] === undefined) {
-		locked[documentid] = true;
-		onSuccess();
-	}
-	else {
-		if (lockqueue[documentid] === undefined)
-			lockqueue[documentid] = [];
-		lockqueue[documentid].push(callback);
-	}
-}
-
-/**
- * Unlocks the document file, passing the lock to the next in queue.
- * @param  {Integer}  documentid  The document's id.
- * @return {Void}
- */
-function unlock(document) {
-	var documentid = document.documentid;
-	if (lockqueue[documentid] === undefined || lockqueue[documentid].length === 0)
-		locked[documentid] = false;
-	else
-		(lockqueue[documentid].shift())();
-}
-
-/**
  * Gets the current content of the document.
  * @param   {Object}   document     The document to be read.
  * @param   {Function}  callback    Called when the read has been performed.
@@ -274,13 +242,16 @@ function copy(source, target) {
  * @param  {Integer}   documentid  The document's ID.
  * @param  {Integer}   projectid   The project's ID.
  * @param  {Function}  onSuccess   Callback for successful validation.
+ * @param  {Function}  onError     Callback for unsuccessful validation.
  * @return {Void}
  */
-function validateFile(documentid, projectid, onSuccess) {
+function validateFile(documentid, projectid, onSuccess, onError) {
 	database.fileExists(documentid, projectid, function(exists) {
 		log.d('Validate file ' + documentid + ': ' + exists);
 		if (exists)
 			onSuccess();
+		else
+			onError('FILE_NOT_FOUND');
 	});
 }
 
@@ -289,28 +260,42 @@ function validateFile(documentid, projectid, onSuccess) {
  * @param   {Integer}   projectid  The project's ID.
  * @param   {String}    path       The new document's path.
  * @param   {Function}  onSuccess  Callback for successful operations.
+ * @param   {Function}  onError     Callback for unsuccessful validation.
  * @return  {Void}
  */
-function createFile(projectid, path, onSuccess) {
+function createFile(projectid, path, onSuccess, onError) {
 	if (validFilePath(path)) {
-		database.insertFile(projectid, path, onSuccess,
-			function transactionCallback(documentid, callback) {
-				var dir = FILE_PATH_PREFIX + projectid;
-				var file = dir + '/' + documentid;
-				fs.mkdir(dir, function(err) {
-					if (!err || err.code === 'EEXIST') {
-						fs.open(file, 'w', function(err, fd) {
-							if (!err) {
-								fs.close(fd, function(err) {
-									if (!err) callback();
-									else callback(err);
+		existingFilePath(path, projectid, function(exists) {
+			if (exists) {
+				onError('FILE_DUPLICATE_PATH');
+			}
+			else {
+				database.insertFile(projectid, path, onSuccess,
+					function errorCallback() {
+						onError('FILE_UNKNOWN_FAILURE');
+					},
+					function transactionCallback(documentid, callback) {
+						var file = realFilePath(projectid, documentid);
+						var dir = file.substr(0, file.lastIndexOf('/'));
+						fs.mkdir(dir, function(err) {
+							if (!err || err.code === 'EEXIST') {
+								fs.open(file, 'w', function(err, fd) {
+									if (!err) {
+										fs.close(fd, function(err) {
+											if (!err) callback();
+											else callback(err);
+										});
+									} else callback(err);
 								});
 							} else callback(err);
 						});
-					} else callback(err);
-				});
+					}
+				);
 			}
-		);
+		});
+	}
+	else {
+		onError('FILE_INVALID_PATH');
 	}
 }
 
@@ -319,29 +304,54 @@ function createFile(projectid, path, onSuccess) {
  * @param   {Integer}   documentid  The document's ID.
  * @param   {Integer}   projectid   The project's ID.
  * @param   {Function}  onSuccess   Callback for successful operations.
+ * @param   {Function}  onError     Callback for unsuccessful validation.
  * @return  {Void}
  */
-function deleteFile(documentid, projectid, onSuccess) {
-	database.deleteFile(documentid, function() {
-		var file = FILE_PATH_PREFIX + projectid + '/' + documentid;
-		fs.unlink(file, function(err) {
-			if (err)
-				log.e(err.message);
-		});
-		onSuccess();
-	});
+function deleteFile(documentid, projectid, onSuccess, onError) {
+	validateFile(documentid, projectid, function successCallback() {
+		database.deleteFile(documentid,
+			function successCallback() {
+				var file = realFilePath(projectid, documentid);
+				fs.unlink(file, function(err) {
+					if (err)
+						log.e(err.message);
+				});
+				onSuccess();
+			},
+			function errorCallback() {
+				onError('FILE_UNKNOWN_FAILURE');
+			}
+		);
+	}, onError);
 }
 
 /**
  * Sets a new path for an existing document.
  * @param   {Integer}   documentid  The document's ID.
+ * @param   {Integer}   projectid   The project's ID.
  * @param   {String}    path        The new path.
  * @param   {Function}  onSuccess   Callback for successful operations.
+ * @param   {Function}  onError     Callback for unsuccessful validation.
  * @return  {Void}
  */
-function moveFile(documentid, path, onSuccess) {
-	if (validFilePath(path))
-		database.updateFile(documentid, path, onSuccess);
+function moveFile(documentid, projectid, path, onSuccess, onError) {
+	validateFile(documentid, projectid, function successCallback() {
+		if (validFilePath(path)) {
+			existingFilePath(path, projectid, function(exists) {
+				if (exists) {
+					onError('FILE_DUPLICATE_PATH');
+				}
+				else {
+					database.updateFile(documentid, path, onSuccess, function errorCallback() {
+						onError('FILE_UNKNOWN_FAILURE');
+					});
+				}
+			});
+		}
+		else {
+			onError('FILE_INVALID_PATH');
+		}
+	}, onError);
 }
 
 function validFilePath(path) {
@@ -366,4 +376,41 @@ function validFilePath(path) {
 	}
 
 	return true;
+}
+
+function existingFilePath(path, projectid, callback) {
+	log.d('existsingFilePath');
+	var subpaths = [path], subpath = path, pos, i, count = 0, found = false;
+	while ((pos = subpath.lastIndexOf('/')) !== -1) {
+		subpath = subpath.substr(0, pos);
+		subpaths.push(subpath);
+	}
+	log.d('existsingFilePath');
+	for (i = 0; i < subpaths.length; i++) {
+		database.pathExists(subpaths[i], projectid, function(exists) {
+			if (found)
+				return;
+			if (exists) {
+				log.d('Duplicate file path for ' + projectid + ' (' + path + ')');
+				found = true;
+				callback(true);
+			}
+			else if (++count === subpaths.length) {
+				database.pathExistsLike(path, projectid, function(exists) {
+					if (exists) {
+						log.d('Duplicate file path for ' + projectid + ' (' + path + ')');
+						callback(true);
+					}
+					else {
+						callback(false);
+					}
+				});
+			}
+		});
+	}
+	log.d('existsingFilePath');
+}
+
+function realFilePath(projectid, documentid) {
+	return file_storage + projectid + '/' + documentid;
 }

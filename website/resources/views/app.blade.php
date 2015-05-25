@@ -4,9 +4,9 @@
 	<meta charset='utf-8'>
 	<meta name='csrf-token' content='{{ csrf_token() }}' />
 	<title>CodeSync</title>
-	<link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href='/css/nonresponsive.css'>
-	<link rel="stylesheet" type="text/css" href='/css/style.css'>
+	<link rel='stylesheet' type='text/css' href='//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>
+	<link rel='stylesheet' type='text/css' href='/css/nonresponsive.css'>
+	<link rel='stylesheet' type='text/css' href='/css/style.css'>
 	@yield('stylesheets')
 </head>
 <body>
@@ -16,10 +16,10 @@
 			<a class='navbar-brand navbar-left' href='/'>CodeSync</a>
 			<ul class='nav navbar-nav navbar-right'>
 				@if (Auth::guest())
-					<li><a href='/auth/register'>Register</a></li>
+					<li><a href='/register'>Register</a></li>
 				@else
 					<li><p class='navbar-text'>{{ Auth::user()->username }}</p></li>
-					<li><a href='/auth/logout'>Logout</a></li>
+					<li><a href='/logout'>Logout</a></li>
 				@endif
 			</ul>
 		</div>

@@ -13,7 +13,7 @@ class Project extends Model {
 				->join('users', 'owner', '=', 'users.id')	
 				->where('project_access.user', "=", \Auth::user()->id)
 				->orderBy('name', 'asc')
-				->get(array('projects.id', 'projects.name', 'projects.owner', 'users.username'));
+				->get(['projects.id', 'projects.name', 'projects.owner', 'projects.created_at', 'users.username']);
 	}
 
 	public function getProject($projectid)

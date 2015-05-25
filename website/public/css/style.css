@@ -1,9 +1,17 @@
 * {
 	box-sizing: border-box;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 body {
 	height: 100vh;
+	background-color: #333333;
+	color: #f5f5f5;
 }
 
 #navbar {
@@ -14,6 +22,15 @@ body {
 
 main {
 	padding-top: 70px;
+}
+
+main:not(#editor) {
+	padding-left: 7.5vw;
+	padding-right: 7.5vw;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	margin-top: 0;
 }
 
 #editor {
@@ -36,20 +53,21 @@ main {
 	top: 0;
 	bottom: 0;
 	overflow: hidden;
+	padding: 0 3px;
 }
 
 #editor .column#col-1 {
 	left: 0;
-	right: 80vw;
+	right: 90vw;
 }
 
 #editor .column#col-2 {
-	left: 20vw;
-	right: 40vw;
+	left: 10vw;
+	right: 45vw;
 }
 
 #editor .column#col-3 {
-	left: 60vw;
+	left: 55vw;
 	right: 0;
 }
 
@@ -62,10 +80,20 @@ main {
 	z-index: 50;
 }
 
+#editor #filepath {
+	width: 140px;
+	color: black;
+}
+
+#editor #filepathInput{
+	visibility: hidden;
+}
+
 #editor #filestructure {
 	width: 100%;
 	height: 100%;
 	padding: 10px;
+	padding-left: 15px;
 	overflow: auto;
 }
 
@@ -78,14 +106,22 @@ main {
 	padding-left: 0;
 }
 
+#editor #filestructure li {
+	white-space: nowrap;
+}
+
 #editor #filestructure span {
-	display: block;
 	cursor: pointer;
 }
 
 #editor #filestructure span:hover {
-	background-color: #E2CC66;
-	color: #1E1E1E;
+	color: #E2CC66;
+}
+
+#editor #filestructure .glyphicon {
+	font-size: 10px;
+	margin-right: 2px;
+	margin-left: -12px;
 }
 
 #editor .workspace {
@@ -109,6 +145,86 @@ main {
 	height: 100%;
 }
 
+#editor #users {
+	position: fixed;
+	z-index: 99;
+	top: 50px;
+	bottom: 60px;
+	right: 0;
+	display: flex;
+	flex-direction: column-reverse;
+	align-items: center;
+	overflow: visible;
+	padding: -2px 0;
+}
+
+#editor #users .user-tile {
+	position: relative;
+	overflow: visible;
+	height: 40px;
+	width: 40px;
+	margin: 2px 0;
+	text-align: center;
+}
+
+#editor #users .user-tile .initial {
+	color: #333333;
+	font-size: 30px;
+	text-align: center;
+}
+
+#editor .user-tile .details {
+	position: absolute;
+	bottom: 0;
+	right: 45px;
+	background-color: #333333;
+	padding: 10px;
+	display: none;
+	text-align: left;
+}
+
+#editor .user-tile:hover .details {
+	display: block;
+}
+
+#editor .user-tile .details > * {
+	margin: 0;
+}
+
+#editor .user-tile .details .name {
+	font-weight: bold;
+}
+
+#editor .user-tile .details .files {
+	list-style: none;
+	padding-left: 0;
+}
+
+#editor .user-tile .details .files li {
+	white-space: nowrap;
+}
+
+#editor #users .user-tile:nth-child(n+1)  { background-color: #d9b0e6; }
+#editor #users .user-tile:nth-child(n+2)  { background-color: #b7d0e9; }
+#editor #users .user-tile:nth-child(n+3)  { background-color: #ecddbe; }
+#editor #users .user-tile:nth-child(n+4)  { background-color: #d5f8eb; }
+#editor #users .user-tile:nth-child(n+5)  { background-color: #f2efb9; }
+#editor #users .user-tile:nth-child(n+6)  { background-color: #bdc5d6; }
+#editor #users .user-tile:nth-child(n+7)  { background-color: #c3b9d7; }
+#editor #users .user-tile:nth-child(n+8)  { background-color: #e1b0d5; }
+#editor #users .user-tile:nth-child(n+9)  { background-color: #b2ceea; }
+#editor #users .user-tile:nth-child(n+10) { background-color: #dcf5f6; }
+#editor #users .user-tile:nth-child(n+11) { background-color: #aeeec2; }
+#editor #users .user-tile:nth-child(n+12) { background-color: #bbe5d3; }
+#editor #users .user-tile:nth-child(n+13) { background-color: #d6e3fa; }
+#editor #users .user-tile:nth-child(n+14) { background-color: #fbc3e5; }
+#editor #users .user-tile:nth-child(n+15) { background-color: #f4e5db; }
+#editor #users .user-tile:nth-child(n+16) { background-color: #c4e6d6; }
+#editor #users .user-tile:nth-child(n+17) { background-color: #ced3ef; }
+#editor #users .user-tile:nth-child(n+18) { background-color: #f3eec2; }
+#editor #users .user-tile:nth-child(n+19) { background-color: #e8b8d9; }
+#editor #users .user-tile:nth-child(n+20) { background-color: #e0f8ca; }
+
 #editor #chat {
 	position: fixed;
 	z-index: 100;
@@ -121,6 +237,10 @@ main {
 
 #editor #chat > * {
 	padding: 10px;
+}
+
+#editor #chat.closed {
+	width: 40px
 }
 
 #editor #chat .head {
@@ -136,13 +256,27 @@ main {
 	overflow-y: scroll;
 }
 
+#editor #chat .body * {
+	-webkit-touch-callout: default;
+	-webkit-user-select: text;
+	-khtml-user-select: text;
+	-moz-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
+}
+
 #editor #chat .message .sender {
 	display: block;
 	font-weight: bold;
 }
 
+#editor #chat .message .content {
+	white-space: pre;
+	word-wrap: break-word;
+}
+
 #editor #chat .footer textarea {
-	width: 100%;
+	width: 96%;
 	resize: vertical;
 }
 
@@ -152,15 +286,80 @@ main {
 	transition: all 0.25s ease-in-out;
 }
 
-#editor #chat.closed {
-	width: 40px
-}
-
 #editor #chat.closed .body,
 #editor #chat.closed .footer {
 	visibility: hidden;
 	height: 0;
 	padding: 0;
+}
+
+#editor .workspace .tabs {
+	min-height: 30px;
+}
+
+#editor .workspace .tab {
+	display: inline-block;
+	padding: 5px 10px;
+	margin: 2px 1px 0 1px;
+	color: #9D9D9D;
+	background-color: #1E1E1E;
+	cursor: pointer;
+	min-width: 100px;
+	z-index: 10;
+}
+
+#editor .workspace .tab.active {
+	color: #F5F5F5;
+}
+
+#editor .workspace .tab:hover,
+#editor .workspace .tab.active:hover {
+	color: #E2CC66;
+}
+
+#editor .workspace .tab .close {
+	cursor: pointer;
+	opacity: 1;
+	text-shadow: none;
+	color: #9D9D9D;
+	font-size: .8em;
+}
+
+#editor .workspace .tab .close:hover {
+	color: #FF8822;
+}
+
+#editor #file-dropdown li {
+	cursor: pointer;
+	color: #1E1E1E;
+}
+#editor #file-dropdown li:hover {
+	background-color: lightgrey;
+}
+
+#editor #file-dropdown i {	
+	margin-left: 5px;
+	margin-right: 5px;
+}
+#editor #filemenu {
+	border-radius: 3px;
+}
+#editor #filemenu li:hover {
+	border-radius: 3px;
+}
+#editor #filemenu i {	
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+#editor #file-dropdown-button{
+	border: none;
+	background-color: #333333;
+	color: #FFFFFF;
+	font-size: 14px;
+}
+#editor #editor-filemenu button:hover {
+	color: #fbdf93;
 }
 
 .context-menu {
@@ -188,4 +387,190 @@ main {
 
 .context-menu li:hover {
 	background-color: #E2CC66;
+}
+
+.form-panel {
+	background-color: #1E1E1E;
+	border: none;
+	margin: 0;
+}
+
+.form-panel input {
+	border: none;
+	margin-bottom: 3px;
+}
+
+.form-panel .alert {
+	margin-bottom: 3px;
+}
+
+#welcome #login {
+	float: right;
+	width: 20%;
+	min-width: 250px;
+	max-width: 300px;
+	margin: 0 0 20px 20px;
+}
+
+#welcome #login a {
+	display: block;
+	float: right;
+}
+
+#welcome #intro  {
+	text-align: justify;
+}
+
+#welcome #featured {
+	clear: both;
+	text-align: justify;
+	margin-top: 2em;
+	-moz-column-count: 3;
+	-moz-column-gap: 2em;
+	-webkit-column-count: 3;
+	-webkit-column-gap: 2em;
+	column-count: 3;
+	column-gap: 2em;
+}
+
+#welcome ul {
+	margin: 0;
+	padding: 0;
+}
+
+#welcome li {
+	list-style-position: inside;
+}
+
+#register h1,
+#resetpassword h1,
+#resetpassword2 h1 {
+	text-align: center;
+}
+
+#register .panel,
+#resetpassword .panel,
+#resetpassword2 .panel {
+	max-width: 450px;
+	margin: auto;
+}
+
+#home #projects table,
+#home #projects td,
+#home #projects th
+{
+	height: 30px;
+
+}
+
+#home #projects th
+{
+	background-color: #222;
+	padding-left: 5px;
+	color: #9d9d9d;
+}
+
+#home #projects td
+{
+	color: black;
+	padding-left: 5px;
+}
+#home #projects tr
+{
+	background-color: white;
+	cursor: pointer;
+}
+#home #projects table
+{
+	margin: 15px 0;
+	width: 100%;
+	table-layout: fixed;
+}
+#home #projects #table-projectname
+{
+	width: 60%;
+}
+#home #projects #table-projectowner
+{
+	width: 20%;
+}
+#home #projects #table-projectcreated
+{
+	width: 20%;
+}
+#home #projects .controls-add {
+	display: flex;
+}
+#home #projects .controls-add button {
+	flex-shrink: 0;
+}
+#home #projects .controls-add input {
+	margin-left: 5px;
+}
+#home #projects {
+	padding-left: 0;
+}
+#home #projectdetails {
+	display: none;
+	padding-right: 0;
+}
+#home #members
+{
+	color: white;
+}
+#home #showmembers
+{
+	list-style: none;
+	padding: 0;
+	margin: 15px 0;
+}
+#home #showmembers li
+{
+	clear: both;
+}
+#home #showmembers .removeuser
+{
+	float: right;
+	margin: 1px 0;
+}
+
+#home #settings button
+{
+	margin-top: 5px;
+	display: block;
+}
+
+#home #projects .projdata.selected,
+#home #projects .projdata:hover,
+#home #addmember #userlist > li:hover {
+	background-color: #66afe9;
+}
+#home #projectdetails #members h3
+{
+	padding-top: 15px;
+	height: 40px;
+	vertical-align: text-bottom;
+}
+
+#home #addmember {
+	position: relative;
+}
+
+#home #addmember #userlist {
+	left: 0;
+	right: 0;
+	display: block;
+	padding: 0;
+	margin-top: 0;
+	color: black;
+}
+
+#home #addmember #userlist:empty {
+	display: none;
+}
+
+#home #addmember #userlist > li {
+	padding: 3px 12px;
+	white-space: nowrap;
+	cursor: pointer;
 }
