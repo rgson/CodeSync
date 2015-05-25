@@ -7,12 +7,6 @@ $(document).ready(function(){
 
 	reBuildFileStructure();
 
-	$('#file-dropdown-button').on('click', function(event) {
-		event.preventDefault();
-		event.stopPropagation();
-		return false;
-	});
-
 	$(document).on('click', function(event) {
 		if(event.which === 1) {
 			// Remove menu if the user left clicks anywhere
@@ -20,20 +14,19 @@ $(document).ready(function(){
 		}
 	});
 
-	$('#file-dropdown-button').on('mousedown', function(event) {
-		switch (event.which) {
-			case 1:
-				var $this = $(this);
-				var $dropdown = $('#file-dropdown');
-				$dropdown.removeClass('closed');
-				var pos = $this.offset();
-				pos.top += $this.height();
-				pos.left += parseInt($this.css('padding-left'));
-				$dropdown.css(pos);
-				event.preventDefault();
-				event.stopPropagation();
-				return false;
+	$('#file-dropdown-button').on('click', function(event) {
+		if (event.which === 1) {
+			var $this = $(this);
+			var $dropdown = $('#file-dropdown');
+			$dropdown.removeClass('closed');
+			var pos = $this.offset();
+			pos.top += $this.height();
+			pos.left += parseInt($this.css('padding-left'));
+			$dropdown.css(pos);
 		}
+		event.preventDefault();
+		event.stopPropagation();
+		return false;
 	});
 
 
