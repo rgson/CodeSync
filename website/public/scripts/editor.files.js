@@ -7,6 +7,12 @@ $(document).ready(function(){
 
 	reBuildFileStructure();
 
+	$('#file-dropdown-button').on('click', function(event) {
+		event.preventDefault();
+		event.stopPropagation();
+		return false;
+	});
+
 	$(document).on('click', function(event) {
 		if(event.which === 1) {
 			// Remove menu if the user left clicks anywhere
@@ -14,6 +20,21 @@ $(document).ready(function(){
 		}
 	});
 
+	$('#file-dropdown-button').on('mousedown', function(event) {
+		switch (event.which) {
+			case 1:
+				var $this = $(this);
+				var $dropdown = $('#file-dropdown');
+				$dropdown.removeClass('closed');
+				var pos = $this.offset();
+				pos.top += $this.height();
+				pos.left += parseInt($this.css('padding-left'));
+				$dropdown.css(pos);
+				event.preventDefault();
+				event.stopPropagation();
+				return false;
+		}
+	});
 
 
 	// Right and left mouse click events for the file structure
@@ -30,17 +51,17 @@ $(document).ready(function(){
 				break;
 			case 3:
 				// Right
-				$('#filemenu li#createFile').hide();								
+				$('#filemenu li#createFile').hide();
 				$('#filemenu li#deleteFile').show();
 				$('#filemenu li#renameFile').show();
 				file = this;
 				$filemenu = $('#filemenu');
-				
+
 				id = $(file).parent().data('id');
-				if(!id){									
+				if(!id){
 					$filemenu.addClass('closed');
 					return;
-				} 
+				}
 
 				$filemenu.removeClass('closed');
 				$filemenu.css({
@@ -79,9 +100,9 @@ $(document).ready(function(){
 	});
 
 	$(document).on('click', '#file-dropdown li', function(event) {
-		
+
 		switch($(this).attr('id')) {
-			
+
 			case 'drop-createFile':
 				var confirm = prompt("Filepath:");
 				if(!confirm)
@@ -94,7 +115,7 @@ $(document).ready(function(){
 			case 'drop-help':
 			//TODO
 				break;
-			
+
 		}
 	});
 
@@ -108,13 +129,13 @@ $(document).ready(function(){
 	$('#filemenu ul li').click(function() {
 		var confirm = '';
 		var defaultvalue ='';
-		switch($(this).attr('id')) {			
+		switch($(this).attr('id')) {
 			case 'createFile':
 				create = true;
 				var defaultvalue = buildPath($(file));
 				var confirm = prompt("Filepath:", defaultvalue);
 				if(!confirm)
-					return false;						
+					return false;
 				SyncClient.do('create', {path: confirm}, undefined, showErrorMessage);
 			case 'deleteFile':
 				SyncClient.do('delete', {doc: id}, undefined, showErrorMessage);
@@ -127,11 +148,11 @@ $(document).ready(function(){
 					return false;
 				SyncClient.do('move', {doc: id, path: confirm}, undefined, showErrorMessage);
 				break;
-		}		
+		}
 	});
 
-	function buildPath(file){		
-		
+	function buildPath(file){
+
 		var text = file.text();
 
 		do{
@@ -146,8 +167,8 @@ $(document).ready(function(){
 		if (create && text.length) {
 			text += '/';
 		}
-		
-		return text;		
+
+		return text;
 	}
 
 	SyncClient.on('move', function(args) {

@@ -5,16 +5,9 @@
 	<div id='wrapper'>
 
 		<div id='col-1' class='column'>
-			<div id='editor-filemenu' class='btn-group'>
-			<button id='file-dropdown-button' type='button' class='btn btn-default btn-xs dropdown-toggle' data-toggle='dropdown' aria-expanded='false'>
-			File <span class='caret'></span>
+			<button id='file-dropdown-button' type='button' class='btn btn-default btn-xs'>
+				File <span class='caret'></span>
 			</button>
-					<ul id='file-dropdown' class='dropdown-menu' role='menu'>
-						<li id='drop-createFile'><i class='glyphicon glyphicon-plus'></i>Create file</li>
-						<li id='drop-downloadProject'><i class='glyphicon glyphicon-download'></i>Download project</li>
-						<li id='drop-help'><i class='glyphicon glyphicon-education'></i>Help</li>
-					</ul>
-			</div>
 			<div id='filestructure'></div>
 		</div>
 
@@ -66,6 +59,14 @@
 			<li id='createFile'><i class='glyphicon glyphicon-plus'></i>Create</li>
 			<li id='deleteFile'><i class='glyphicon glyphicon-remove'></i>Delete</li>
 			<li id='renameFile'><i class='glyphicon glyphicon-pencil'></i>Rename</li>
+		</ul>
+	</div>
+
+	<div id='file-dropdown' class='context-menu closed'>
+		<ul>
+			<li id='drop-createFile'><i class='glyphicon glyphicon-plus'></i>Create file</li>
+			<li id='drop-downloadProject'><i class='glyphicon glyphicon-download'></i>Download project</li>
+			<li id='drop-help'><i class='glyphicon glyphicon-education'></i>Help</li>
 		</ul>
 	</div>
 

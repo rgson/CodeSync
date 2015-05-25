@@ -93,7 +93,7 @@ h1, h2, h3, h4, h5, h6 {
 	width: 100%;
 	height: 100%;
 	padding: 10px;
-	padding-left: 15px;
+	padding-left: 12px;
 	overflow: auto;
 }
 
@@ -329,34 +329,12 @@ h1, h2, h3, h4, h5, h6 {
 	color: #FF8822;
 }
 
-#editor #file-dropdown li {
-	cursor: pointer;
-	color: #1E1E1E;
-}
-#editor #file-dropdown li:hover {
-	background-color: lightgrey;
-}
-
-#editor #file-dropdown i {	
-	margin-left: 5px;
-	margin-right: 5px;
-}
-#editor #filemenu {
-	border-radius: 3px;
-}
-#editor #filemenu li:hover {
-	border-radius: 3px;
-}
-#editor #filemenu i {	
-	margin-left: 5px;
-	margin-right: 5px;
-}
-
 #editor #file-dropdown-button{
 	border: none;
 	background-color: #333333;
 	color: #FFFFFF;
 	font-size: 14px;
+	padding-left: 12px;
 }
 #editor #editor-filemenu button:hover {
 	color: #fbdf93;
@@ -368,6 +346,7 @@ h1, h2, h3, h4, h5, h6 {
 	min-width: 100px;
 	background-color: #F5F5F5;
 	color: #3E3E3E;
+	border-radius: 3px;
 }
 
 .context-menu.closed {
@@ -382,11 +361,15 @@ h1, h2, h3, h4, h5, h6 {
 
 .context-menu li {
 	cursor: pointer;
-	padding: 2px;
+	padding: 2px 7px;
 }
 
 .context-menu li:hover {
 	background-color: #E2CC66;
+}
+
+.context-menu i {
+	margin-right: 5px;
 }
 
 .form-panel {
