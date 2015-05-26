@@ -45,31 +45,28 @@
 	</div>
 	<div id='featured'>
 		<div>
-			<h3>Feature</h3>
-			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-			tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-			quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-			consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-			cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-			proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			<h3>Synchronisation</h3>
+			<p>Seamless synchronisation, update and edit your code in real time without any data loss. </p>
 		</div>
 		<div>
-			<h3>Feature</h3>
-			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-			tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-			quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-			consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-			cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-			proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			<h3>Project management</h3>
+			<p>CodeSync lets you edit 
+				of your projects code in one 
+				single place, without having 
+				to worry about conflicktions. 
+				The code editor also offers syntax 
+				highlighting for all languages, so 
+				you can get to work right away.</p>
 		</div>
 		<div>
-			<h3>Feature</h3>
-			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-			tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-			quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-			consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-			cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-			proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+			<h3>Collaborate</h3>
+			<p>See your workmates code on your project in real time, easy for you to follow and a
+				great learning experience. Communicate
+				without annoying e-mails or phonecalls,
+				use the CodeSync bulit-in chatt to talk
+				with all of the projects members direclty 
+				in the workspace.   
+</p>
 		</div>
 	</div>
 </main>
