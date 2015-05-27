@@ -2,8 +2,6 @@
 
 @section('content')
 <main id='welcome'>
-
-	<img id='cover' src='/pictures/cover.jpg'>
 	
 	<h1>CodeSync</h1>
 

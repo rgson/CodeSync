@@ -401,31 +401,37 @@ h1, h2, h3, h4, h5, h6 {
 	margin-bottom: 3px;
 }
 
+#welcome {
+	background: url(/pictures/cover.jpg) no-repeat center center fixed; 
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
 #welcome h1 {
 	display: inline-block;
 	font-size: 10em;
 }
 
 #welcome h3 {
-	font-size: 3em;
+	font-size: 1.7em;
+	word-wrap: break-word;
 }
 
 #welcome p {
 	font-size: 1.5em;
+	word-wrap: break-word;
 }
 
 #welcome h1,
 #welcome h3 {
 	font-family: 'Source Code Pro', monospace;
-}
-
-#welcome #cover {
-	position: fixed;
-	width: 100%;
-	height: auto;
-	top: 0;
-	left: 0;
-	z-index: -100;
 }
 
 #welcome #login {
