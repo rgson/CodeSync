@@ -265,18 +265,20 @@ h1, h2, h3, h4, h5, h6 {
 #editor #chat .message .sender {
 	display: inline-block;
 	font-weight: bold;
+	float: left;
 }
 
 #editor #chat .message .content {
 	display: block;
 	white-space: pre;
 	word-wrap: break-word;
+	clear: both;
 }
 
 #editor #chat .message .timestamp {
-	margin-left: 125px;
 	color: #808080;
 	font-size: 11px;
+	float: right;
 }
 
 #editor #chat .message-notification {
