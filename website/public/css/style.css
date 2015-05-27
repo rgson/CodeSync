@@ -399,6 +399,33 @@ h1, h2, h3, h4, h5, h6 {
 	margin-bottom: 3px;
 }
 
+#welcome h1 {
+	display: inline-block;
+	font-size: 10em;
+}
+
+#welcome h3 {
+	font-size: 3em;
+}
+
+#welcome p {
+	font-size: 1.5em;
+}
+
+#welcome h1,
+#welcome h3 {
+	font-family: 'Source Code Pro', monospace;
+}
+
+#welcome #cover {
+	position: fixed;
+	width: 100%;
+	height: auto;
+	top: 0;
+	left: 0;
+	z-index: -100;
+}
+
 #welcome #login {
 	float: right;
 	width: 20%;
@@ -420,12 +447,14 @@ h1, h2, h3, h4, h5, h6 {
 	clear: both;
 	text-align: justify;
 	margin-top: 2em;
-	-moz-column-count: 3;
-	-moz-column-gap: 2em;
-	-webkit-column-count: 3;
-	-webkit-column-gap: 2em;
-	column-count: 3;
-	column-gap: 2em;
+	display: flex;
+	justify-content: space-between;
+}
+
+#welcome #featured > div {
+	width: 30%;
+	background-color: rgba(0, 0, 0, 0.5);
+	padding: 1em;
 }
 
 #welcome ul {
