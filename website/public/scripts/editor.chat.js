@@ -10,7 +10,7 @@ $(function() {
 	var unreadMessages = false;
 	var meSender = false;
 	
-	$('.time').hide();
+	$('.time').hide();	
 	$('.message-notification').hide();
 
 	if (messages.length) {
@@ -34,18 +34,20 @@ $(function() {
 				if (unreadMessages) {
 					unreadMessages = false;
 					$('.message-notification').show();
+					$('.time').hide();	
 				} else {
 					$('.message-notification').hide();
+					$('.time').hide();	
 				}
 			} else {
 				//Is closed
 				if (unreadMessages) {
 					$('.message-notification').show();
-		        	$('.time').hide();	
+		        	$('.time').show();	
 		        	unreadMessages = false;
 				} else {
 					$('.message-notification').hide();
-		        	$('.time').hide();	
+		        	$('.time').show();	
 		        	unreadMessages = false;
 				}
 			}
@@ -56,6 +58,7 @@ $(function() {
 
 	$('#writeMessage').click(function(e) {
 		$('.message-notification').hide();
+		$('.time').show();	
 	});
 
 	$('#chat .body').prop({
@@ -168,7 +171,6 @@ $(function() {
 
 	function updateClockChat() {
 		$('.time').text("(GMT)  " + createGMTTimestamp());
-		clockInterval = 30000;
 	}
 
 	function formatTimeFromDB(time) {
