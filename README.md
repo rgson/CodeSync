@@ -6,11 +6,11 @@ CodeSync is a platform for real-time code synchronisation and collaboration betw
 
 ## Technical details
 
-The project is split in two separate backends with various dependencies. The website component handles web requests, users and projects while the SyncServer component handles code synchronisation, file handling and project-wide events.
+The project is split into two separate components with various dependencies. The website component handles web requests, users and projects while the SyncServer component handles code synchronisation, file handling and project-wide events.
 
 The website is built in PHP with the Laravel 5 framework. Serving is handled by Apache 2 and data storage uses MySQL. The SyncServer is built in JavaScript using node.js. Redis is used for cross-server synchronisation of file locking and project subscriptions. The SyncServer also depends on the MySQL server used by the website.
 
-The website and SyncServer can be deployed independently, as their only common dependency is the MySQL server. Additionally, multiple instances of the SyncServer can be set up independently behind a websocket load balancer with file sharing handled through a POSIX-compatible shared file systems such as CephFS mounted to `/mnt/codesync`. Duplication of the common dependencies (MySQL, Redis) can be accomplished through existing duplication solutions for each service respectively. 
+The website and SyncServer can be deployed independently, as their only common dependency is the MySQL server. Additionally, multiple instances of the SyncServer can be set up independently behind a websocket load balancer with file sharing handled through a POSIX-compatible shared file systems such as CephFS mounted to `/mnt/codesync`. Duplication of the common dependencies (MySQL, Redis) can be accomplished through existing duplication solutions for each service respectively.
 
 
 ### Communication
