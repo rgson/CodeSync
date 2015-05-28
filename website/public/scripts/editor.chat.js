@@ -6,10 +6,9 @@ $(function() {
 	var firstMessage = 0;
 	var lastMessage = 0;
 	var messages = $('#chat .body .message');
-	var clockInterval = 1000;
 	var unreadMessages = false;
 	var meSender = false;
-	
+
 	$('.time').hide();
 	$('.message-notification').hide();
 
@@ -30,24 +29,23 @@ $(function() {
 
 	function messageNotification() {
 		if (!meSender) {
-			if($(this).parent().hasClass('closed')) {
+			if($('#chat').hasClass('closed')) {
 				if (unreadMessages) {
 					unreadMessages = false;
 					$('.message-notification').show();
 				} else {
 					$('.message-notification').hide();
 				}
+				$('.time').hide();
 			} else {
 				//Is closed
 				if (unreadMessages) {
 					$('.message-notification').show();
-		        	$('.time').hide();	
-		        	unreadMessages = false;
 				} else {
 					$('.message-notification').hide();
-		        	$('.time').hide();	
-		        	unreadMessages = false;
 				}
+				$('.time').show();
+				unreadMessages = false;
 			}
 		}
 
@@ -62,7 +60,13 @@ $(function() {
 		scrollTop: $('#chat .body').prop('scrollHeight')
 	});
 
-	setInterval(function() { updateClockChat() }, clockInterval);
+	setTimeout(function() {
+		function updateClock() {
+			$('.time').text("(GMT)  " + createGMTTimestamp());
+		};
+		updateClock();
+		setInterval(updateClock, 30000);
+	}, 1000);
 
 	//Gets the name of the user, shall not be moved below $('#writeMessage').keypress(function(e).
 	getUsername();
@@ -159,16 +163,11 @@ $(function() {
 		if(minute < 10) {
 			minute = "0" + date.getUTCMinutes();
 		}
-		
+
 		var formatTimestamp = (" " + date.getUTCFullYear() + "-" + month + "-" + day + " " +
 		 	hour + ":" + minute);
 
 		return formatTimestamp;
-	}
-
-	function updateClockChat() {
-		$('.time').text("(GMT)  " + createGMTTimestamp());
-		clockInterval = 30000;
 	}
 
 	function formatTimeFromDB(time) {
@@ -225,12 +224,12 @@ $(function() {
 		//Scrolls to bottom of div, shows last message.
 		chatbody.scrollTop(chatbody[0].scrollHeight);
 
-		unreadMessages = true;		
+		unreadMessages = true;
 		messageNotification();
 	}
 
 	$('#chat .body').on('scroll', function() {
-		var chatbody = $(this);	
+		var chatbody = $(this);
 		if (!waitingForResponse && chatbody.scrollTop() === 0) {
 			// Get older messages
 			waitingForResponse = true;
